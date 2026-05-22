@@ -7,7 +7,7 @@ arch=('any')
 url="https://codeberg.org/FreedomNAS/freedomnas-profiles"
 license=('MPL-2.0')
 depends=()
-source=("git+https://codeberg.org/freedomnas/freedomnas-profiles.git#tag=v${pkgver}")
+source=("git+https://codeberg.org/FreedomNAS/freedomnas-profiles.git#tag=v${pkgver}")
 sha256sums=('SKIP')
 
 package() {
