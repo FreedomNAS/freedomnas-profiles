@@ -4,7 +4,7 @@ pkgver=4.0.0
 pkgrel=1
 pkgdesc="FreedomNAS OS Profiles — JSON Translator Layer for universal appliance"
 arch=('any')
-url="https://codeberg.org/freedomnas/freedomnas-profiles"
+url="https://codeberg.org/FreedomNAS/freedomnas-profiles"
 license=('MPL-2.0')
 depends=()
 source=("git+https://codeberg.org/freedomnas/freedomnas-profiles.git#tag=v${pkgver}")
