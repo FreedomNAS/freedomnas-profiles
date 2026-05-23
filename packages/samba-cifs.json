@@ -1,0 +1,48 @@
+{
+  "category": "samba-cifs",
+  "description": "SMB/CIFS file sharing — Windows-compatible network shares",
+  "debian": {
+    "packages": [
+      "samba",
+      "samba-common-bin",
+      "samba-dsdb-modules",
+      "winbind",
+      "libpam-winbind",
+      "libnss-winbind"
+    ],
+    "services": [
+      "smbd",
+      "nmbd",
+      "winbind"
+    ],
+    "config_paths": [
+      "/etc/samba/smb.conf"
+    ]
+  },
+  "freebsd": {
+    "packages": [
+      "samba416",
+      "winbind"
+    ],
+    "services": [
+      "samba"
+    ],
+    "config_paths": [
+      "/usr/local/etc/smb.conf"
+    ]
+  },
+  "arch": {
+    "packages": [
+      "samba",
+      "samba-support-tools"
+    ],
+    "services": [
+      "smbd",
+      "nmbd",
+      "winbind"
+    ],
+    "config_paths": [
+      "/etc/samba/smb.conf"
+    ]
+  }
+}

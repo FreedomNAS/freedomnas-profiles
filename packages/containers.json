@@ -1,0 +1,45 @@
+{
+  "category": "containers",
+  "description": "Container runtime — Docker/Podman for containerized applications",
+  "debian": {
+    "packages": [
+      "docker.io",
+      "docker-compose",
+      "containerd.io",
+      "docker-ce-cli"
+    ],
+    "services": [
+      "docker",
+      "containerd"
+    ],
+    "config_paths": [
+      "/etc/docker/daemon.json"
+    ]
+  },
+  "freebsd": {
+    "packages": [
+      "docker",
+      "docker-compose"
+    ],
+    "services": [
+      "docker"
+    ],
+    "config_paths": [
+      "/etc/docker/daemon.json"
+    ]
+  },
+  "arch": {
+    "packages": [
+      "docker",
+      "docker-compose",
+      "containerd"
+    ],
+    "services": [
+      "docker",
+      "containerd"
+    ],
+    "config_paths": [
+      "/etc/docker/daemon.json"
+    ]
+  }
+}

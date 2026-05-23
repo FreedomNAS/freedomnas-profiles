@@ -1,0 +1,53 @@
+{
+  "category": "virtualization",
+  "description": "Virtualization hypervisor — KVM/Bhyve for running virtual machines",
+  "debian": {
+    "packages": [
+      "qemu-kvm",
+      "qemu-system-x86",
+      "libvirt-daemon",
+      "libvirt-clients",
+      "bridge-utils",
+      "virt-manager",
+      "ovmf"
+    ],
+    "services": [
+      "libvirtd"
+    ],
+    "config_paths": [
+      "/etc/libvirt/libvirtd.conf",
+      "/etc/libvirt/qemu.conf"
+    ]
+  },
+  "freebsd": {
+    "packages": [
+      "bhyve",
+      "libvirt",
+      "vm-bhyve",
+      "grub2-bhyve"
+    ],
+    "services": [
+      "libvirtd"
+    ],
+    "config_paths": [
+      "/etc/libvirt/libvirtd.conf"
+    ]
+  },
+  "arch": {
+    "packages": [
+      "qemu-full",
+      "libvirt",
+      "virt-manager",
+      "bridge-utils",
+      "ovmf",
+      "dnsmasq"
+    ],
+    "services": [
+      "libvirtd"
+    ],
+    "config_paths": [
+      "/etc/libvirt/libvirtd.conf",
+      "/etc/libvirt/qemu.conf"
+    ]
+  }
+}

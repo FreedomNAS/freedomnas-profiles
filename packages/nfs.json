@@ -1,0 +1,47 @@
+{
+  "category": "nfs",
+  "description": "NFS (Network File System) — Unix/Linux network shares",
+  "debian": {
+    "packages": [
+      "nfs-kernel-server",
+      "nfs-common",
+      "rpcbind",
+      "libnfsidmap2"
+    ],
+    "services": [
+      "nfs-server",
+      "rpcbind"
+    ],
+    "config_paths": [
+      "/etc/exports",
+      "/etc/idmapd.conf"
+    ]
+  },
+  "freebsd": {
+    "packages": [
+      "nfs-ganesha"
+    ],
+    "services": [
+      "nfsd",
+      "rpcbind"
+    ],
+    "config_paths": [
+      "/etc/exports",
+      "/etc/idmapd.conf"
+    ]
+  },
+  "arch": {
+    "packages": [
+      "nfs-utils",
+      "libnfsidmap"
+    ],
+    "services": [
+      "nfs-server",
+      "rpcbind"
+    ],
+    "config_paths": [
+      "/etc/exports",
+      "/etc/idmapd.conf"
+    ]
+  }
+}

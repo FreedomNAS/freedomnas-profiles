@@ -1,0 +1,75 @@
+{
+  "category": "core",
+  "description": "Essential NAS packages — required for all editions",
+  "debian": {
+    "packages": [
+      "zfsutils-linux",
+      "zfs-initramfs",
+      "curl",
+      "wget",
+      "net-tools",
+      "htop",
+      "vim",
+      "sudo",
+      "openssh-server",
+      "openssh-client",
+      "systemd",
+      "systemd-resolved",
+      "parted",
+      "e2fsprogs",
+      "dosfstools",
+      "grub-efi-amd64",
+      "grub-pc",
+      "linux-image-amd64",
+      "linux-headers-amd64"
+    ],
+    "services": [
+      "systemd-resolved",
+      "ssh"
+    ]
+  },
+  "freebsd": {
+    "packages": [
+      "zfs",
+      "curl",
+      "wget",
+      "vim",
+      "sudo",
+      "openssh-portable",
+      "pkg",
+      "base",
+      "kernel-generic",
+      "efibootmgr"
+    ],
+    "services": [
+      "sshd",
+      "resolvconf"
+    ]
+  },
+  "arch": {
+    "packages": [
+      "zfs-dkms",
+      "zfs-utils",
+      "curl",
+      "wget",
+      "net-tools",
+      "htop",
+      "vim",
+      "sudo",
+      "openssh",
+      "systemd",
+      "systemd-resolved",
+      "parted",
+      "e2fsprogs",
+      "dosfstools",
+      "grub",
+      "efibootmgr",
+      "linux",
+      "linux-headers"
+    ],
+    "services": [
+      "systemd-resolved",
+      "sshd"
+    ]
+  }
+}

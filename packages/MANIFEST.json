@@ -1,0 +1,47 @@
+{
+  "version": "4.0.0",
+  "description": "FreedomNAS Package Management System — Modular, category-based package definitions",
+  "categories": [
+    {
+      "id": "core",
+      "name": "Core NAS",
+      "description": "Essential NAS packages — required for all installations",
+      "required": true,
+      "file": "core.json"
+    },
+    {
+      "id": "samba-cifs",
+      "name": "Samba/CIFS",
+      "description": "SMB/CIFS file sharing — Windows-compatible network shares",
+      "required": false,
+      "file": "samba-cifs.json"
+    },
+    {
+      "id": "nfs",
+      "name": "NFS",
+      "description": "NFS (Network File System) — Unix/Linux network shares",
+      "required": false,
+      "file": "nfs.json"
+    },
+    {
+      "id": "containers",
+      "name": "Containers",
+      "description": "Container runtime — Docker/Podman for containerized applications",
+      "required": false,
+      "file": "containers.json"
+    },
+    {
+      "id": "virtualization",
+      "name": "Virtualization",
+      "description": "Virtualization hypervisor — KVM/Bhyve for running virtual machines",
+      "required": false,
+      "file": "virtualization.json"
+    }
+  ],
+  "supported_editions": [
+    "debian",
+    "freebsd",
+    "arch"
+  ],
+  "notes": "Categories marked 'required: true' must be installed for a functional NAS. Optional categories can be selected during installation and will be included in backups for disaster recovery."
+}
