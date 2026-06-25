@@ -1,0 +1,16 @@
+{
+  "init_name": "s6",
+
+  "services": {
+    "start": "s6-svc -u /run/service/{service_name}",
+    "stop": "s6-svc -d /run/service/{service_name}",
+    "restart": "s6-svc -r /run/service/{service_name}",
+    "enable": "s6-service add default {service_name}",
+    "disable": "s6-service delete default {service_name}",
+    "status": "s6-svstat /run/service/{service_name}",
+    "is_enabled": "s6-rc -a list | grep {service_name}",
+    "reload": "s6-svc -1 /run/service/{service_name}",
+    "daemon_reload": "",
+    "list_managed": "s6-rc -a list"
+  }
+}

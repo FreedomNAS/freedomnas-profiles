@@ -1,0 +1,16 @@
+{
+  "init_name": "openrc",
+
+  "services": {
+    "start": "rc-service {service_name} start",
+    "stop": "rc-service {service_name} stop",
+    "restart": "rc-service {service_name} restart",
+    "enable": "rc-update add {service_name} default",
+    "disable": "rc-update del {service_name}",
+    "status": "rc-service {service_name} status",
+    "is_enabled": "rc-update show default | grep {service_name}",
+    "reload": "rc-service {service_name} reload",
+    "daemon_reload": "",
+    "list_managed": "rc-status -a"
+  }
+}

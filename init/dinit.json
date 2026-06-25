@@ -1,0 +1,16 @@
+{
+  "init_name": "dinit",
+
+  "services": {
+    "start": "dinitctl start {service_name}",
+    "stop": "dinitctl stop {service_name}",
+    "restart": "dinitctl restart {service_name}",
+    "enable": "dinitctl enable {service_name}",
+    "disable": "dinitctl disable {service_name}",
+    "status": "dinitctl status {service_name}",
+    "is_enabled": "dinitctl is-enabled {service_name}",
+    "reload": "dinitctl reload {service_name}",
+    "daemon_reload": "",
+    "list_managed": "dinitctl list"
+  }
+}

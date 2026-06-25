@@ -1,0 +1,16 @@
+{
+  "init_name": "systemd",
+
+  "services": {
+    "start": "systemctl start {service_name}",
+    "stop": "systemctl stop {service_name}",
+    "restart": "systemctl restart {service_name}",
+    "enable": "systemctl enable {service_name}",
+    "disable": "systemctl disable {service_name}",
+    "status": "systemctl is-active {service_name}",
+    "is_enabled": "systemctl is-enabled {service_name}",
+    "reload": "systemctl reload {service_name}",
+    "daemon_reload": "systemctl daemon-reload",
+    "list_managed": "systemctl list-units --type=service --no-pager --plain --no-legend"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "init_name": "runit",
+
+  "services": {
+    "start": "sv start {service_name}",
+    "stop": "sv stop {service_name}",
+    "restart": "sv restart {service_name}",
+    "enable": "ln -s /etc/sv/{service_name} /var/service/",
+    "disable": "rm /var/service/{service_name}",
+    "status": "sv status {service_name}",
+    "is_enabled": "test -L /var/service/{service_name}",
+    "reload": "sv reload {service_name}",
+    "daemon_reload": "",
+    "list_managed": "ls /var/service/"
+  }
+}
