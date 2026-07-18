@@ -4,7 +4,8 @@
   "debian": {
     "packages": [
       "zfsutils-linux",
-      "zfs-initramfs",
+      "zfs-dracut",
+      "dracut",
       "curl",
       "wget",
       "net-tools",
@@ -18,8 +19,7 @@
       "parted",
       "e2fsprogs",
       "dosfstools",
-      "grub-efi-amd64",
-      "grub-pc",
+      "efibootmgr",
       "linux-image-amd64",
       "linux-headers-amd64"
     ],

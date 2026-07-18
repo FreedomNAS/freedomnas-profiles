@@ -112,13 +112,9 @@
     "get_default_subvol": "btrfs property get {mountpoint} ro"
   },
 
-  "grub_btrfs": {
-    "install_package": "apt install -y grub-btrfs",
-    "update_grub": "update-grub",
-    "list_snapshots": "grub-btrfs list-snapshots -p {mountpoint}",
-    "detect_snapshots": "grub-btrfs detect",
-    "install": "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=freedomnas {device}",
-    "install_bios": "grub-install --target=i386-pc {device}"
+  "bootloader": {
+    "build_uki": "dracut --force --uefi --kernel-cmdline \"root=ZFS={dataset} rw\" {output_path} {kernel_version}",
+    "efi_boot_entry": "efibootmgr --create --disk {disk} --part {part_num} --loader {loader_path} --label {label}"
   },
 
   "system": {
