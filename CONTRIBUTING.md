@@ -1,22 +1,22 @@
-# Come Aggiungere una Nuova Distribuzione
+# How to Add a New Distribution
 
-Benvenuto! Questa guida ti aiuterà ad aggiungere il supporto per una nuova distribuzione Linux o BSD a FreedomNAS.
+Welcome! This guide will help you add support for a new Linux or BSD distribution to FreedomNAS.
 
-## Struttura di un Profilo OS
+## Structure of an OS Profile
 
-Ogni distribuzione è definita da un file JSON che contiene i comandi nativi per le operazioni comuni. Il motore universal di FreedomNAS traduce le azioni astratte ai comandi specifici del tuo OS.
+Each distribution is defined by a JSON file containing the native commands for common operations. FreedomNAS's universal engine translates abstract actions into the commands specific to your OS.
 
-## Passo 1: Creare il File di Profilo
+## Step 1: Create the Profile File
 
-1. Crea un nuovo file `{distro_name}.json` nella directory `freedomnas-profiles/`
-2. Usa il template minimo sottostante come punto di partenza
+1. Create a new `{distro_name}.json` file in the `freedomnas-profiles/` directory
+2. Use the minimal template below as a starting point
 
-### Template Minimo
+### Minimal Template
 
 ```json
 {
   "os_name": "Your Distribution Name",
-  "os_family": "linux",  // o "bsd"
+  "os_family": "linux",  // or "bsd"
   "os_version": "version_info",
 
   "users": {
@@ -64,55 +64,55 @@ Ogni distribuzione è definita da un file JSON che contiene i comandi nativi per
 }
 ```
 
-## Passo 2: Completare le Categorie
+## Step 2: Complete the Categories
 
-Aggiungi il supporto per le seguenti categorie (se rilevanti per la tua distribuzione):
+Add support for the following categories (if relevant to your distribution):
 
-- **network**: Comandi per configurare la rete
-- **samba**: Comandi per SMB/CIFS
-- **nfs**: Comandi per NFS
-- **btrfs**: Comandi per il filesystem Btrfs (se supportato)
-- **grub_btrfs**: Comandi per Grub con snapshot Btrfs
+- **network**: Commands to configure networking
+- **samba**: Commands for SMB/CIFS
+- **nfs**: Commands for NFS
+- **btrfs**: Commands for the Btrfs filesystem (if supported)
+- **grub_btrfs**: Commands for GRUB with Btrfs snapshots
 
-## Passo 3: Placeholder dei Parametri
+## Step 3: Parameter Placeholders
 
-Usa i placeholder in formato `{parameter_name}` nei comandi. Esempi comuni:
+Use `{parameter_name}`-style placeholders in commands. Common examples:
 
-- `{service_name}`: Nome del servizio
-- `{package_name}`: Nome del pacchetto
-- `{username}`: Nome utente
-- `{groups}`: Lista di gruppi
-- `{hostname}`: Nome host
-- `{ip}`: Indirizzo IP
-- `{interface}`: Nome interfaccia di rete
-- `{pool_name}`: Nome pool ZFS
-- `{dataset}`: Dataset ZFS
+- `{service_name}`: Service name
+- `{package_name}`: Package name
+- `{username}`: Username
+- `{groups}`: List of groups
+- `{hostname}`: Hostname
+- `{ip}`: IP address
+- `{interface}`: Network interface name
+- `{pool_name}`: ZFS pool name
+- `{dataset}`: ZFS dataset
 
-## Passo 4: Testare il Profilo
+## Step 4: Test the Profile
 
-### Test Manuale
+### Manual Test
 
 ```python
 from freedomnas_core.engine import FreedomNASEngine
 
-# Creare l'engine con il nuovo profilo
+# Create the engine with the new profile
 engine = FreedomNASEngine(os_override="your_distro")
 
-# Testare alcuni comandi
+# Test a few commands
 cmd = engine.get_command("services", "start", service_name="samba")
 print(f"Start Samba: {cmd}")
 
 cmd = engine.get_command("packages", "install", package_name="vim")
 print(f"Install vim: {cmd}")
 
-# Verificare informazioni OS
+# Check OS info
 print(engine.get_os_info())
 ```
 
-### Esecuzione Reale
+### Real Execution
 
 ```python
-# Per sistemi di produzione, testare con esecuzione effettiva
+# For production systems, test with actual execution
 try:
     stdout, stderr = engine.execute("packages", "update_cache", timeout=60)
     print(f"Update cache completed")
@@ -120,44 +120,44 @@ except Exception as e:
     print(f"Error: {e}")
 ```
 
-## Passo 5: Submittere il Contributo
+## Step 5: Submit Your Contribution
 
-1. Verifica che il tuo profilo JSON sia valido:
+1. Verify that your JSON profile is valid:
    ```bash
    python -m json.tool {distro_name}.json
    ```
 
-2. Aggiungi un commento nel file JSON o in un README specifico per la tua distro
+2. Add a comment in the JSON file or in a README specific to your distro
 
-3. Crea una Pull Request con:
-   - Il nuovo file `{distro_name}.json`
-   - Un commento nel `CONTRIBUTING.md` con link a dove testare
-   - Test case di esempio (opzionale ma molto apprezzato)
+3. Create a Pull Request with:
+   - The new `{distro_name}.json` file
+   - A note in `CONTRIBUTING.md` linking to where to test it
+   - Example test cases (optional but much appreciated)
 
-## Linee Guida per i Comandi
+## Command Guidelines
 
-### Sicurezza
+### Security
 
-- **NON usare la shell** a meno che assolutamente necessario
-- Usa parametri di linea di comando, non pipe shell
-- Evita l'interpolazione di stringhe non sicure
-- Preferiamo comandi che falliscono chiaramente rispetto a quelli che lo fanno silenziosamente 
+- **Do NOT use the shell** unless absolutely necessary
+- Use command-line parameters, not shell pipes
+- Avoid interpolating untrusted strings
+- We prefer commands that fail loudly over ones that fail silently
 
-### Compatibilità
+### Compatibility
 
-- Usa comandi che esistono nella versione minima supportata della distro
-- Se un comando cambia tra versioni, usa quello della versione più stabile
-- Documenta i requisiti di versione nel commento
+- Use commands that exist in the minimum supported version of the distro
+- If a command changes between versions, use the one from the most stable version
+- Document version requirements in the comment
 
-### Formato
+### Format
 
-- Un comando per azione
-- Se necessari comandi multipli, usa un array JSON: `["cmd1", "cmd2"]`
-- Mantieni la coerenza con i nomi delle azioni negli altri profili
+- One command per action
+- If multiple commands are needed, use a JSON array: `["cmd1", "cmd2"]`
+- Keep action names consistent with the other profiles
 
-## Esempi
+## Examples
 
-### Linux Generico
+### Generic Linux
 
 ```json
 "packages": {
@@ -179,7 +179,7 @@ except Exception as e:
 }
 ```
 
-### Comandi Multipli
+### Multiple Commands
 
 ```json
 "zfs": {
@@ -190,10 +190,10 @@ except Exception as e:
 }
 ```
 
-## Supporto
+## Support
 
-- **Domande?** Apri una discussione nel repository
-- **Errori nel profilo?** Segnala un issue con il comando che fallisce
-- **Miglioramenti?** Sentiamoci per coordinare le modifiche
+- **Questions?** Open a discussion in the repository
+- **Bugs in a profile?** File an issue with the command that fails
+- **Improvements?** Reach out to coordinate changes
 
-Grazie per il tuo contributo a FreedomNAS! 🎉
+Thank you for contributing to FreedomNAS! 🎉

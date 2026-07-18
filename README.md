@@ -1,44 +1,44 @@
 # FreedomNAS Profiles
 
-I file di traduzione OS specifici per FreedomNAS.
+OS-specific translation files for FreedomNAS.
 
-## Profili Disponibili
+## Available Profiles
 
-- **debian.json**: Debian, Ubuntu, basati su Debian
+- **debian.json**: Debian, Ubuntu, Debian-based distributions
 - **freebsd.json**: FreeBSD 13.0+
 - **arch.json**: Arch Linux (community-maintained)
 
-## Struttura della Repository
+## Repository Structure
 
 ```
 freedomnas-profiles/
-├── debian.json             ← Profilo OS: comandi per Debian/Ubuntu
-├── freebsd.json            ← Profilo OS: comandi per FreeBSD
-├── arch.json                ← Profilo OS: comandi per Arch Linux
-├── init/                    ← Profili init-system, separati dall'OS
+├── debian.json             ← OS profile: commands for Debian/Ubuntu
+├── freebsd.json            ← OS profile: commands for FreeBSD
+├── arch.json                ← OS profile: commands for Arch Linux
+├── init/                    ← Init-system profiles, separate from the OS
 │   ├── systemd.json
 │   ├── openrc.json
 │   ├── runit.json
 │   ├── s6.json
 │   ├── dinit.json
 │   └── bsd_rc.json
-└── packages/                ← Pacchetti opzionali, a categorie
-    ├── MANIFEST.json         ← elenco categorie disponibili
-    ├── SCHEMA.md              ← formato completo
-    ├── core.json              ← pacchetti NAS essenziali (richiesto)
+└── packages/                ← Optional packages, by category
+    ├── MANIFEST.json         ← list of available categories
+    ├── SCHEMA.md              ← full format spec
+    ├── core.json              ← essential NAS packages (required)
     ├── samba-cifs.json
     ├── nfs.json
     ├── containers.json
     └── virtualization.json
 ```
 
-## Cosa Sono i Profili?
+## What Are Profiles?
 
-Ogni profilo OS (`debian.json`, `freebsd.json`, `arch.json`) è un file JSON che mappa
-azioni astratte ai comandi nativi del sistema operativo — gestione utenti, rete, ZFS,
-Samba, NFS, boot chain, ecc.
+Each OS profile (`debian.json`, `freebsd.json`, `arch.json`) is a JSON file that maps
+abstract actions to native operating-system commands — user management, networking,
+ZFS, Samba, NFS, boot chain, etc.
 
-**Esempio (categoria `zfs`):**
+**Example (`zfs` category):**
 
 ```json
 "zfs": {
@@ -47,59 +47,60 @@ Samba, NFS, boot chain, ecc.
 }
 ```
 
-Su FreeBSD lo stesso file avrebbe gli stessi nomi di azione, con comandi diversi dove
-necessario (es. `packages.install` è `apt install -y {package_name}` su Debian e
-`pkg install -y {package_name}` su FreeBSD).
+On FreeBSD the same file would use the same action names, with different commands
+where needed (e.g. `packages.install` is `apt install -y {package_name}` on Debian and
+`pkg install -y {package_name}` on FreeBSD).
 
-### Init-agnostic: `services` non è più nel profilo OS
+### Init-agnostic: `services` no longer lives in the OS profile
 
-La gestione dei servizi (`start`, `stop`, `restart`, `enable`, ...) è stata separata
-dal profilo OS ed è ora definita per init-system in `init/{init_system}.json`
-(systemd, OpenRC, runit, s6, dinit, bsd_rc). Il motore rileva l'init system in
-esecuzione (marker su filesystem, con fallback al campo `init_system` dichiarato nel
-profilo OS) e unisce il profilo init a quello OS a runtime — così la stessa Debian
-può girare con systemd o, in futuro, con un init diverso, senza toccare `debian.json`.
+Service management (`start`, `stop`, `restart`, `enable`, ...) has been split out of
+the OS profile and is now defined per init-system in `init/{init_system}.json`
+(systemd, OpenRC, runit, s6, dinit, bsd_rc). The engine detects the running init
+system (filesystem markers, falling back to the `init_system` field declared in the
+OS profile) and merges the init profile into the OS profile at runtime — so the same
+Debian install can run under systemd or, in the future, a different init system,
+without touching `debian.json`.
 
-### Pacchetti opzionali: `packages/`
+### Optional packages: `packages/`
 
-I pacchetti non-essenziali (Samba, NFS, container, virtualizzazione) non sono più
-elencati direttamente nei profili OS, ma in file separati sotto `packages/`, uno per
-categoria, elencati in `packages/MANIFEST.json`. Questo permette all'installer/WebUI
-di offrire feature opzionali selezionabili, e ai backup di ricordare quali categorie
-erano installate per un disaster recovery cross-distro. Vedi `packages/README.md` e
-`packages/SCHEMA.md` per i dettagli completi.
+Non-essential packages (Samba, NFS, containers, virtualization) are no longer listed
+directly in the OS profiles, but in separate files under `packages/`, one per
+category, indexed in `packages/MANIFEST.json`. This lets the installer/WebUI offer
+selectable optional features, and lets backups remember which categories were
+installed for cross-distro disaster recovery. See `packages/README.md` and
+`packages/SCHEMA.md` for the full details.
 
-## Come il Core Engine Usa i Profili
+## How the Core Engine Uses Profiles
 
-1. Rileva il sistema operativo (`debian` | `freebsd` | `arch`)
-2. Carica il profilo OS corrispondente (`{os}.json`)
-3. Rileva l'init system in esecuzione e unisce `init/{init_system}.json`
-4. Traduce le azioni astratte ai comandi nativi
-5. Esegue i comandi in sicurezza (mai `shell=True` senza necessità, mai comandi
-   costruiti a mano nel codice Python — vedi la "Golden Rule" in ARCHITECTURE.md)
+1. Detects the operating system (`debian` | `freebsd` | `arch`)
+2. Loads the corresponding OS profile (`{os}.json`)
+3. Detects the running init system and merges in `init/{init_system}.json`
+4. Translates abstract actions into native commands
+5. Executes commands safely (never `shell=True` unless required, never commands
+   built by hand in Python code — see the "Golden Rule" in ARCHITECTURE.md)
 
 ```python
 from freedomnas.engine import get_engine
 
 engine = get_engine()
 
-# Su Debian: systemctl restart samba
-# Su FreeBSD: service samba restart
-# Su Arch: systemctl restart samba
+# On Debian: systemctl restart samba
+# On FreeBSD: service samba restart
+# On Arch: systemctl restart samba
 engine.execute("services", "restart", service_name="samba")
 
-# Ottenere solo il comando risolto, senza eseguirlo
+# Get just the resolved command, without executing it
 cmd = engine.get_command("bootloader", "build_uki",
                           dataset="rpool/ROOT/debian",
                           output_path="/boot/efi/EFI/Linux/debian-uki.efi",
                           kernel_version="6.1.0-amd64")
 ```
 
-## Aggiungere una Nuova Distribuzione
+## Adding a New Distribution
 
-Vedi [CONTRIBUTING.md](CONTRIBUTING.md) per una guida completa.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for a complete guide.
 
-## Struttura di un Profilo OS
+## Structure of an OS Profile
 
 ```json
 {
@@ -108,27 +109,27 @@ Vedi [CONTRIBUTING.md](CONTRIBUTING.md) per una guida completa.
   "os_version": "version_spec",
   "init_system": "systemd",
 
-  "users": { /* gestione utenti */ },
-  "network": { /* configurazione rete */ },
-  "packages": { /* comandi del package manager (apt/pkg/pacman) */ },
-  "zfs": { /* comandi ZFS */ },
-  "samba": { /* comandi Samba/SMB */ },
-  "nfs": { /* comandi NFS */ },
-  "btrfs": { /* comandi Btrfs — dove supportato */ },
-  "bootloader": { /* build UKI (dracut) + registrazione boot UEFI (efibootmgr) */ },
-  "system": { /* info/controllo di sistema */ }
+  "users": { /* user management */ },
+  "network": { /* network configuration */ },
+  "packages": { /* package manager commands (apt/pkg/pacman) */ },
+  "zfs": { /* ZFS commands */ },
+  "samba": { /* Samba/SMB commands */ },
+  "nfs": { /* NFS commands */ },
+  "btrfs": { /* Btrfs commands — where supported */ },
+  "bootloader": { /* build UKI (dracut) + register UEFI boot entry (efibootmgr) */ },
+  "system": { /* system info/control */ }
 }
 ```
 
-`services` **non** va qui — vive in `init/{init_system}.json` (vedi sopra).
+`services` does **not** go here — it lives in `init/{init_system}.json` (see above).
 
 ### `bootloader`
 
-FreedomNAS boota da un Unified Kernel Image (UKI) costruito con `dracut`, caricato
-direttamente via `efibootmgr` su UEFI nativo. Su BIOS legacy, l'installer usa Clover
-(vendorizzato in `freedomnas-installer/assets/clover/`) per emulare UEFI — quella
-parte è puro I/O su file, non richiede comandi di profilo. Il profilo espone solo i
-due comandi OS-nativi:
+FreedomNAS boots from a Unified Kernel Image (UKI) built with `dracut`, loaded
+directly via `efibootmgr` on native UEFI. On legacy BIOS, the installer uses Clover
+(vendored in `freedomnas-installer/assets/clover/`) to emulate UEFI — that part is
+pure file I/O and requires no profile commands. The profile only exposes the two
+OS-native commands:
 
 ```json
 "bootloader": {
@@ -137,7 +138,7 @@ due comandi OS-nativi:
 }
 ```
 
-Attualmente presente solo in `debian.json`; `freebsd.json` e `arch.json` mantengono
-ancora la loro configurazione boot esistente.
+Currently only present in `debian.json`; `freebsd.json` and `arch.json` still use
+their existing boot configuration.
 
-Vedi i file JSON per esempi completi di ogni categoria.
+See the JSON files for complete examples of every category.
