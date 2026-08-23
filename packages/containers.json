@@ -41,5 +41,34 @@
     "config_paths": [
       "/etc/docker/daemon.json"
     ]
+  },
+  "artix": {
+    "packages": [
+      "docker",
+      "docker-compose",
+      "docker-openrc",
+      "containerd"
+    ],
+    "services": [
+      "docker",
+      "containerd"
+    ],
+    "config_paths": [
+      "/etc/docker/daemon.json"
+    ]
+  },
+  "void": {
+    "packages": [
+      "docker",
+      "docker-compose",
+      "containerd"
+    ],
+    "services": [
+      "docker",
+      "containerd"
+    ],
+    "config_paths": [
+      "/etc/docker/daemon.json"
+    ]
   }
 }

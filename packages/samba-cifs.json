@@ -44,5 +44,31 @@
     "config_paths": [
       "/etc/samba/smb.conf"
     ]
+  },
+  "artix": {
+    "packages": [
+      "samba",
+      "samba-support-tools"
+    ],
+    "services": [
+      "smbd",
+      "nmbd",
+      "winbind"
+    ],
+    "config_paths": [
+      "/etc/samba/smb.conf"
+    ]
+  },
+  "void": {
+    "packages": [
+      "samba"
+    ],
+    "services": [
+      "smbd",
+      "nmbd"
+    ],
+    "config_paths": [
+      "/etc/samba/smb.conf"
+    ]
   }
 }

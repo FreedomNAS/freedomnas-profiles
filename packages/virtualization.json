@@ -49,5 +49,40 @@
       "/etc/libvirt/libvirtd.conf",
       "/etc/libvirt/qemu.conf"
     ]
+  },
+  "artix": {
+    "packages": [
+      "qemu-full",
+      "libvirt",
+      "libvirt-openrc",
+      "virt-manager",
+      "bridge-utils",
+      "ovmf",
+      "dnsmasq"
+    ],
+    "services": [
+      "libvirtd"
+    ],
+    "config_paths": [
+      "/etc/libvirt/libvirtd.conf",
+      "/etc/libvirt/qemu.conf"
+    ]
+  },
+  "void": {
+    "packages": [
+      "qemu",
+      "libvirt",
+      "virt-manager",
+      "bridge-utils",
+      "ovmf",
+      "dnsmasq"
+    ],
+    "services": [
+      "libvirtd"
+    ],
+    "config_paths": [
+      "/etc/libvirt/libvirtd.conf",
+      "/etc/libvirt/qemu.conf"
+    ]
   }
 }

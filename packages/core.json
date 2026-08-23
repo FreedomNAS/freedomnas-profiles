@@ -71,5 +71,54 @@
       "systemd-resolved",
       "sshd"
     ]
+  },
+  "artix": {
+    "packages": [
+      "zfs-dkms",
+      "zfs-utils",
+      "curl",
+      "wget",
+      "net-tools",
+      "htop",
+      "vim",
+      "sudo",
+      "openssh",
+      "openrc",
+      "openresolv",
+      "parted",
+      "e2fsprogs",
+      "dosfstools",
+      "dracut",
+      "efibootmgr",
+      "linux",
+      "linux-headers"
+    ],
+    "services": [
+      "sshd"
+    ]
+  },
+  "void": {
+    "packages": [
+      "zfs",
+      "curl",
+      "wget",
+      "net-tools",
+      "htop",
+      "vim",
+      "sudo",
+      "openssh",
+      "dhcpcd",
+      "parted",
+      "e2fsprogs",
+      "dosfstools",
+      "dracut",
+      "efibootmgr",
+      "linux",
+      "linux-headers"
+    ],
+    "services": [
+      "sshd",
+      "dhcpcd"
+    ]
   }
 }

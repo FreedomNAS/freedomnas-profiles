@@ -43,5 +43,32 @@
       "/etc/exports",
       "/etc/idmapd.conf"
     ]
+  },
+  "artix": {
+    "packages": [
+      "nfs-utils",
+      "libnfsidmap"
+    ],
+    "services": [
+      "nfs-server",
+      "rpcbind"
+    ],
+    "config_paths": [
+      "/etc/exports",
+      "/etc/idmapd.conf"
+    ]
+  },
+  "void": {
+    "packages": [
+      "nfs-utils"
+    ],
+    "services": [
+      "nfsd",
+      "rpcbind"
+    ],
+    "config_paths": [
+      "/etc/exports",
+      "/etc/idmapd.conf"
+    ]
   }
 }

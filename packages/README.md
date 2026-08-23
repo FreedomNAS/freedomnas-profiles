@@ -4,7 +4,7 @@
 
 The FreedomNAS package management system is a **modular, category-based architecture** that enables:
 
-✓ **Multi-distribution support** — Debian, FreeBSD, Arch (and extensible to others)  
+✓ **Multi-distribution support** — Debian, FreeBSD, Arch (and extensible to others; Artix and Void already have category entries and are listed in `supported_editions`, though the core engine doesn't select them at runtime yet)  
 ✓ **Edition switching** — Migrate between distros during setup  
 ✓ **Disaster recovery** — Restore full functionality across different OS versions  
 ✓ **Flexible deployments** — Choose optional features during installation  

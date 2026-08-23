@@ -41,7 +41,9 @@
   "supported_editions": [
     "debian",
     "freebsd",
-    "arch"
+    "arch",
+    "artix",
+    "void"
   ],
   "notes": "Categories marked 'required: true' must be installed for a functional NAS. Optional categories can be selected during installation and will be included in backups for disaster recovery."
 }

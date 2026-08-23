@@ -2,7 +2,7 @@
 
 ## Overview
 
-FreedomNAS uses a modular, category-based package system to support multiple Linux distributions (Debian, FreeBSD, Arch). This makes it easy to:
+FreedomNAS uses a modular, category-based package system to support multiple Linux distributions (Debian, FreeBSD, Arch). Artix and Void also have category entries and appear in `MANIFEST.json`'s `supported_editions`, but they are Phase 3 scaffolding — the core engine's supported-OS list doesn't include them yet, so they can't be selected at runtime. This makes it easy to:
 
 - Add support for new distributions
 - Switch editions during setup
