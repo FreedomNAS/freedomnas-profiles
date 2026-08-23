@@ -71,7 +71,20 @@
     "mount_dataset": "zfs mount {dataset}",
     "unmount_dataset": "zfs unmount {dataset}",
     "get_used": "zfs get -Hp used {dataset}",
-    "get_available": "zfs get -Hp avail {dataset}"
+    "get_available": "zfs get -Hp avail {dataset}",
+    "pool_create_encrypted": "zpool create -o ashift={ashift} -O compression={compression} -O acltype=nfsv4acl -O encryption=aes-256-gcm -O keyformat=raw -O keylocation=file://{keyfile_path} {pool_name} {vdev_type} {devices}",
+    "pool_keystatus": "zfs get -H -o value keystatus {pool_name}",
+    "load_key_file": "zfs load-key -L file://{keyfile_path} {pool_name}",
+    "unload_key": "zfs unload-key {pool_name}",
+    "mount_all": "zfs mount -a"
+  },
+
+  "media": {
+    "_note": "Assumes FAT32-formatted USB sticks -- FreeBSD mount(8) does not autodetect filesystem type the way Linux mount does.",
+    "list_removable": "camcontrol devlist -v",
+    "mount_ro": "mount -t msdosfs -o ro {device} {mountpoint}",
+    "mount_rw": "mount -t msdosfs {device} {mountpoint}",
+    "unmount": "umount {mountpoint}"
   },
 
   "samba": {
@@ -92,6 +105,13 @@
     "exportfs_reload": "exportfs -ra",
     "exportfs_list": "exportfs -v",
     "nfs_service": "nfs-server"
+  },
+
+  "bootloader": {
+    "_note": "FreeBSD boots ZFS-on-root natively -- no UKI/Clover needed. gptzfsboot (BIOS) and loader.efi (UEFI) both understand the same GPT+ZFS layout directly, so one image is bootable both ways without a third-party shim.",
+    "install_gptzfsboot": "gpart bootcode -b /boot/pmbr -p /boot/gptzfsboot -i {part_num} {disk}",
+    "install_efi_loader": "cp /boot/loader.efi {esp_mount}/EFI/BOOT/BOOTX64.efi",
+    "efi_boot_entry": "efibootmgr --create --disk {disk} --part {part_num} --loader {loader_path} --label {label}"
   },
 
   "system": {

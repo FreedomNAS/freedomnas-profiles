@@ -7,6 +7,11 @@ OS-specific translation files for FreedomNAS.
 - **debian.json**: Debian, Ubuntu, Debian-based distributions
 - **freebsd.json**: FreeBSD 13.0+
 - **arch.json**: Arch Linux (community-maintained)
+- **artix.json**, **void.json**: Artix Linux / Void Linux — profile
+  scaffolding for the "exotic" `freedomnas-image-builder` editions (Phase 3).
+  Package categories already have `artix`/`void` sections too. **Not yet
+  reachable at runtime** — `engine.py`'s `SUPPORTED_OS` still only lists
+  `debian`/`freebsd`/`arch`; wiring these in is follow-up work.
 
 ## Repository Structure
 
@@ -15,6 +20,11 @@ freedomnas-profiles/
 ├── debian.json             ← OS profile: commands for Debian/Ubuntu
 ├── freebsd.json            ← OS profile: commands for FreeBSD
 ├── arch.json                ← OS profile: commands for Arch Linux
+├── artix.json                ← OS profile: commands for Artix Linux (not yet wired into engine.py)
+├── void.json                 ← OS profile: commands for Void Linux (not yet wired into engine.py)
+├── assets/                  ← Boot-chain assets, shared by the parked
+│   ├── clover/                installer and freedomnas-image-builder
+│   └── zz-dracut-uki           (moved here from freedomnas-installer/assets/)
 ├── init/                    ← Init-system profiles, separate from the OS
 │   ├── systemd.json
 │   ├── openrc.json
@@ -112,7 +122,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for a complete guide.
   "users": { /* user management */ },
   "network": { /* network configuration */ },
   "packages": { /* package manager commands (apt/pkg/pacman) */ },
-  "zfs": { /* ZFS commands */ },
+  "zfs": { /* ZFS commands, incl. encrypted pools + load-key for keymgmt.py */ },
+  "media": { /* removable-device list/mount/unmount, for keymgmt.py's USB zero-touch unlock */ },
   "samba": { /* Samba/SMB commands */ },
   "nfs": { /* NFS commands */ },
   "btrfs": { /* Btrfs commands — where supported */ },
@@ -126,10 +137,11 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for a complete guide.
 ### `bootloader`
 
 FreedomNAS boots from a Unified Kernel Image (UKI) built with `dracut`, loaded
-directly via `efibootmgr` on native UEFI. On legacy BIOS, the installer uses Clover
-(vendored in `freedomnas-installer/assets/clover/`) to emulate UEFI — that part is
-pure file I/O and requires no profile commands. The profile only exposes the two
-OS-native commands:
+directly via `efibootmgr` on native UEFI. On legacy BIOS, Clover (vendored in
+this repo at `assets/clover/` — shared by the parked installer and
+`freedomnas-image-builder` so neither keeps its own copy) emulates UEFI —
+that part is pure file I/O and requires no profile commands. The profile
+only exposes the two OS-native commands:
 
 ```json
 "bootloader": {
