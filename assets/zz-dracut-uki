@@ -1,0 +1,75 @@
+#!/bin/sh
+# /etc/kernel/postinst.d/zz-dracut-uki
+#
+# Rebuilds the FreedomNAS UKI on every kernel install/update. Rotates the
+# outgoing UKI into a rollback slot (paired with whichever pre-update ZFS
+# snapshot preceded this kernel change) before building the new one, so
+# the boot-time A/B fallback always has a known-good target.
+#
+# Called by dpkg's kernel postinst with $1 = kernel version. Must never
+# abort the kernel install over a UKI or ZFS problem: log and continue.
+
+set -u
+
+version="${1:-$(uname -r)}"
+
+esp_linux_dir="/boot/efi/EFI/Linux"
+current="$esp_linux_dir/debian-uki.efi"
+previous="$esp_linux_dir/debian-uki-previous.efi"
+previous_snap="$esp_linux_dir/debian-uki-previous.snapshot"
+recovery="$esp_linux_dir/debian-recovery.efi"
+
+boot_state_dir="/boot/efi/EFI/FreedomNAS"
+boot_state="$boot_state_dir/boot.state"
+
+root_dataset="rpool/ROOT/debian"
+
+log() { echo "zz-dracut-uki: $*"; }
+
+[ -d "$esp_linux_dir" ] || { log "no $esp_linux_dir, skipping (ESP not mounted?)"; exit 0; }
+
+# Rotate current -> previous *before* generating the new UKI, and pair the
+# rotated-out UKI with the most recent pre-update-* snapshot so an admin
+# (or future rollback tooling) can restore kernel and filesystem together.
+if [ -f "$current" ]; then
+    latest_snap=$(zfs list -H -t snapshot -o name -S creation "$root_dataset" 2>/dev/null \
+                  | grep "^${root_dataset}@pre-update-" | head -n1)
+
+    if cp -f "$current" "$previous"; then
+        log "rotated current UKI to $previous"
+    else
+        log "WARNING: failed to rotate previous UKI, continuing anyway"
+    fi
+
+    if [ -n "${latest_snap:-}" ]; then
+        echo "$latest_snap" > "$previous_snap"
+        log "previous UKI paired with snapshot $latest_snap"
+    else
+        rm -f "$previous_snap"
+        log "WARNING: no pre-update-* snapshot found for $root_dataset -- previous UKI has no matching filesystem state"
+    fi
+fi
+
+# 1. Standard UKI (parameters from /etc/dracut.conf.d/uki.conf)
+if dracut --force --uefi --kernel-cmdline "root=ZFS=${root_dataset} rw" "$current" "$version"; then
+    log "standard UKI rebuilt: $current"
+else
+    log "ERROR: dracut failed building standard UKI for $version"
+    exit 0   # never fail the kernel postinst over this
+fi
+
+# 2. Recovery UKI always tracks the newest kernel -- it's for manual rescue
+#    access, not automatic rollback, so it is never rotated.
+if dracut --force --uefi \
+        --kernel-cmdline "root=ZFS=${root_dataset} ro single" "$recovery" "$version"; then
+    log "recovery UKI rebuilt: $recovery"
+else
+    log "WARNING: dracut failed building recovery UKI for $version"
+fi
+
+# A freshly installed kernel earns a fresh set of boot attempts.
+if [ -d "$boot_state_dir" ]; then
+    echo "tries-left: 3" > "$boot_state"
+fi
+
+exit 0
