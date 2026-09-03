@@ -1,190 +1,290 @@
-# How to Add a New Distribution
+# Contributing to freedomnas-profiles
 
-Welcome! This guide will help you add support for a new Linux or BSD distribution to FreedomNAS.
+Welcome! This repository holds the JSON translation layer that lets
+FreedomNAS run identically on Debian, FreeBSD, Arch, and (soon) other
+UNIX-like systems without a single line of OS-specific Python. If you can
+write a shell command for your OS, you can contribute here — no Python
+required.
 
-## Structure of an OS Profile
+Two independent things live in this repo, and contributing to them is a
+different process:
 
-Each distribution is defined by a JSON file containing the native commands for common operations. FreedomNAS's universal engine translates abstract actions into the commands specific to your OS.
+| You want to... | Where | Guide |
+|-----------------|-------|-------|
+| Add/fix the **commands** FreedomNAS runs (create a user, list ZFS pools, restart Samba, ...) for an OS | `os/`, `storage/`, `network/`, `shares/`, `users/`, `init/` | **This file** |
+| Add/fix an **optional installable feature** (Samba, NFS, containers, ...) and which packages it needs | `packages/` | [`packages/README.md`](packages/README.md) + [`packages/SCHEMA.md`](packages/SCHEMA.md) |
 
-## Step 1: Create the Profile File
+This file covers the first track.
 
-1. Create a new `{distro_name}.json` file in the `freedomnas-profiles/` directory
-2. Use the minimal template below as a starting point
+## Repository Layout
 
-### Minimal Template
+Profiles are split **per module**, not one file per OS — this is what lets
+a contribution (yours!) touch only the file(s) relevant to what you're
+changing, without stepping on anything else:
+
+```
+freedomnas-profiles/
+├── os/                 Shared primitives no module owns: packages,
+│   os-debian.json      bootloader, system info, os_name/os_family/
+│   os-freebsd.json     os_version/init_system
+│   os-arch.json
+│   os-artix.json       ("exotic" edition, Phase 3 — see below)
+│   os-void.json        ("exotic" edition, Phase 3 — see below)
+├── storage/            zfs, media, btrfs
+│   storage-<os>.json
+├── network/            network
+│   network-<os>.json
+├── shares/              samba, nfs
+│   shares-<os>.json
+├── users/               users
+│   users-<os>.json
+├── init/                services (start/stop/enable/...), one file per
+│   init-systemd.json    init system, shared across every OS that uses it
+│   init-openrc.json
+│   init-runit.json
+│   init-s6.json
+│   init-dinit.json
+│   init-bsd_rc.json
+├── assets/               Boot-chain binaries (vendored Clover, the
+│                         zz-dracut-uki hook) — not something you'll
+│                         usually touch; see assets/clover/README.md
+│                         before ever changing anything here
+└── packages/             Different track — see the table above
+```
+
+`engine.py` (in `freedomnas-core`) assembles the actual profile for a
+running system at startup: load `os/os-<os>.json` as the base, merge in
+every `<module>/<module>-<os>.json` fragment it finds, then merge in
+`init/init-<init_system>.json`'s `services` section last. Each fragment
+owns distinct top-level category keys, so there's nothing to resolve — your
+new fragment just gets picked up automatically.
+
+## Design Rules — Read This First
+
+- **No branching logic.** A profile is pure data: `{action: "command string"}`.
+  No `if`, no loops, no environment detection.
+- **No side effects.** A profile doesn't execute anything — `engine.py`
+  does, elsewhere, in a different repo.
+- **One template variable per moving part.** `{username}`, `{package_name}`,
+  `{service_name}`, etc. — see the reference table below.
+- **`services` never appears outside `init/`.** Service start/stop/enable
+  commands belong in the init profile for that init system, never in an
+  OS or module fragment — this is what lets the same OS fragment work
+  under different init systems.
+
+## Adding a New OS
+
+Say you want to add Alpine Linux.
+
+### 1. Create the shared base fragment
+
+`os/os-alpine.json` — the primitives no module owns:
 
 ```json
 {
-  "os_name": "Your Distribution Name",
-  "os_family": "linux",  // or "bsd"
-  "os_version": "version_info",
-
-  "users": {
-    "create": "command_to_create_user",
-    "delete": "command_to_delete_user",
-    "set_password": "command_to_set_password",
-    "list": "command_to_list_users",
-    "get_user_info": "command_to_get_user_info",
-    "add_to_group": "command_to_add_user_to_group",
-    "remove_from_group": "command_to_remove_user_from_group"
-  },
-
-  "services": {
-    "start": "command_to_start_service",
-    "stop": "command_to_stop_service",
-    "restart": "command_to_restart_service",
-    "enable": "command_to_enable_service",
-    "disable": "command_to_disable_service",
-    "status": "command_to_check_service_status",
-    "is_enabled": "command_to_check_if_service_is_enabled",
-    "reload": "command_to_reload_service",
-    "daemon_reload": "command_to_reload_daemon_config"
-  },
+  "os_name": "Alpine",
+  "os_family": "linux",
+  "os_version": "3.18+",
+  "init_system": "openrc",
 
   "packages": {
-    "update_cache": "command_to_update_package_cache",
-    "install": "command_to_install_package",
-    "remove": "command_to_remove_package",
-    "upgrade": "command_to_upgrade_all_packages"
+    "update_cache": "apk update",
+    "install": "apk add {packages}",
+    "remove": "apk del {packages}",
+    "upgrade": "apk upgrade"
   },
-
-  "zfs": {
-    "pool_create": "zpool command syntax for your OS",
-    "pool_import": "zpool import command",
-    "pool_list": "zpool list command"
-  },
-
+  "bootloader": { "...": "fill in if Alpine needs one — see os-debian.json/os-freebsd.json for the two existing patterns (dracut+efibootmgr vs FreeBSD's native gptzfsboot/loader.efi)" },
   "system": {
-    "hostname_set": "command_to_set_hostname",
-    "reboot": "command_to_reboot_system",
-    "shutdown": "command_to_shutdown_system",
-    "uptime": "command_to_check_uptime",
-    "uname": "command_to_get_system_info"
+    "hostname_set": "hostnamectl set-hostname {hostname}",
+    "reboot": "reboot",
+    "shutdown": "poweroff",
+    "uptime": "uptime -p",
+    "uname": "uname -a"
   }
 }
 ```
 
-## Step 2: Complete the Categories
+### 2. Create a fragment in every module directory you can support
 
-Add support for the following categories (if relevant to your distribution):
+Not every module needs to be complete on day one — a partial contribution
+(e.g. just `users/users-alpine.json` and `network/network-alpine.json`) is
+genuinely useful and easy to review. Add `<module>-alpine.json` to whichever
+of `storage/`, `network/`, `shares/`, `users/` you're able to fill in:
 
-- **network**: Commands to configure networking
-- **samba**: Commands for SMB/CIFS
-- **nfs**: Commands for NFS
-- **btrfs**: Commands for the Btrfs filesystem (if supported)
-- **grub_btrfs**: Commands for GRUB with Btrfs snapshots
+```json
+// users/users-alpine.json
+{
+  "users": {
+    "create": "adduser -D -u {uid} -G {groups} {username}",
+    "delete": "deluser {username}",
+    "set_password": "chpasswd",
+    "list": "getent passwd | awk -F: '$3 >= 1000 && $3 < 65534'",
+    "get_user_info": "getent passwd {username}",
+    "add_to_group": "adduser {username} {group}",
+    "remove_from_group": "delgroup {username} {group}"
+  }
+}
+```
 
-## Step 3: Parameter Placeholders
+**Never add a `services` key here** — see Design Rules above.
 
-Use `{parameter_name}`-style placeholders in commands. Common examples:
+### 3. Reuse or add an init profile
 
-- `{service_name}`: Service name
-- `{package_name}`: Package name
-- `{username}`: Username
-- `{groups}`: List of groups
-- `{hostname}`: Hostname
-- `{ip}`: IP address
-- `{interface}`: Network interface name
-- `{pool_name}`: ZFS pool name
-- `{dataset}`: ZFS dataset
+Alpine uses OpenRC, and `init/init-openrc.json` already exists — nothing to
+do, just set `"init_system": "openrc"` in step 1's `os-alpine.json`.
 
-## Step 4: Test the Profile
+If your OS uses an init system FreedomNAS doesn't support yet, add
+`init/init-<name>.json` with just a `services` section — see any existing
+`init/init-*.json` for the exact action set expected
+(`start`/`stop`/`restart`/`enable`/`disable`/`status`/`is_enabled`/`reload`/`daemon_reload`/`list_managed`).
 
-### Manual Test
+### 4. Validate your JSON
+
+```bash
+python3 -m json.tool os/os-alpine.json
+python3 -m json.tool storage/storage-alpine.json   # for each fragment you added
+```
+
+### 5. Test against a real (or overridden) engine
+
+This requires a `freedomnas-core` checkout as a sibling directory — see
+that repo's `DEVELOPER_GUIDE.md` if you don't have one:
 
 ```python
-from freedomnas_core.engine import FreedomNASEngine
+from freedomnas.engine import FreedomNASEngine
 
-# Create the engine with the new profile
-engine = FreedomNASEngine(os_override="your_distro")
-
-# Test a few commands
-cmd = engine.get_command("services", "start", service_name="samba")
-print(f"Start Samba: {cmd}")
-
-cmd = engine.get_command("packages", "install", package_name="vim")
-print(f"Install vim: {cmd}")
-
-# Check OS info
+engine = FreedomNASEngine(os_override="alpine")
 print(engine.get_os_info())
+print(engine.get_command("users", "create", username="test", uid=1001, gid=1001, groups="wheel"))
+print(engine.get_command("packages", "install", packages="vim"))
 ```
 
-### Real Execution
+`os_override` bypasses OS auto-detection, so you can develop and test an
+Alpine profile from any machine.
 
-```python
-# For production systems, test with actual execution
-try:
-    stdout, stderr = engine.execute("packages", "update_cache", timeout=60)
-    print(f"Update cache completed")
-except Exception as e:
-    print(f"Error: {e}")
-```
+!!! note "Two more things needed before Alpine is actually reachable"
+    A profile alone doesn't make an OS selectable at runtime. That also
+    needs: **(a)** `"alpine"` added to `engine.py`'s `SUPPORTED_OS`
+    constant in `freedomnas-core` (a one-line change, but it's Python, so
+    it's a separate PR against that repo — the [`freedomnas-core`
+    repository](https://codeberg.org/FreedomNAS/freedomnas-core)), and
+    **(b)** an `"alpine"` entry in each relevant `packages/*.json` category
+    file (see the packages track above) if you want the optional features
+    (Samba, NFS, ...) to be installable too. Artix and Void are exactly
+    this state today — full profile fragments, not yet wired into
+    `SUPPORTED_OS` — see `os/os-artix.json`/`os/os-void.json` for a
+    worked, complete example to copy from.
 
-## Step 5: Submit Your Contribution
+### 6. Submit
 
-1. Verify that your JSON profile is valid:
-   ```bash
-   python -m json.tool {distro_name}.json
-   ```
+Open a PR against `freedomnas-profiles` with your new/changed fragment
+files. Mention in the description:
 
-2. Add a comment in the JSON file or in a README specific to your distro
+- Which module fragments you completed vs. left out
+- What you tested it against (a real machine, a container, `os_override`
+  only, ...)
+- Whether you also opened a companion PR against `freedomnas-core` for
+  `SUPPORTED_OS`
 
-3. Create a Pull Request with:
-   - The new `{distro_name}.json` file
-   - A note in `CONTRIBUTING.md` linking to where to test it
-   - Example test cases (optional but much appreciated)
+A profiles-only PR that doesn't touch `SUPPORTED_OS` is still valuable and
+mergeable on its own — it's exactly how Artix and Void got to their
+current state.
+
+## Adding Support for an Existing Module on a New OS You Use
+
+Smaller version of the above: if Debian/FreeBSD/Arch profiles already
+exist but, say, `shares/shares-<os>.json` for your OS has a command that's
+wrong or missing an edge case, you only need to touch that one file. You
+don't need to understand or test the other modules.
+
+## Fixing or Extending an Existing Command
+
+1. Find the owning fragment using the table in "Repository Layout" above
+   (e.g. a Samba command lives in `shares/shares-<os>.json`, not `os/`).
+2. Edit the command string. Keep the action name identical across every OS
+   that has it — the engine looks up `category.action`, and a renamed key
+   on only one OS silently breaks that OS.
+3. If you're adding a brand new action, add it to the same category in
+   *every* OS's fragment, even if only as a best-effort guess for OSes you
+   can't test — leaving it out entirely means `engine.execute()` raises
+   `CommandTranslationError` on that OS instead of failing more gracefully.
+
+## Template Variable Reference
+
+Placeholders use `{name}` and are substituted by `engine.get_command()`/`execute()`.
+Common ones, by category:
+
+| Variable | Used in | Example |
+|----------|---------|---------|
+| `{username}`, `{uid}`, `{gid}`, `{shell}`, `{groups}` | `users.create` | `admin`, `1000`, `1000`, `/bin/bash`, `sudo,samba` |
+| `{group}` | `users.add_to_group`/`remove_from_group` | `samba` |
+| `{service_name}` | `services.*` (init profiles only) | `smbd` |
+| `{package_name}` or `{packages}` | `packages.install`/`remove` | `samba` / `samba samba-common-bin` |
+| `{pool_name}`, `{dataset}`, `{snap_name}` | `zfs.*` | `rpool`, `rpool/ROOT/debian`, `pre-update-20260718` |
+| `{ashift}`, `{compression}`, `{vdev_type}`, `{devices}` | `zfs.pool_create` | `12`, `lz4`, `mirror`, `/dev/disk/by-id/...` |
+| `{keyfile_path}` | `zfs.pool_create_encrypted`/`load_key_file` | (transient tmpfs path, never a literal secret — see `freedomnas-core/keymgmt.py`) |
+| `{device}`, `{mountpoint}` | `media.*` | `/dev/sdb1`, `/run/freedomnas/usbkey` |
+| `{share_name}`, `{path}`, `{comment}`, `{acl}` | `samba.create_share` | `Documents`, `/mnt/datapool/docs`, `User docs`, `Everyone:R` |
+| `{clients}`, `{options}` | `nfs.export_add` | `192.168.1.0/24`, `rw,sync,no_subtree_check` |
+| `{conn_name}`, `{ip}`, `{cidr}`, `{gateway}`, `{dns}` | `network.set_static_ip` | `eth0`, `192.168.1.50`, `24`, `192.168.1.1`, `1.1.1.1 8.8.8.8` |
+| `{hostname}`, `{timezone}` | `system.*` | `freedomnas`, `Europe/Rome` |
+
+Keep new variable names consistent with existing ones for the same concept
+— don't invent `{pkg}` when every other fragment uses `{package_name}`.
 
 ## Command Guidelines
 
 ### Security
 
-- **Do NOT use the shell** unless absolutely necessary
-- Use command-line parameters, not shell pipes
-- Avoid interpolating untrusted strings
-- We prefer commands that fail loudly over ones that fail silently
+- **Never rely on a shell pipeline unless the action genuinely needs one**
+  (e.g. `apt list --upgradable | tail -n +2`). `engine.py` only invokes
+  `shell=True` when it detects shell metacharacters in *your* command
+  string — so a command with an unnecessary pipe silently opts into a
+  larger attack surface than a plain argv command.
+- Never build a command that would need an untrusted string to reach the
+  shell unescaped. Template variables are sanitized (shell metacharacters
+  stripped) before substitution, but that's a safety net, not a reason to
+  design around it.
+- Prefer commands that fail loudly (non-zero exit, clear stderr) over ones
+  that silently no-op.
 
 ### Compatibility
 
-- Use commands that exist in the minimum supported version of the distro
-- If a command changes between versions, use the one from the most stable version
-- Document version requirements in the comment
+- Use commands available in the **minimum supported version** of the OS.
+- If a command's flags changed between versions, use the most stable/widely
+  available form and note the version requirement in a `maintainer_note`
+  field (see `os-arch.json`/`os-artix.json`/`os-void.json` for the
+  convention — community-maintained profiles use this to flag things that
+  need real-world validation).
 
 ### Format
 
-- One command per action
-- If multiple commands are needed, use a JSON array: `["cmd1", "cmd2"]`
-- Keep action names consistent with the other profiles
+- One command per action, as a plain string.
+- If an action genuinely needs multiple sequential commands, use a JSON
+  array: `["cmd1", "cmd2"]` — `engine.execute()` runs each in order and
+  returns the last result.
+- Action names must match exactly across every OS's fragment for the same
+  category (see "Fixing or Extending an Existing Command" above).
 
 ## Examples
 
-### Generic Linux
+### A package manager block (Alpine)
 
 ```json
 "packages": {
-  "update_cache": "apt-get update",
-  "install": "apt-get install -y {package_name}",
-  "remove": "apt-get remove -y {package_name}",
-  "upgrade": "apt-get dist-upgrade -y"
+  "update_cache": "apk update",
+  "install": "apk add {packages}",
+  "remove": "apk del {packages}",
+  "upgrade": "apk upgrade"
 }
 ```
 
-### BSD
-
-```json
-"packages": {
-  "update_cache": "pkg update",
-  "install": "pkg install -y {package_name}",
-  "remove": "pkg remove -y {package_name}",
-  "upgrade": "pkg upgrade -y"
-}
-```
-
-### Multiple Commands
+### A multi-step action
 
 ```json
 "zfs": {
   "pool_create": [
-    "zpool create -o ashift=12 {pool_name} {vdev_type}",
+    "zpool create -o ashift=12 {pool_name} {vdev_type} {devices}",
     "zfs set recordsize=1M {pool_name}"
   ]
 }
@@ -192,8 +292,13 @@ except Exception as e:
 
 ## Support
 
-- **Questions?** Open a discussion in the repository
-- **Bugs in a profile?** File an issue with the command that fails
-- **Improvements?** Reach out to coordinate changes
+- **Questions?** Open a discussion or issue on
+  [codeberg.org/FreedomNAS/freedomnas-profiles](https://codeberg.org/FreedomNAS/freedomnas-profiles).
+- **A command fails on your system?** File an issue with the exact command
+  (`engine.get_command(...)` output, not just the action name), your
+  OS/version, and the error.
+- **Not sure which file owns a category?** See the table in "Repository
+  Layout" above, or ask in an issue before writing anything — happy to
+  point you at the right file.
 
-Thank you for contributing to FreedomNAS! 🎉
+Thank you for contributing to FreedomNAS!
