@@ -1,54 +1,74 @@
 # FreedomNAS Profiles
 
-OS-specific translation files for FreedomNAS.
+OS-specific translation files for FreedomNAS, split per module so that adding a new
+module (core or community) never requires touching another module's profile.
 
 ## Available Profiles
 
-- **debian.json**: Debian, Ubuntu, Debian-based distributions
-- **freebsd.json**: FreeBSD 13.0+
-- **arch.json**: Arch Linux (community-maintained)
-- **artix.json**, **void.json**: Artix Linux / Void Linux — profile
-  scaffolding for the "exotic" `freedomnas-image-builder` editions (Phase 3).
-  Package categories already have `artix`/`void` sections too. **Not yet
-  reachable at runtime** — `engine.py`'s `SUPPORTED_OS` still only lists
-  `debian`/`freebsd`/`arch`; wiring these in is follow-up work.
+- **os/os-debian.json**, **os/os-freebsd.json**, **os/os-arch.json**: shared OS-level
+  primitives (package manager, bootloader, system info) for Debian/Ubuntu, FreeBSD 13.0+,
+  and Arch Linux (community-maintained).
+- **os/os-artix.json**, **os/os-void.json**: Artix Linux / Void Linux — profile
+  scaffolding for the "exotic" `freedomnas-image-builder` editions (Phase 3). Package
+  categories already have `artix`/`void` sections too. **Not yet reachable at
+  runtime** — `engine.py`'s `SUPPORTED_OS` still only lists `debian`/`freebsd`/`arch`;
+  wiring these in is follow-up work.
+- **storage/**, **network/**, **shares/**, **users/**: per-module command fragments,
+  one file per module per OS (`<module>-<os>.json`). A community module (e.g.
+  `nextcloud`) ships its own `profiles/<name>/<name>-<os>.json` files the same way,
+  usually inside its own repo/`.deb` rather than this one.
 
 ## Repository Structure
 
 ```
 freedomnas-profiles/
-├── debian.json             ← OS profile: commands for Debian/Ubuntu
-├── freebsd.json            ← OS profile: commands for FreeBSD
-├── arch.json                ← OS profile: commands for Arch Linux
-├── artix.json                ← OS profile: commands for Artix Linux (not yet wired into engine.py)
-├── void.json                 ← OS profile: commands for Void Linux (not yet wired into engine.py)
+├── os/                      ← Shared OS-level primitives (not owned by a module)
+│   ├── os-debian.json         packages, bootloader, system, os_name/os_family/os_version
+│   ├── os-freebsd.json
+│   ├── os-arch.json
+│   ├── os-artix.json          (not yet wired into engine.py)
+│   └── os-void.json           (not yet wired into engine.py)
+├── init/                    ← Init-system profiles, separate from the OS
+│   ├── init-systemd.json
+│   ├── init-openrc.json
+│   ├── init-runit.json
+│   ├── init-s6.json
+│   ├── init-dinit.json
+│   └── init-bsd_rc.json
+├── storage/                 ← Storage module: zfs, btrfs, media
+│   ├── storage-debian.json
+│   ├── storage-freebsd.json
+│   └── storage-arch.json / storage-artix.json / storage-void.json
+├── network/                 ← Network module: network
+│   └── network-<os>.json
+├── shares/                  ← Shares module: samba, nfs
+│   └── shares-<os>.json
+├── users/                   ← Users module: users
+│   └── users-<os>.json
 ├── assets/                  ← Boot-chain assets, shared by the parked
 │   ├── clover/                installer and freedomnas-image-builder
 │   └── zz-dracut-uki           (moved here from freedomnas-installer/assets/)
-├── init/                    ← Init-system profiles, separate from the OS
-│   ├── systemd.json
-│   ├── openrc.json
-│   ├── runit.json
-│   ├── s6.json
-│   ├── dinit.json
-│   └── bsd_rc.json
-└── packages/                ← Optional packages, by category
-    ├── MANIFEST.json         ← list of available categories
-    ├── SCHEMA.md              ← full format spec
-    ├── core.json              ← essential NAS packages (required)
-    ├── samba-cifs.json
-    ├── nfs.json
-    ├── containers.json
-    └── virtualization.json
+└── packages/                ← Optional packages, by category — NOT the same thing as
+    ├── MANIFEST.json          the module profiles above. These describe distro package
+    ├── SCHEMA.md              *groups* (samba-cifs, nfs, containers...) the installer/
+    ├── core.json              WebUI can offer as install-time options and record for
+    ├── samba-cifs.json        disaster recovery. `storage/`, `shares/`, etc. describe
+    ├── nfs.json               the *commands* engine.py translates for a module at
+    ├── containers.json        runtime. Same domain (storage, samba/nfs...), different
+    └── virtualization.json    purpose — don't confuse the two.
 ```
 
 ## What Are Profiles?
 
-Each OS profile (`debian.json`, `freebsd.json`, `arch.json`) is a JSON file that maps
-abstract actions to native operating-system commands — user management, networking,
-ZFS, Samba, NFS, boot chain, etc.
+Each per-OS fragment (`os/os-debian.json`, `storage/storage-debian.json`, ...) is a JSON
+file that maps abstract actions to native operating-system commands — user management,
+networking, ZFS, Samba, NFS, boot chain, etc. `engine.py` loads the `os/` fragment for
+the detected OS as a base, then merges in the fragment from every other profile
+subdirectory (`storage/`, `network/`, `shares/`, `users/`, and any community module's own
+directory) that has a file matching `{directory}/{directory}-{os}.json`. Each fragment
+contributes its own top-level category key(s) — there's no overlap to resolve.
 
-**Example (`zfs` category):**
+**Example (`zfs` category, in `storage/storage-debian.json`):**
 
 ```json
 "zfs": {
@@ -57,36 +77,38 @@ ZFS, Samba, NFS, boot chain, etc.
 }
 ```
 
-On FreeBSD the same file would use the same action names, with different commands
-where needed (e.g. `packages.install` is `apt install -y {package_name}` on Debian and
-`pkg install -y {package_name}` on FreeBSD).
+On FreeBSD the same category (in `storage/storage-freebsd.json`) uses the same action
+names, with different commands where needed (e.g. `packages.install` in `os/os-debian.json`
+is `apt install -y {package_name}`, vs. `pkg install -y {package_name}` in `os/os-freebsd.json`).
 
 ### Init-agnostic: `services` no longer lives in the OS profile
 
-Service management (`start`, `stop`, `restart`, `enable`, ...) has been split out of
-the OS profile and is now defined per init-system in `init/{init_system}.json`
-(systemd, OpenRC, runit, s6, dinit, bsd_rc). The engine detects the running init
-system (filesystem markers, falling back to the `init_system` field declared in the
-OS profile) and merges the init profile into the OS profile at runtime — so the same
-Debian install can run under systemd or, in the future, a different init system,
-without touching `debian.json`.
+Service management (`start`, `stop`, `restart`, `enable`, ...) is defined per init-system
+in `init/init-{init_system}.json` (systemd, OpenRC, runit, s6, dinit, bsd_rc). The engine
+detects the running init system (filesystem markers, falling back to the `init_system`
+field declared in the `os/` profile) and merges the init profile in at runtime — so the
+same Debian install can run under systemd or, in the future, a different init system,
+without touching `os/os-debian.json`.
 
 ### Optional packages: `packages/`
 
-Non-essential packages (Samba, NFS, containers, virtualization) are no longer listed
-directly in the OS profiles, but in separate files under `packages/`, one per
-category, indexed in `packages/MANIFEST.json`. This lets the installer/WebUI offer
-selectable optional features, and lets backups remember which categories were
-installed for cross-distro disaster recovery. See `packages/README.md` and
-`packages/SCHEMA.md` for the full details.
+Non-essential packages (Samba, NFS, containers, virtualization) are listed in separate
+files under `packages/`, one per category, indexed in `packages/MANIFEST.json`. This lets
+the installer/WebUI offer selectable optional features, and lets backups remember which
+categories were installed for cross-distro disaster recovery. See `packages/README.md`
+and `packages/SCHEMA.md` for the full details. This is unrelated to the per-module
+profile fragments above (see the note in the directory tree).
 
 ## How the Core Engine Uses Profiles
 
 1. Detects the operating system (`debian` | `freebsd` | `arch`)
-2. Loads the corresponding OS profile (`{os}.json`)
-3. Detects the running init system and merges in `init/{init_system}.json`
-4. Translates abstract actions into native commands
-5. Executes commands safely (never `shell=True` unless required, never commands
+2. Loads the base `os/os-{os}.json` fragment
+3. Scans every other profile subdirectory (`storage/`, `network/`, `shares/`, `users/`,
+   plus any installed community module's directory) and merges in
+   `{directory}/{directory}-{os}.json` when present
+4. Detects the running init system and merges in `init/init-{init_system}.json`
+5. Translates abstract actions into native commands
+6. Executes commands safely (never `shell=True` unless required, never commands
    built by hand in Python code — see the "Golden Rule" in ARCHITECTURE.md)
 
 ```python
@@ -110,7 +132,20 @@ cmd = engine.get_command("bootloader", "build_uki",
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for a complete guide.
 
-## Structure of an OS Profile
+## Adding a New Module
+
+1. Pick a module id (e.g. `nextcloud`) and create `profiles/<id>/` (in this repo for a
+   core module, or in the module's own repo for a community module).
+2. Add `<id>-<os>.json` for each supported OS, containing only the category key(s) this
+   module owns (don't duplicate categories already owned by `os/` or another module).
+3. On the code side, add a matching `modules/<id>/manifest.json` declaring `supported_os`
+   and the module's `entry_point` — see `freedomnas-core/modules/*/manifest.json` for the
+   schema. The engine and the module loader pick up new fragments/modules automatically
+   by directory scan; no existing file needs to change.
+
+## Structure of an OS Profile Fragment
+
+`os/os-<name>.json` (shared, not module-owned):
 
 ```json
 {
@@ -119,20 +154,25 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for a complete guide.
   "os_version": "version_spec",
   "init_system": "systemd",
 
-  "users": { /* user management */ },
-  "network": { /* network configuration */ },
-  "packages": { /* package manager commands (apt/pkg/pacman) */ },
-  "zfs": { /* ZFS commands, incl. encrypted pools + load-key for keymgmt.py */ },
-  "media": { /* removable-device list/mount/unmount, for keymgmt.py's USB zero-touch unlock */ },
-  "samba": { /* Samba/SMB commands */ },
-  "nfs": { /* NFS commands */ },
-  "btrfs": { /* Btrfs commands — where supported */ },
+  "packages": { /* package manager commands (apt/pkg/pacman/xbps) */ },
   "bootloader": { /* build UKI (dracut) + register UEFI boot entry (efibootmgr) */ },
   "system": { /* system info/control */ }
 }
 ```
 
-`services` does **not** go here — it lives in `init/{init_system}.json` (see above).
+Per-module fragments contain only the categories that module owns, e.g.
+`storage/storage-<name>.json`:
+
+```json
+{
+  "zfs": { /* ZFS commands, incl. encrypted pools + load-key for keymgmt.py */ },
+  "media": { /* removable-device list/mount/unmount, for keymgmt.py's USB zero-touch unlock */ },
+  "btrfs": { /* Btrfs commands — where supported */ }
+}
+```
+
+`services` does **not** go in any of these — it lives in `init/init-{init_system}.json`
+(see above).
 
 ### `bootloader`
 
@@ -150,7 +190,7 @@ only exposes the two OS-native commands:
 }
 ```
 
-Currently only present in `debian.json`; `freebsd.json` and `arch.json` still use
-their existing boot configuration.
+`os-freebsd.json` uses its own native boot chain instead (`install_gptzfsboot` /
+`install_efi_loader`); `os-arch.json` has no `bootloader` section yet.
 
 See the JSON files for complete examples of every category.

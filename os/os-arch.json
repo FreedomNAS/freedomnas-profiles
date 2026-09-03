@@ -1,0 +1,35 @@
+{
+  "os_name": "Arch Linux",
+  "os_family": "linux",
+  "os_version": "rolling",
+  "init_system": "systemd",
+  "community_maintained": true,
+  "maintainer_note": "Community-maintained profile. Contributions welcome!",
+
+  "packages": {
+    "update_cache": "pacman -Sy",
+    "list_updatable": "pacman -Qu",
+    "install": "pacman -S --noconfirm {package_name}",
+    "remove": "pacman -R --noconfirm {package_name}",
+    "purge": "pacman -Rns --noconfirm {package_name}",
+    "autoremove": "pacman -Qdtq | pacman -Rs --noconfirm -",
+    "search": "pacman -Ss {package_name}",
+    "show": "pacman -Si {package_name}",
+    "upgrade": "pacman -Syu --noconfirm"
+  },
+
+  "system": {
+    "hostname_set": "hostnamectl set-hostname {hostname}",
+    "reboot": "systemctl reboot",
+    "shutdown": "systemctl poweroff",
+    "uptime": "uptime -s",
+    "uname": "uname -a",
+    "cpu_info": "lscpu",
+    "memory_info": "free -h",
+    "disk_list": "lsblk -J",
+    "disk_partitions": "parted -l",
+    "mount_list": "mount | column -t",
+    "df": "df -h",
+    "dmesg": "dmesg"
+  }
+}

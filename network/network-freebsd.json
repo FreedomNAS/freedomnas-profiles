@@ -1,0 +1,23 @@
+{
+  "network": {
+    "list_interfaces": "ifconfig -l -ether",
+    "list_addresses": "ifconfig -a",
+    "rename_interface": "ifconfig {old_name} name {new_name}",
+    "bridge_create": [
+      "ifconfig bridge create name {bridge_name}",
+      "ifconfig {bridge_name} up"
+    ],
+    "bridge_add_port": "ifconfig {bridge_name} addm {interface}",
+    "bridge_stp": "ifconfig {bridge_name} stp {interface}",
+    "set_static_ip": [
+      "sysrc ifconfig_{logical_name}=\"inet {ip} netmask {netmask}\"",
+      "sysrc defaultrouter=\"{gateway}\""
+    ],
+    "set_dynamic_ip": "sysrc ifconfig_{logical_name}=dhcp",
+    "bring_up_interface": "ifconfig {interface} up",
+    "bring_down_interface": "ifconfig {interface} down",
+    "hostname_set": "hostname {hostname} && sysrc hostname=\"{hostname}\"",
+    "hostname_get": "hostname",
+    "persistent_rename": "ifconfig_{old_name}_name=\"{logical_name}\""
+  }
+}

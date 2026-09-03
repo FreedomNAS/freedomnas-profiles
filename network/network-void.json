@@ -1,0 +1,26 @@
+{
+  "network": {
+    "list_interfaces": "ip -j link show",
+    "list_addresses": "ip -j address show",
+    "rename_interface": [
+      "ip link set {old_name} down",
+      "ip link set {old_name} name {new_name}",
+      "ip link set {new_name} up"
+    ],
+    "bridge_create": [
+      "ip link add {bridge_name} type bridge",
+      "ip link set {bridge_name} up"
+    ],
+    "bridge_add_port": "ip link set {interface} master {bridge_name}",
+    "set_static_ip": [
+      "ip addr add {ip}/{cidr} dev {interface}",
+      "ip route add default via {gateway}"
+    ],
+    "set_dynamic_ip": "dhcpcd {interface}",
+    "bring_up_interface": "ip link set {interface} up",
+    "bring_down_interface": "ip link set {interface} down",
+    "hostname_set": "hostname {hostname}",
+    "hostname_get": "hostname",
+    "udev_persistent_rule": "SUBSYSTEM==\"net\", ACTION==\"add\", ATTR{{address}}==\"{mac}\", NAME=\"{logical_name}\""
+  }
+}

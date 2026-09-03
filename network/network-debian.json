@@ -1,0 +1,24 @@
+{
+  "network": {
+    "list_interfaces": "ip -j link show",
+    "list_addresses": "ip -j address show",
+    "rename_interface": [
+      "ip link set {old_name} down",
+      "ip link set {old_name} name {new_name}",
+      "ip link set {new_name} up"
+    ],
+    "bridge_create": [
+      "nmcli connection add type bridge ifname {bridge_name}",
+      "nmcli connection modify {bridge_name} bridge.stp no",
+      "nmcli connection modify {bridge_name} bridge.forward-delay 0"
+    ],
+    "bridge_add_port": "nmcli connection add type bridge-slave ifname {interface} master {bridge_name}",
+    "set_static_ip": "nmcli connection modify {conn_name} ipv4.addresses {ip}/{cidr} ipv4.gateway {gateway} ipv4.dns {dns} ipv4.method manual",
+    "set_dynamic_ip": "nmcli connection modify {conn_name} ipv4.method auto",
+    "bring_up_interface": "ip link set {interface} up",
+    "bring_down_interface": "ip link set {interface} down",
+    "hostname_set": "hostnamectl set-hostname {hostname}",
+    "hostname_get": "hostnamectl --static",
+    "udev_persistent_rule": "SUBSYSTEM==\"net\", ACTION==\"add\", ATTR{{address}}==\"{mac}\", NAME=\"{logical_name}\""
+  }
+}

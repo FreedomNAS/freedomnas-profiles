@@ -15,7 +15,8 @@ package() {
 
     # Install profiles to /usr/lib/freedomnas/profiles
     mkdir -p "${pkgdir}/usr/lib/freedomnas/profiles"
-    install -Dm 644 *.json "${pkgdir}/usr/lib/freedomnas/profiles/"
+    cp -r os init storage network shares users packages \
+        "${pkgdir}/usr/lib/freedomnas/profiles/"
 
     # Install license if exists
     [ -f LICENSE ] && install -Dm 644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"

@@ -6,4 +6,5 @@
 override_dh_install:
 	dh_install
 	mkdir -p debian/freedomnas-profiles/usr/lib/freedomnas/profiles
-	install -m 644 *.json debian/freedomnas-profiles/usr/lib/freedomnas/profiles/
+	cp -r os init storage network shares users packages \
+		debian/freedomnas-profiles/usr/lib/freedomnas/profiles/

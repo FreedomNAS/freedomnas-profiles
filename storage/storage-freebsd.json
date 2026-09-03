@@ -1,0 +1,40 @@
+{
+  "zfs": {
+    "pool_create": "zpool create -o ashift={ashift} -O compression={compression} -O acltype=nfsv4acl {pool_name} {vdev_type} {devices}",
+    "pool_import": "zpool import {pool_name}",
+    "pool_export": "zpool export {pool_name}",
+    "pool_status": "zpool status -p {pool_name}",
+    "pool_list": "zpool list -Hp",
+    "pool_scrub": "zpool scrub {pool_name}",
+    "pool_scrub_stop": "zpool scrub -s {pool_name}",
+    "pool_offline": "zpool offline {pool_name} {device}",
+    "pool_online": "zpool online {pool_name} {device}",
+    "dataset_create": "zfs create -o mountpoint={mountpoint} {pool_name}/{dataset_name}",
+    "dataset_list": "zfs list -Hp -o name,used,avail,refer,mountpoint",
+    "dataset_get": "zfs get all {dataset}",
+    "dataset_set": "zfs set {property}={value} {dataset}",
+    "dataset_destroy": "zfs destroy {dataset}",
+    "snapshot_create": "zfs snapshot {dataset}@{snap_name}",
+    "snapshot_rollback": "zfs rollback {dataset}@{snap_name}",
+    "snapshot_list": "zfs list -t snapshot -Hp -o name,creation,used",
+    "snapshot_destroy": "zfs destroy {dataset}@{snap_name}",
+    "snapshot_clone": "zfs clone {snapshot} {clone_name}",
+    "mount_dataset": "zfs mount {dataset}",
+    "unmount_dataset": "zfs unmount {dataset}",
+    "get_used": "zfs get -Hp used {dataset}",
+    "get_available": "zfs get -Hp avail {dataset}",
+    "pool_create_encrypted": "zpool create -o ashift={ashift} -O compression={compression} -O acltype=nfsv4acl -O encryption=aes-256-gcm -O keyformat=raw -O keylocation=file://{keyfile_path} {pool_name} {vdev_type} {devices}",
+    "pool_keystatus": "zfs get -H -o value keystatus {pool_name}",
+    "load_key_file": "zfs load-key -L file://{keyfile_path} {pool_name}",
+    "unload_key": "zfs unload-key {pool_name}",
+    "mount_all": "zfs mount -a"
+  },
+
+  "media": {
+    "_note": "Assumes FAT32-formatted USB sticks -- FreeBSD mount(8) does not autodetect filesystem type the way Linux mount does.",
+    "list_removable": "camcontrol devlist -v",
+    "mount_ro": "mount -t msdosfs -o ro {device} {mountpoint}",
+    "mount_rw": "mount -t msdosfs {device} {mountpoint}",
+    "unmount": "umount {mountpoint}"
+  }
+}

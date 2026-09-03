@@ -1,0 +1,38 @@
+{
+  "os_name": "Debian",
+  "os_family": "linux",
+  "os_version": "12+",
+  "init_system": "systemd",
+
+  "packages": {
+    "update_cache": "apt update",
+    "list_updatable": "apt list --upgradable 2>/dev/null | tail -n +2",
+    "install": "apt install -y {package_name}",
+    "remove": "apt remove -y {package_name}",
+    "purge": "apt purge -y {package_name}",
+    "autoremove": "apt autoremove -y",
+    "search": "apt search {package_name}",
+    "show": "apt show {package_name}",
+    "upgrade": "apt full-upgrade -y"
+  },
+
+  "bootloader": {
+    "build_uki": "dracut --force --uefi --kernel-cmdline \"root=ZFS={dataset} rw\" {output_path} {kernel_version}",
+    "efi_boot_entry": "efibootmgr --create --disk {disk} --part {part_num} --loader {loader_path} --label {label}"
+  },
+
+  "system": {
+    "hostname_set": "hostnamectl set-hostname {hostname}",
+    "reboot": "systemctl reboot",
+    "shutdown": "systemctl poweroff",
+    "uptime": "uptime -s",
+    "uname": "uname -a",
+    "cpu_info": "lscpu",
+    "memory_info": "free -h",
+    "disk_list": "lsblk -J",
+    "disk_partitions": "parted -l",
+    "mount_list": "mount | column -t",
+    "df": "df -h",
+    "dmesg": "dmesg"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "samba": {
+    "config_file": "/etc/samba/smb.conf",
+    "testparm": "testparm -s {config_file}",
+    "create_share": "net usershare add {share_name} {path} {comment} {acl}",
+    "list_shares": "net usershare list",
+    "delete_share": "net usershare delete {share_name}",
+    "set_user_password": "smbpasswd -a {username}",
+    "smb_service": "smbd",
+    "nmb_service": "nmbd",
+    "reload_config": "smbcontrol smbd reload-config"
+  },
+
+  "nfs": {
+    "config_file": "/etc/exports",
+    "export_list": "showmount -e localhost",
+    "exportfs_reload": "exportfs -ra",
+    "exportfs_list": "exportfs -v",
+    "nfs_service": "nfsd"
+  }
+}
