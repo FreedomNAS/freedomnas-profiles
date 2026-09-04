@@ -70,5 +70,20 @@
     "config_paths": [
       "/etc/docker/daemon.json"
     ]
+  },
+  "gentoo": {
+    "packages": [
+      "app-containers/docker",
+      "app-containers/docker-cli",
+      "app-containers/containerd",
+      "app-containers/docker-compose"
+    ],
+    "services": [
+      "docker",
+      "containerd"
+    ],
+    "config_paths": [
+      "/etc/docker/daemon.json"
+    ]
   }
 }

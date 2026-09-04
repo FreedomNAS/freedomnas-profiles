@@ -128,5 +128,41 @@
       "sshd",
       "dhcpcd"
     ]
+  },
+  "gentoo": {
+    "packages": [
+      "sys-kernel/gentoo-kernel-bin",
+      "sys-kernel/linux-firmware",
+      "sys-kernel/dracut",
+      "sys-fs/zfs",
+      "sys-fs/zfs-kmod",
+      "sys-boot/efibootmgr",
+      "sys-fs/dosfstools",
+      "sys-fs/e2fsprogs",
+      "sys-apps/gptfdisk",
+      "sys-block/parted",
+      "net-misc/curl",
+      "net-misc/wget",
+      "net-misc/openssh",
+      "net-misc/dhcpcd",
+      "sys-apps/net-tools",
+      "sys-process/htop",
+      "sys-process/cronie",
+      "app-editors/vim",
+      "app-admin/sudo",
+      "dev-lang/python",
+      "dev-python/pyyaml",
+      "dev-python/fastapi",
+      "dev-python/uvicorn",
+      "dev-python/python-pam"
+    ],
+    "services": [
+      "sshd",
+      "cronie",
+      "dhcpcd",
+      "zfs-import",
+      "zfs-mount",
+      "zfs-zed"
+    ]
   }
 }

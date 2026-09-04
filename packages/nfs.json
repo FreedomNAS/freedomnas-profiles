@@ -70,5 +70,19 @@
       "/etc/exports",
       "/etc/idmapd.conf"
     ]
+  },
+  "gentoo": {
+    "packages": [
+      "net-fs/nfs-utils",
+      "net-nds/rpcbind"
+    ],
+    "services": [
+      "nfs",
+      "rpcbind"
+    ],
+    "config_paths": [
+      "/etc/exports",
+      "/etc/idmapd.conf"
+    ]
   }
 }

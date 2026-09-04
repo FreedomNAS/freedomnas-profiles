@@ -170,16 +170,18 @@ Alpine profile from any machine.
 
 !!! note "Two more things needed before Alpine is actually reachable"
     A profile alone doesn't make an OS selectable at runtime. That also
-    needs: **(a)** `"alpine"` added to `engine.py`'s `SUPPORTED_OS`
-    constant in `freedomnas-core` (a one-line change, but it's Python, so
-    it's a separate PR against that repo — the [`freedomnas-core`
-    repository](https://codeberg.org/FreedomNAS/freedomnas-core)), and
+    needs: **(a)** two entries in `freedomnas-core`'s `engine.py` — the
+    distribution's `/etc/os-release` `ID` in `_DISTRO_IDS` (this is the
+    real gate for auto-detection) and its name in `SUPPORTED_OS`. It's
+    Python, so it's a separate PR against the [`freedomnas-core`
+    repository](https://codeberg.org/FreedomNAS/freedomnas-core). And
     **(b)** an `"alpine"` entry in each relevant `packages/*.json` category
     file (see the packages track above) if you want the optional features
-    (Samba, NFS, ...) to be installable too. Artix and Void are exactly
-    this state today — full profile fragments, not yet wired into
-    `SUPPORTED_OS` — see `os/os-artix.json`/`os/os-void.json` for a
-    worked, complete example to copy from.
+    (Samba, NFS, ...) to be installable too.
+
+    Gentoo, Artix and Void are worked, complete examples to copy from —
+    profile, per-module fragments, package sections, installer fragment
+    and engine entries, all in place.
 
 !!! tip "Making the OS installable too"
     The fragments above make FreedomNAS *run* on an OS. To make
@@ -189,7 +191,9 @@ Alpine profile from any machine.
     for the schema, and copy `installer/installer-void.json` if your OS has
     no native bootstrapper reachable from other distros (it uses the rootfs
     tarball method, which needs only `curl` and `tar` on the installer
-    host). Then check the whole install resolves, without touching a disk:
+    host); `installer/installer-gentoo.json` is the same method applied to
+    a stage3, with Portage's make.conf and binary host written as profile
+    file contents. Then check the whole install resolves, without touching a disk:
 
     ```sh
     python3 tests/dryrun_smoke.py     # in freedomnas-installer
@@ -205,11 +209,11 @@ files. Mention in the description:
 - What you tested it against (a real machine, a container, `os_override`
   only, ...)
 - Whether you also opened a companion PR against `freedomnas-core` for
-  `SUPPORTED_OS`
+  `_DISTRO_IDS`/`SUPPORTED_OS`
 
-A profiles-only PR that doesn't touch `SUPPORTED_OS` is still valuable and
-mergeable on its own — it's exactly how Artix and Void got to their
-current state.
+A profiles-only PR without the engine entries is still valuable and
+mergeable on its own: the profile can be exercised immediately with
+`os_override`, and the engine side is two lines someone else can add.
 
 ## Adding Support for an Existing Module on a New OS You Use
 

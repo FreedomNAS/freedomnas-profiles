@@ -1,0 +1,41 @@
+{
+  "os_name": "Gentoo",
+  "os_family": "linux",
+  "os_version": "rolling",
+  "init_system": "openrc",
+  "community_maintained": true,
+  "maintainer_note": "Community-maintained profile. Portage userland, OpenRC init (init/init-openrc.json). A Gentoo/systemd install works too — the engine detects the running init at runtime; only the installer's target defaults to OpenRC, matching the openrc stage3. Package atoms are given in full category/name form and were validated against the ::gentoo tree; OpenRC service names come from a live Gentoo system, except the NFS ones, which are unverified. Persistent hostname lives in /etc/conf.d/hostname (written by the installer); system.hostname_set only changes the running one, as on Void.",
+
+  "packages": {
+    "update_cache": "emerge --sync --quiet",
+    "list_updatable": "emerge --pretend --update --deep --newuse --columns @world",
+    "install": "emerge --quiet --noreplace {package_name}",
+    "remove": "emerge --deselect {package_name}",
+    "purge": "emerge --unmerge --quiet {package_name}",
+    "autoremove": "emerge --depclean --quiet",
+    "search": "emerge --search {package_name}",
+    "show": "emerge --pretend --verbose {package_name}",
+    "upgrade": "emerge --update --deep --newuse --quiet @world"
+  },
+
+  "bootloader": {
+    "build_uki": "dracut --force --uefi --kernel-cmdline \"root=ZFS={dataset} rw\" {output_path} {kernel_version}",
+    "build_uki_recovery": "dracut --force --uefi --kernel-cmdline \"root=ZFS={dataset} ro single\" {output_path} {kernel_version}",
+    "efi_boot_entry": "efibootmgr --create --disk {disk} --part {part_num} --loader {loader_path} --label {label}"
+  },
+
+  "system": {
+    "hostname_set": "hostname {hostname}",
+    "reboot": "openrc-shutdown --reboot now",
+    "shutdown": "openrc-shutdown --poweroff now",
+    "uptime": "uptime -s",
+    "uname": "uname -a",
+    "cpu_info": "lscpu",
+    "memory_info": "free -h",
+    "disk_list": "lsblk -J",
+    "disk_partitions": "parted -l",
+    "mount_list": "mount | column -t",
+    "df": "df -h",
+    "dmesg": "dmesg"
+  }
+}

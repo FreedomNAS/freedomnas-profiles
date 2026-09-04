@@ -70,5 +70,16 @@
     "config_paths": [
       "/etc/samba/smb.conf"
     ]
+  },
+  "gentoo": {
+    "packages": [
+      "net-fs/samba"
+    ],
+    "services": [
+      "samba"
+    ],
+    "config_paths": [
+      "/etc/samba/smb.conf"
+    ]
   }
 }

@@ -8,11 +8,11 @@ module (core or community) never requires touching another module's profile.
 - **os/os-debian.json**, **os/os-freebsd.json**, **os/os-arch.json**: shared OS-level
   primitives (package manager, bootloader, system info) for Debian/Ubuntu, FreeBSD 13.0+,
   and Arch Linux (community-maintained).
-- **os/os-artix.json**, **os/os-void.json**: Artix Linux / Void Linux — profile
-  scaffolding for the "exotic" `freedomnas-image-builder` editions (Phase 3). Package
-  categories already have `artix`/`void` sections too. **Not yet reachable at
-  runtime** — `engine.py`'s `SUPPORTED_OS` still only lists `debian`/`freebsd`/`arch`;
-  wiring these in is follow-up work.
+- **os/os-gentoo.json**, **os/os-artix.json**, **os/os-void.json**: Gentoo (Portage +
+  OpenRC), Artix (pacman + OpenRC) and Void (xbps + runit) — community-maintained, and
+  reachable at runtime: the engine maps `/etc/os-release`'s `ID` to a profile, and all
+  three are in `SUPPORTED_OS`. Package categories carry matching sections; Gentoo's use
+  full `category/name` atoms.
 - **storage/**, **network/**, **shares/**, **users/**: per-module command fragments,
   one file per module per OS (`<module>-<os>.json`). A community module (e.g.
   `nextcloud`) ships its own `profiles/<name>/<name>-<os>.json` files the same way,
@@ -26,8 +26,9 @@ freedomnas-profiles/
 │   ├── os-debian.json         packages, bootloader, system, os_name/os_family/os_version
 │   ├── os-freebsd.json
 │   ├── os-arch.json
-│   ├── os-artix.json          (not yet wired into engine.py)
-│   └── os-void.json           (not yet wired into engine.py)
+│   ├── os-gentoo.json         (community — portage + OpenRC)
+│   ├── os-artix.json          (community — pacman + OpenRC)
+│   └── os-void.json           (community — xbps + runit)
 ├── init/                    ← Init-system profiles, separate from the OS
 │   ├── init-systemd.json
 │   ├── init-openrc.json
@@ -38,7 +39,7 @@ freedomnas-profiles/
 ├── storage/                 ← Storage module: zfs, btrfs, media
 │   ├── storage-debian.json
 │   ├── storage-freebsd.json
-│   └── storage-arch.json / storage-artix.json / storage-void.json
+│   └── storage-arch.json / storage-gentoo.json / storage-artix.json / storage-void.json
 ├── network/                 ← Network module: network
 │   └── network-<os>.json
 ├── shares/                  ← Shares module: samba, nfs
@@ -47,8 +48,9 @@ freedomnas-profiles/
 │   └── users-<os>.json
 ├── installer/               ← Installer fragments: installer_meta, chroot,
 │   ├── installer-debian.json    partitioning, rootpool, bootstrap, files.
-│   ├── installer-void.json      Consumed only by freedomnas-installer; the
-│   ├── installer-artix.json     engine merges them like any other fragment.
+│   ├── installer-gentoo.json    Consumed only by freedomnas-installer; the
+│   ├── installer-void.json      engine merges them like any other fragment.
+│   ├── installer-artix.json
 │   ├── installer-arch.json
 │   └── installer-freebsd.json
 ├── assets/                  ← Boot-chain and boot-time assets, shared by

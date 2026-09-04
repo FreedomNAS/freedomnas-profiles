@@ -84,5 +84,22 @@
       "/etc/libvirt/libvirtd.conf",
       "/etc/libvirt/qemu.conf"
     ]
+  },
+  "gentoo": {
+    "packages": [
+      "app-emulation/qemu",
+      "app-emulation/libvirt",
+      "app-emulation/virt-manager",
+      "net-misc/bridge-utils",
+      "sys-firmware/edk2-bin",
+      "net-dns/dnsmasq"
+    ],
+    "services": [
+      "libvirtd"
+    ],
+    "config_paths": [
+      "/etc/libvirt/libvirtd.conf",
+      "/etc/libvirt/qemu.conf"
+    ]
   }
 }
