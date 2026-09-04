@@ -45,9 +45,15 @@ freedomnas-profiles/
 │   init-s6.json
 │   init-dinit.json
 │   init-bsd_rc.json
+├── installer/           How an edition gets *installed*: installer_meta,
+│   installer-<os>.json  chroot, partitioning, rootpool, bootstrap, files.
+│                         Read only by freedomnas-installer — add one if
+│                         your OS should be installable, skip it if you
+│                         only want FreedomNAS to *run* on it
 ├── assets/               Boot-chain binaries (vendored Clover, the
-│                         zz-dracut-uki hook) — not something you'll
-│                         usually touch; see assets/clover/README.md
+│                         zz-dracut-uki hook) and the boot-time scripts
+│                         (firstboot.sh, supervisor.sh) — not something
+│                         you'll usually touch; see assets/clover/README.md
 │                         before ever changing anything here
 └── packages/             Different track — see the table above
 ```
@@ -174,6 +180,21 @@ Alpine profile from any machine.
     this state today — full profile fragments, not yet wired into
     `SUPPORTED_OS` — see `os/os-artix.json`/`os/os-void.json` for a
     worked, complete example to copy from.
+
+!!! tip "Making the OS installable too"
+    The fragments above make FreedomNAS *run* on an OS. To make
+    `freedomnas-install` able to *install* it, add
+    `installer/installer-<os>.json` as well — see
+    [PROFILE_SPECIFICATION_v1.md](../PROFILE_SPECIFICATION_v1.md#installer-profile-structure)
+    for the schema, and copy `installer/installer-void.json` if your OS has
+    no native bootstrapper reachable from other distros (it uses the rootfs
+    tarball method, which needs only `curl` and `tar` on the installer
+    host). Then check the whole install resolves, without touching a disk:
+
+    ```sh
+    python3 tests/dryrun_smoke.py     # in freedomnas-installer
+    sudo freedomnas-install --dry-run --mode clean --target <os>
+    ```
 
 ### 6. Submit
 

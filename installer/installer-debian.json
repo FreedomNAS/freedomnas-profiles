@@ -1,0 +1,190 @@
+{
+  "installer_meta": {
+    "arch": "amd64",
+    "suite": "trixie",
+    "mirror": "http://deb.debian.org/debian",
+    "esp_size": "512MiB",
+    "esp_mountpoint": "/boot/efi",
+    "bootstrap_methods": [
+      "debootstrap",
+      "tarball"
+    ],
+    "bootstrap_tools": {
+      "debootstrap": "debootstrap",
+      "tarball": "tar"
+    },
+    "rootfs_tarball_url": "",
+    "uki_name": "debian-uki.efi",
+    "uki_recovery_name": "debian-recovery.efi",
+    "chroot_dirs": [
+      "/dev",
+      "/dev/pts",
+      "/proc",
+      "/sys",
+      "/run"
+    ],
+    "mirrors": [
+      {
+        "code": "DEFAULT",
+        "label": "Worldwide CDN (deb.debian.org)",
+        "url": "http://deb.debian.org/debian"
+      },
+      {
+        "code": "IT",
+        "label": "Italy (debian.connesi.it)",
+        "url": "http://debian.connesi.it/debian"
+      },
+      {
+        "code": "DE",
+        "label": "Germany (ftp.de.debian.org)",
+        "url": "http://ftp.de.debian.org/debian"
+      },
+      {
+        "code": "FR",
+        "label": "France (ftp.fr.debian.org)",
+        "url": "http://ftp.fr.debian.org/debian"
+      },
+      {
+        "code": "UK",
+        "label": "United Kingdom (ftp.uk.debian.org)",
+        "url": "http://ftp.uk.debian.org/debian"
+      },
+      {
+        "code": "NL",
+        "label": "Netherlands (ftp.nl.debian.org)",
+        "url": "http://ftp.nl.debian.org/debian"
+      },
+      {
+        "code": "CH",
+        "label": "Switzerland (ftp.ch.debian.org)",
+        "url": "http://ftp.ch.debian.org/debian"
+      },
+      {
+        "code": "PL",
+        "label": "Poland (ftp.pl.debian.org)",
+        "url": "http://ftp.pl.debian.org/debian"
+      },
+      {
+        "code": "SE",
+        "label": "Sweden (ftp.se.debian.org)",
+        "url": "http://ftp.se.debian.org/debian"
+      },
+      {
+        "code": "US",
+        "label": "United States (ftp.us.debian.org)",
+        "url": "http://ftp.us.debian.org/debian"
+      },
+      {
+        "code": "CA",
+        "label": "Canada (ftp.ca.debian.org)",
+        "url": "http://ftp.ca.debian.org/debian"
+      },
+      {
+        "code": "BR",
+        "label": "Brazil (ftp.br.debian.org)",
+        "url": "http://ftp.br.debian.org/debian"
+      },
+      {
+        "code": "AU",
+        "label": "Australia (ftp.au.debian.org)",
+        "url": "http://ftp.au.debian.org/debian"
+      },
+      {
+        "code": "JP",
+        "label": "Japan (ftp.jp.debian.org)",
+        "url": "http://ftp.jp.debian.org/debian"
+      }
+    ]
+  },
+  "chroot": {
+    "exec_prefix": "chroot {root}",
+    "mount": [
+      "mount --bind /dev {root}/dev",
+      "mount --bind /dev/pts {root}/dev/pts",
+      "mount --bind /proc {root}/proc",
+      "mount --bind /sys {root}/sys",
+      "mount --bind /run {root}/run"
+    ],
+    "unmount": [
+      "umount -l {root}/run",
+      "umount -l {root}/sys",
+      "umount -l {root}/proc",
+      "umount -l {root}/dev/pts",
+      "umount -l {root}/dev"
+    ]
+  },
+  "partitioning": {
+    "list_disks": "lsblk -d -n -b -o NAME,SIZE,MODEL",
+    "wipe": "sgdisk --zap-all {disk}",
+    "clear": "sgdisk --clear {disk}",
+    "create_esp": "sgdisk -n 1:0:+{esp_size} -t 1:EF00 {disk}",
+    "create_root": "sgdisk -n 2:0:-0 -t 2:BF00 {disk}",
+    "probe": "partprobe {disk}",
+    "settle": "udevadm settle",
+    "format_esp": "mkfs.vfat -F 32 -n EFI {device}",
+    "mount_esp": "mount {device} {mountpoint}",
+    "unmount": "umount {mountpoint}",
+    "esp_uuid": "blkid -s UUID -o value {device}"
+  },
+  "rootpool": {
+    "create": "zpool create -o ashift={ashift} -O acltype=posixacl -O canmount=off -O compression={compression} -O dnodesize=auto -O normalization=formD -O relatime=on -O xattr=sa -O mountpoint=/ -R {altroot} {pool_name} {device}",
+    "create_datasets": [
+      "zfs create -o canmount=off -o mountpoint=none {pool_name}/ROOT",
+      "zfs create -o canmount=noauto -o mountpoint=/ {pool_name}/ROOT/{edition}",
+      "zfs create -o setuid=off {pool_name}/home",
+      "zfs create -o canmount=off -o mountpoint=/var {pool_name}/var",
+      "zfs create -o atime=on {pool_name}/var/log",
+      "zfs create -o canmount=noauto -o mountpoint=/etc/freedomnas/state {pool_name}/.freedomnas"
+    ],
+    "create_state_dataset": "zfs create -o canmount=noauto -o mountpoint=/etc/freedomnas/state {pool_name}/.freedomnas",
+    "set_bootfs": "zpool set bootfs={pool_name}/ROOT/{edition} {pool_name}",
+    "mount_root": "zfs mount {pool_name}/ROOT/{edition}",
+    "mount_all": "zfs mount --all",
+    "mount_dataset": "zfs mount {dataset}",
+    "unmount_all": "zfs umount -a",
+    "export": "zpool export {pool_name}",
+    "export_all": "zpool export -a",
+    "list_importable": "zpool import -d /dev/disk/by-id",
+    "list_pools": "zpool list -H -o name",
+    "dataset_exists": "zfs list -H -o name {dataset}"
+  },
+  "bootstrap": {
+    "debootstrap": "debootstrap --arch={arch} {suite} {root} {mirror}",
+    "fetch_tarball": "curl -fL --retry 3 -o {output} {url}",
+    "unpack_tarball": "tar -xpf {tarball} -C {root} --numeric-owner",
+    "update_cache": "apt-get update -qq",
+    "install_base": "apt-get install -y --no-install-recommends {package_list}",
+    "locale_gen": "locale-gen"
+  },
+  "files": {
+    "hostname": {
+      "path": "/etc/hostname",
+      "content": "{hostname}\n"
+    },
+    "hosts": {
+      "path": "/etc/hosts",
+      "content": "127.0.0.1\tlocalhost\n127.0.1.1\t{fqdn} {hostname}\n\n::1\t\tlocalhost ip6-localhost ip6-loopback\nff02::1\t\tip6-allnodes\nff02::2\t\tip6-allrouters\n"
+    },
+    "fstab": {
+      "path": "/etc/fstab",
+      "content": "# /etc/fstab - ZFS datasets are mounted by ZFS, not fstab\n{esp_spec}\t/boot/efi\tvfat\tdefaults\t0\t2\n"
+    },
+    "package_sources": {
+      "path": "/etc/apt/sources.list",
+      "content": "deb {mirror} {suite} main contrib non-free non-free-firmware\ndeb {mirror} {suite}-updates main contrib non-free non-free-firmware\ndeb http://security.debian.org/debian-security {suite}-security main contrib non-free non-free-firmware\n"
+    },
+    "timezone": {
+      "path": "/etc/timezone",
+      "content": "{timezone}\n"
+    },
+    "localtime_link": {
+      "path": "/etc/localtime",
+      "symlink_to": "/usr/share/zoneinfo/{timezone}"
+    },
+    "webui_cron": {
+      "path": "/etc/cron.d/freedomnas-webui",
+      "content": "@reboot root /usr/lib/freedomnas/webui/bin/firstboot.sh >> /var/log/freedomnas-webui.log 2>&1\n",
+      "mode": 420
+    }
+  }
+}

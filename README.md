@@ -45,9 +45,17 @@ freedomnas-profiles/
 │   └── shares-<os>.json
 ├── users/                   ← Users module: users
 │   └── users-<os>.json
-├── assets/                  ← Boot-chain assets, shared by the parked
-│   ├── clover/                installer and freedomnas-image-builder
-│   └── zz-dracut-uki           (moved here from freedomnas-installer/assets/)
+├── installer/               ← Installer fragments: installer_meta, chroot,
+│   ├── installer-debian.json    partitioning, rootpool, bootstrap, files.
+│   ├── installer-void.json      Consumed only by freedomnas-installer; the
+│   ├── installer-artix.json     engine merges them like any other fragment.
+│   ├── installer-arch.json
+│   └── installer-freebsd.json
+├── assets/                  ← Boot-chain and boot-time assets, shared by
+│   ├── clover/                freedomnas-installer and freedomnas-image-builder
+│   ├── zz-dracut-uki           (moved here from freedomnas-installer/assets/)
+│   ├── firstboot.sh            ADR-002 boot-time decision point
+│   └── supervisor.sh           WebUI supervisor (circuit breaker)
 └── packages/                ← Optional packages, by category — NOT the same thing as
     ├── MANIFEST.json          the module profiles above. These describe distro package
     ├── SCHEMA.md              *groups* (samba-cifs, nfs, containers...) the installer/
@@ -178,7 +186,7 @@ Per-module fragments contain only the categories that module owns, e.g.
 
 FreedomNAS boots from a Unified Kernel Image (UKI) built with `dracut`, loaded
 directly via `efibootmgr` on native UEFI. On legacy BIOS, Clover (vendored in
-this repo at `assets/clover/` — shared by the parked installer and
+this repo at `assets/clover/` — shared by `freedomnas-installer` and
 `freedomnas-image-builder` so neither keeps its own copy) emulates UEFI —
 that part is pure file I/O and requires no profile commands. The profile
 only exposes the two OS-native commands:
@@ -190,7 +198,28 @@ only exposes the two OS-native commands:
 }
 ```
 
+`build_uki_recovery` builds the same UKI with `ro single` on the cmdline —
+the read-only, single-user recovery entry the installer and the image builder
+both place next to the normal one.
+
 `os-freebsd.json` uses its own native boot chain instead (`install_gptzfsboot` /
 `install_efi_loader`); `os-arch.json` has no `bootloader` section yet.
+
+### `installer/installer-{edition}.json`
+
+Everything `freedomnas-installer` needs to provision an edition, and the
+reason no installation command lives in its Python:
+
+| Section | Holds |
+|---------|-------|
+| `installer_meta` | Data, not commands: arch/suite/mirror(s), ESP size, bootstrap methods and the host tool each needs, UKI filenames, chroot directories |
+| `chroot` | `exec_prefix` (prepended to every command run inside the target), plus the `mount`/`unmount` sequences |
+| `partitioning` | Disk listing (fixed output contract), wipe, ESP + root partitions, ESP format/mount |
+| `rootpool` | Root pool creation, the dataset tree, bootfs, mount/export, `.freedomnas` |
+| `bootstrap` | The edition's own bootstrapper, the rootfs-tarball fetch/unpack, and the in-target cache/install/locale commands |
+| `files` | The *contents* of OS-specific files: `sources.list`, `fstab`, `hosts`, `rc.conf`, `loader.conf`, the cron hook. A file's text is as distro-specific as a command |
+
+Full schema in
+[PROFILE_SPECIFICATION_v1.md](../PROFILE_SPECIFICATION_v1.md#installer-profile-structure).
 
 See the JSON files for complete examples of every category.

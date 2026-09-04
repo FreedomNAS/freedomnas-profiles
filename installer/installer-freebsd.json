@@ -1,0 +1,95 @@
+{
+  "installer_meta": {
+    "maintainer_note": "FreeBSD provisioning is native: gpart for the layout, base.txz for the userland, and the loader reads ZFS directly, so there is no UKI and no Clover. A FreeBSD target requires a FreeBSD installer environment - Linux hosts cannot run gpart/pkg, which is why the installer filters targets by os_family.",
+    "arch": "amd64",
+    "suite": "14.2-RELEASE",
+    "mirror": "https://download.freebsd.org/ftp/releases/amd64/14.2-RELEASE",
+    "esp_size": "512M",
+    "esp_mountpoint": "/boot/efi",
+    "bootstrap_methods": [
+      "tarball"
+    ],
+    "bootstrap_tools": {
+      "tarball": "tar"
+    },
+    "rootfs_tarball_url": "https://download.freebsd.org/ftp/releases/amd64/14.2-RELEASE/base.txz",
+    "chroot_dirs": [
+      "/dev"
+    ]
+  },
+  "chroot": {
+    "exec_prefix": "chroot {root}",
+    "mount": [
+      "mount -t devfs devfs {root}/dev"
+    ],
+    "unmount": [
+      "umount -f {root}/dev"
+    ]
+  },
+  "partitioning": {
+    "list_disks": "for d in $(sysctl -n kern.disks); do printf '%s %s %s\\n' \"$d\" \"$(diskinfo $d | cut -f3)\" \"$(diskinfo -v $d | sed -n 's/.*descr.*: *//p')\"; done",
+    "wipe": "gpart destroy -F {disk}",
+    "clear": "gpart create -s gpt {disk}",
+    "create_esp": "gpart add -t efi -s {esp_size} -i 1 -l efiboot {disk}",
+    "create_root": "gpart add -t freebsd-zfs -i 2 -l rpool {disk}",
+    "format_esp": "newfs_msdos -F 32 -L EFI {device}",
+    "mount_esp": "mount -t msdosfs {device} {mountpoint}",
+    "unmount": "umount {mountpoint}"
+  },
+  "rootpool": {
+    "create": "zpool create -o ashift={ashift} -O aclinherit=passthrough -O aclmode=passthrough -O canmount=off -O compression={compression} -O atime=off -O mountpoint=/ -R {altroot} {pool_name} {device}",
+    "create_datasets": [
+      "zfs create -o canmount=off -o mountpoint=none {pool_name}/ROOT",
+      "zfs create -o canmount=noauto -o mountpoint=/ {pool_name}/ROOT/{edition}",
+      "zfs create -o setuid=off {pool_name}/home",
+      "zfs create -o canmount=off -o mountpoint=/var {pool_name}/var",
+      "zfs create -o atime=on {pool_name}/var/log",
+      "zfs create -o canmount=noauto -o mountpoint=/etc/freedomnas/state {pool_name}/.freedomnas"
+    ],
+    "create_state_dataset": "zfs create -o canmount=noauto -o mountpoint=/etc/freedomnas/state {pool_name}/.freedomnas",
+    "set_bootfs": "zpool set bootfs={pool_name}/ROOT/{edition} {pool_name}",
+    "mount_root": "zfs mount {pool_name}/ROOT/{edition}",
+    "mount_all": "zfs mount -a",
+    "mount_dataset": "zfs mount {dataset}",
+    "unmount_all": "zfs umount -a",
+    "export": "zpool export {pool_name}",
+    "export_all": "zpool export -a",
+    "list_importable": "zpool import",
+    "list_pools": "zpool list -H -o name",
+    "dataset_exists": "zfs list -H -o name {dataset}"
+  },
+  "bootstrap": {
+    "fetch_tarball": "fetch -o {output} {url}",
+    "unpack_tarball": "tar -xpf {tarball} -C {root}",
+    "update_cache": "pkg update -f",
+    "install_base": "pkg install -y {package_list}"
+  },
+  "files": {
+    "rc_conf": {
+      "path": "/etc/rc.conf",
+      "content": "hostname=\"{fqdn}\"\nzfs_enable=\"YES\"\nsshd_enable=\"YES\"\nifconfig_DEFAULT=\"DHCP\"\n"
+    },
+    "hosts": {
+      "path": "/etc/hosts",
+      "content": "::1\t\tlocalhost\n127.0.0.1\tlocalhost\n127.0.1.1\t{fqdn} {hostname}\n"
+    },
+    "fstab": {
+      "path": "/etc/fstab",
+      "content": "# /etc/fstab - ZFS datasets are mounted by ZFS, not fstab\n/dev/gpt/efiboot\t/boot/efi\tmsdosfs\trw\t2\t2\n"
+    },
+    "localtime_link": {
+      "path": "/etc/localtime",
+      "symlink_to": "/usr/share/zoneinfo/{timezone}"
+    },
+    "loader_conf": {
+      "path": "/boot/loader.conf",
+      "content": "zfs_load=\"YES\"\nvfs.root.mountfrom=\"zfs:{pool_name}/ROOT/{edition}\"\n"
+    },
+    "webui_cron": {
+      "path": "/etc/crontab",
+      "append": true,
+      "content": "@reboot root /usr/lib/freedomnas/webui/bin/firstboot.sh >> /var/log/freedomnas-webui.log 2>&1\n",
+      "_note": "FreeBSD's cron is vixie-cron heritage and honours @reboot, but base ships no /etc/cron.d drop-in directory, so the entry is appended to the system crontab."
+    }
+  }
+}

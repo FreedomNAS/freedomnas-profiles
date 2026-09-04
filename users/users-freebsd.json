@@ -6,6 +6,10 @@
     "list": "pw usershow -a | awk -F: '$3 >= 1001 && $3 < 65534'",
     "get_user_info": "pw usershow {username}",
     "add_to_group": "pw groupmod {group} -m {username}",
-    "remove_from_group": "pw groupmod {group} -d {username}"
+    "remove_from_group": "pw groupmod {group} -d {username}",
+    "create_basic": "pw useradd {username} -m -s /bin/sh",
+    "set_password_stdin": "pw usermod {username} -h 0",
+    "password_stdin_format": "{password}\n",
+    "sudo_group": "wheel"
   }
 }

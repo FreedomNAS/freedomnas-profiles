@@ -6,6 +6,10 @@
     "list": "getent passwd | awk -F: '$3 >= 1000 && $3 < 65534'",
     "get_user_info": "getent passwd {username}",
     "add_to_group": "usermod -a -G {groups} {username}",
-    "remove_from_group": "delgroup {username} {group}"
+    "remove_from_group": "delgroup {username} {group}",
+    "create_basic": "useradd -m -s /bin/bash {username}",
+    "set_password_stdin": "chpasswd",
+    "password_stdin_format": "{username}:{password}\n",
+    "sudo_group": "sudo"
   }
 }

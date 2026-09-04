@@ -5,7 +5,6 @@
   "init_system": "openrc",
   "community_maintained": true,
   "maintainer_note": "Community-maintained profile (exotic edition). Arch userland (pacman) with OpenRC instead of systemd -- no hostnamectl/systemctl anywhere in this file. Package/service names inherited from arch.json where OpenRC does not change them; samba/nfs OpenRC service names should be validated against the current artix-openrc-base package set before relying on them in production. Contributions welcome!",
-
   "packages": {
     "update_cache": "pacman -Sy",
     "list_updatable": "pacman -Qu",
@@ -17,12 +16,11 @@
     "show": "pacman -Si {package_name}",
     "upgrade": "pacman -Syu --noconfirm"
   },
-
   "bootloader": {
     "build_uki": "dracut --force --uefi --kernel-cmdline \"root=ZFS={dataset} rw\" {output_path} {kernel_version}",
-    "efi_boot_entry": "efibootmgr --create --disk {disk} --part {part_num} --loader {loader_path} --label {label}"
+    "efi_boot_entry": "efibootmgr --create --disk {disk} --part {part_num} --loader {loader_path} --label {label}",
+    "build_uki_recovery": "dracut --force --uefi --kernel-cmdline \"root=ZFS={dataset} ro single\" {output_path} {kernel_version}"
   },
-
   "system": {
     "hostname_set": "hostname {hostname}",
     "reboot": "reboot",

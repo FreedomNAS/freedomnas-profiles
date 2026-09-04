@@ -3,7 +3,6 @@
   "os_family": "linux",
   "os_version": "12+",
   "init_system": "systemd",
-
   "packages": {
     "update_cache": "apt update",
     "list_updatable": "apt list --upgradable 2>/dev/null | tail -n +2",
@@ -15,12 +14,11 @@
     "show": "apt show {package_name}",
     "upgrade": "apt full-upgrade -y"
   },
-
   "bootloader": {
     "build_uki": "dracut --force --uefi --kernel-cmdline \"root=ZFS={dataset} rw\" {output_path} {kernel_version}",
-    "efi_boot_entry": "efibootmgr --create --disk {disk} --part {part_num} --loader {loader_path} --label {label}"
+    "efi_boot_entry": "efibootmgr --create --disk {disk} --part {part_num} --loader {loader_path} --label {label}",
+    "build_uki_recovery": "dracut --force --uefi --kernel-cmdline \"root=ZFS={dataset} ro single\" {output_path} {kernel_version}"
   },
-
   "system": {
     "hostname_set": "hostnamectl set-hostname {hostname}",
     "reboot": "systemctl reboot",

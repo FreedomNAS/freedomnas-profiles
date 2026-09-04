@@ -1,0 +1,112 @@
+{
+  "installer_meta": {
+    "community_maintained": true,
+    "maintainer_note": "Community-maintained (exotic edition). pacstrap needs arch-install-scripts on the installer host; the tarball method uses Arch's own bootstrap tarball (archlinux-bootstrap-x86_64.tar.zst), whose name is date-stamped, so rootfs_tarball_url is left empty and the installer asks for it.",
+    "arch": "x86_64",
+    "suite": "",
+    "mirror": "",
+    "esp_size": "512MiB",
+    "esp_mountpoint": "/boot/efi",
+    "bootstrap_methods": [
+      "pacstrap",
+      "tarball"
+    ],
+    "bootstrap_tools": {
+      "pacstrap": "pacstrap",
+      "tarball": "tar"
+    },
+    "rootfs_tarball_url": "",
+    "uki_name": "arch-uki.efi",
+    "uki_recovery_name": "arch-recovery.efi",
+    "chroot_dirs": [
+      "/dev",
+      "/dev/pts",
+      "/proc",
+      "/sys",
+      "/run"
+    ]
+  },
+  "chroot": {
+    "exec_prefix": "chroot {root}",
+    "mount": [
+      "mount --bind /dev {root}/dev",
+      "mount --bind /dev/pts {root}/dev/pts",
+      "mount --bind /proc {root}/proc",
+      "mount --bind /sys {root}/sys",
+      "mount --bind /run {root}/run"
+    ],
+    "unmount": [
+      "umount -l {root}/run",
+      "umount -l {root}/sys",
+      "umount -l {root}/proc",
+      "umount -l {root}/dev/pts",
+      "umount -l {root}/dev"
+    ]
+  },
+  "partitioning": {
+    "list_disks": "lsblk -d -n -b -o NAME,SIZE,MODEL",
+    "wipe": "sgdisk --zap-all {disk}",
+    "clear": "sgdisk --clear {disk}",
+    "create_esp": "sgdisk -n 1:0:+{esp_size} -t 1:EF00 {disk}",
+    "create_root": "sgdisk -n 2:0:-0 -t 2:BF00 {disk}",
+    "probe": "partprobe {disk}",
+    "settle": "udevadm settle",
+    "format_esp": "mkfs.vfat -F 32 -n EFI {device}",
+    "esp_uuid": "blkid -s UUID -o value {device}",
+    "mount_esp": "mount {device} {mountpoint}",
+    "unmount": "umount {mountpoint}"
+  },
+  "rootpool": {
+    "create": "zpool create -o ashift={ashift} -O acltype=posixacl -O canmount=off -O compression={compression} -O dnodesize=auto -O normalization=formD -O relatime=on -O xattr=sa -O mountpoint=/ -R {altroot} {pool_name} {device}",
+    "create_datasets": [
+      "zfs create -o canmount=off -o mountpoint=none {pool_name}/ROOT",
+      "zfs create -o canmount=noauto -o mountpoint=/ {pool_name}/ROOT/{edition}",
+      "zfs create -o setuid=off {pool_name}/home",
+      "zfs create -o canmount=off -o mountpoint=/var {pool_name}/var",
+      "zfs create -o atime=on {pool_name}/var/log",
+      "zfs create -o canmount=noauto -o mountpoint=/etc/freedomnas/state {pool_name}/.freedomnas"
+    ],
+    "create_state_dataset": "zfs create -o canmount=noauto -o mountpoint=/etc/freedomnas/state {pool_name}/.freedomnas",
+    "set_bootfs": "zpool set bootfs={pool_name}/ROOT/{edition} {pool_name}",
+    "mount_root": "zfs mount {pool_name}/ROOT/{edition}",
+    "mount_all": "zfs mount --all",
+    "mount_dataset": "zfs mount {dataset}",
+    "unmount_all": "zfs umount -a",
+    "export": "zpool export {pool_name}",
+    "export_all": "zpool export -a",
+    "list_importable": "zpool import -d /dev/disk/by-id",
+    "list_pools": "zpool list -H -o name",
+    "dataset_exists": "zfs list -H -o name {dataset}"
+  },
+  "bootstrap": {
+    "pacstrap": "pacstrap -K {root} base linux linux-firmware",
+    "fetch_tarball": "curl -fL --retry 3 -o {output} {url}",
+    "unpack_tarball": "tar -xpf {tarball} -C {root} --numeric-owner",
+    "update_cache": "pacman -Sy --noconfirm",
+    "install_base": "pacman -S --noconfirm --needed {package_list}",
+    "locale_gen": "locale-gen"
+  },
+  "files": {
+    "hostname": {
+      "path": "/etc/hostname",
+      "content": "{hostname}\n"
+    },
+    "hosts": {
+      "path": "/etc/hosts",
+      "content": "127.0.0.1\tlocalhost\n127.0.1.1\t{fqdn} {hostname}\n\n::1\t\tlocalhost ip6-localhost ip6-loopback\n"
+    },
+    "fstab": {
+      "path": "/etc/fstab",
+      "content": "# /etc/fstab - ZFS datasets are mounted by ZFS, not fstab\n{esp_spec}\t/boot/efi\tvfat\tdefaults\t0\t2\n"
+    },
+    "localtime_link": {
+      "path": "/etc/localtime",
+      "symlink_to": "/usr/share/zoneinfo/{timezone}"
+    },
+    "webui_cron": {
+      "path": "/etc/cron.d/freedomnas-webui",
+      "content": "@reboot root /usr/lib/freedomnas/webui/bin/firstboot.sh >> /var/log/freedomnas-webui.log 2>&1\n",
+      "mode": 420
+    }
+  }
+}
