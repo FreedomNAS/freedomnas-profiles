@@ -15,7 +15,7 @@ package() {
 
     # Install profiles to /usr/lib/freedomnas/profiles
     mkdir -p "${pkgdir}/usr/lib/freedomnas/profiles"
-    cp -r os init storage network shares users packages \
+    cp -r os init installer storage network shares users packages assets \
         "${pkgdir}/usr/lib/freedomnas/profiles/"
 
     # Install license if exists
