@@ -158,6 +158,11 @@
       "path": "/etc/portage/package.use/freedomnas",
       "content": "sys-fs/zfs dist-kernel rootfs\nsys-fs/zfs-kmod rootfs\n"
     },
+    "package_accept_keywords": {
+      "path": "/etc/portage/package.accept_keywords/freedomnas",
+      "inplace": true,
+      "content": "# Packages FreedomNAS needs that Gentoo has not stabilised yet.\ndev-python/fastapi ~{arch}\n"
+    },
     "webui_cron": {
       "path": "/etc/cron.d/freedomnas-webui",
       "content": "@reboot root /usr/lib/freedomnas/webui/bin/firstboot.sh >> /var/log/freedomnas-webui.log 2>&1\n",

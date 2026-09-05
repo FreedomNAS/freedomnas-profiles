@@ -135,7 +135,6 @@
       "sys-kernel/linux-firmware",
       "sys-kernel/dracut",
       "sys-fs/zfs",
-      "sys-fs/zfs-kmod",
       "sys-boot/efibootmgr",
       "sys-fs/dosfstools",
       "sys-fs/e2fsprogs",
