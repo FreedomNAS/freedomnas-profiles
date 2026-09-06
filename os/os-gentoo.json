@@ -7,7 +7,7 @@
   "maintainer_note": "Community-maintained profile. Portage userland, OpenRC init (init/init-openrc.json). A Gentoo/systemd install works too — the engine detects the running init at runtime; only the installer's target defaults to OpenRC, matching the openrc stage3. Package atoms are given in full category/name form and were validated against the ::gentoo tree; OpenRC service names come from the init scripts the corresponding ebuilds install. Persistent hostname lives in /etc/conf.d/hostname (written by the installer); system.hostname_set only changes the running one, as on Void.",
   "packages": {
     "update_cache": "emerge --sync --quiet",
-    "list_updatable": "emerge --pretend --update --deep --newuse --columns @world",
+    "list_updatable": "emerge --pretend --update --deep --newuse --quiet --color=n @world | grep -E '^\\[(ebuild|binary)'",
     "install": "emerge --quiet --noreplace {package_name}",
     "remove": "emerge --deselect {package_name}",
     "purge": "emerge --unmerge --quiet {package_name}",
