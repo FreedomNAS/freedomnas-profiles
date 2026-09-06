@@ -10,6 +10,7 @@
     "create_basic": "useradd -m -s /bin/bash {username}",
     "set_password_stdin": "chpasswd",
     "password_stdin_format": "{username}:{password}\n",
-    "sudo_group": "sudo"
+    "sudo_group": "sudo",
+    "share_group": "sambashare"
   }
 }
