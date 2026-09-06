@@ -7,14 +7,25 @@
     "mirror": "https://repo-default.voidlinux.org/current",
     "esp_size": "512MiB",
     "esp_mountpoint": "/boot/efi",
-    "bootstrap_methods": ["xbps", "tarball"],
-    "bootstrap_tools": { "xbps": "xbps-install", "tarball": "tar" },
+    "bootstrap_methods": [
+      "xbps",
+      "tarball"
+    ],
+    "bootstrap_tools": {
+      "xbps": "xbps-install",
+      "tarball": "tar"
+    },
     "rootfs_tarball_url": "",
     "uki_name": "void-uki.efi",
     "uki_recovery_name": "void-recovery.efi",
-    "chroot_dirs": ["/dev", "/dev/pts", "/proc", "/sys", "/run"]
+    "chroot_dirs": [
+      "/dev",
+      "/dev/pts",
+      "/proc",
+      "/sys",
+      "/run"
+    ]
   },
-
   "chroot": {
     "exec_prefix": "chroot {root}",
     "mount": [
@@ -32,7 +43,6 @@
       "umount -l {root}/dev"
     ]
   },
-
   "partitioning": {
     "list_disks": "lsblk -d -n -b -o NAME,SIZE,MODEL",
     "wipe": "sgdisk --zap-all {disk}",
@@ -46,7 +56,6 @@
     "mount_esp": "mount {device} {mountpoint}",
     "unmount": "umount {mountpoint}"
   },
-
   "rootpool": {
     "create": "zpool create -o ashift={ashift} -O acltype=posixacl -O canmount=off -O compression={compression} -O dnodesize=auto -O normalization=formD -O relatime=on -O xattr=sa -O mountpoint=/ -R {altroot} {pool_name} {device}",
     "create_datasets": [
@@ -69,7 +78,6 @@
     "list_pools": "zpool list -H -o name",
     "dataset_exists": "zfs list -H -o name {dataset}"
   },
-
   "bootstrap": {
     "xbps": "xbps-install -S -y -R {mirror} -r {root} base-system",
     "fetch_tarball": "curl -fL --retry 3 -o {output} {url}",
@@ -78,9 +86,11 @@
     "install_base": "xbps-install -y {package_list}",
     "locale_gen": "xbps-reconfigure -f glibc-locales"
   },
-
   "files": {
-    "hostname": { "path": "/etc/hostname", "content": "{hostname}\n" },
+    "hostname": {
+      "path": "/etc/hostname",
+      "content": "{hostname}\n"
+    },
     "hosts": {
       "path": "/etc/hosts",
       "content": "127.0.0.1\tlocalhost\n127.0.1.1\t{fqdn} {hostname}\n\n::1\t\tlocalhost ip6-localhost ip6-loopback\n"
@@ -89,11 +99,20 @@
       "path": "/etc/fstab",
       "content": "# /etc/fstab - ZFS datasets are mounted by ZFS, not fstab\n{esp_spec}\t/boot/efi\tvfat\tdefaults\t0\t2\n"
     },
-    "localtime_link": { "path": "/etc/localtime", "symlink_to": "/usr/share/zoneinfo/{timezone}" },
+    "localtime_link": {
+      "path": "/etc/localtime",
+      "symlink_to": "/usr/share/zoneinfo/{timezone}"
+    },
     "webui_cron": {
       "path": "/etc/cron.d/freedomnas-webui",
       "content": "@reboot root /usr/lib/freedomnas/webui/bin/firstboot.sh >> /var/log/freedomnas-webui.log 2>&1\n",
       "mode": 420
+    },
+    "sudoers": {
+      "path": "/etc/sudoers.d/freedomnas",
+      "inplace": true,
+      "mode": 288,
+      "content": "# FreedomNAS: the WebUI runs updates as the signed-in user,\n# and topgrade calls sudo itself for the steps that need root.\n%{sudo_group} ALL=(ALL) NOPASSWD: ALL\n"
     }
   }
 }

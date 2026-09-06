@@ -167,6 +167,12 @@
       "path": "/etc/cron.d/freedomnas-webui",
       "content": "@reboot root /usr/lib/freedomnas/webui/bin/firstboot.sh >> /var/log/freedomnas-webui.log 2>&1\n",
       "mode": 420
+    },
+    "sudoers": {
+      "path": "/etc/sudoers.d/freedomnas",
+      "inplace": true,
+      "mode": 288,
+      "content": "# FreedomNAS: the WebUI runs updates as the signed-in user,\n# and topgrade calls sudo itself for the steps that need root.\n%{sudo_group} ALL=(ALL) NOPASSWD: ALL\n"
     }
   }
 }

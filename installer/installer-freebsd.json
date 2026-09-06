@@ -90,6 +90,12 @@
       "append": true,
       "content": "@reboot root /usr/lib/freedomnas/webui/bin/firstboot.sh >> /var/log/freedomnas-webui.log 2>&1\n",
       "_note": "FreeBSD's cron is vixie-cron heritage and honours @reboot, but base ships no /etc/cron.d drop-in directory, so the entry is appended to the system crontab."
+    },
+    "sudoers": {
+      "path": "/usr/local/etc/sudoers.d/freedomnas",
+      "inplace": true,
+      "mode": 288,
+      "content": "# FreedomNAS: the WebUI runs updates as the signed-in user,\n# and topgrade calls sudo itself for the steps that need root.\n%{sudo_group} ALL=(ALL) NOPASSWD: ALL\n"
     }
   }
 }
