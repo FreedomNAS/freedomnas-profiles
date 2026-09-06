@@ -21,6 +21,7 @@
   },
   "system": {
     "hostname_set": "hostnamectl set-hostname {hostname}",
+    "timezone_set": "timedatectl set-timezone {timezone}",
     "reboot": "systemctl reboot",
     "shutdown": "systemctl poweroff",
     "uptime": "uptime -s",

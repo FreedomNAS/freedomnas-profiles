@@ -23,6 +23,7 @@
   },
   "system": {
     "hostname_set": "hostname {hostname}",
+    "timezone_set": "ln -sf /usr/share/zoneinfo/{timezone} /etc/localtime",
     "reboot": "openrc-shutdown --reboot now",
     "shutdown": "openrc-shutdown --poweroff now",
     "uptime": "uptime -s",

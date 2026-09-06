@@ -3,7 +3,6 @@
   "os_family": "bsd",
   "os_version": "13.0+",
   "init_system": "bsd_rc",
-
   "packages": {
     "update_cache": "pkg update",
     "list_updatable": "pkg upgrade -n --raw-format json-compact",
@@ -15,16 +14,15 @@
     "show": "pkg info {package_name}",
     "upgrade": "pkg upgrade -y"
   },
-
   "bootloader": {
     "_note": "FreeBSD boots ZFS-on-root natively -- no UKI/Clover needed. gptzfsboot (BIOS) and loader.efi (UEFI) both understand the same GPT+ZFS layout directly, so one image is bootable both ways without a third-party shim.",
     "install_gptzfsboot": "gpart bootcode -b /boot/pmbr -p /boot/gptzfsboot -i {part_num} {disk}",
     "install_efi_loader": "cp /boot/loader.efi {esp_mount}/EFI/BOOT/BOOTX64.efi",
     "efi_boot_entry": "efibootmgr --create --disk {disk} --part {part_num} --loader {loader_path} --label {label}"
   },
-
   "system": {
     "hostname_set": "hostname {hostname} && sysrc hostname=\"{hostname}\"",
+    "timezone_set": "tzsetup {timezone}",
     "reboot": "shutdown -r now",
     "shutdown": "shutdown -p now",
     "uptime": "sysctl -n kern.boottime",

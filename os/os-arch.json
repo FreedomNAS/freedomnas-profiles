@@ -5,7 +5,6 @@
   "init_system": "systemd",
   "community_maintained": true,
   "maintainer_note": "Community-maintained profile. Contributions welcome!",
-
   "packages": {
     "update_cache": "pacman -Sy",
     "list_updatable": "pacman -Qu",
@@ -17,9 +16,9 @@
     "show": "pacman -Si {package_name}",
     "upgrade": "pacman -Syu --noconfirm"
   },
-
   "system": {
     "hostname_set": "hostnamectl set-hostname {hostname}",
+    "timezone_set": "timedatectl set-timezone {timezone}",
     "reboot": "systemctl reboot",
     "shutdown": "systemctl poweroff",
     "uptime": "uptime -s",

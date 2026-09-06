@@ -2,7 +2,13 @@
 # FreedomNAS WebUI supervisor -- init-agnostic, circuit breaker after 5 failures.
 FAILURES=0
 MAX_FAILURES=5
-WEBUI_CMD="python3 -m uvicorn --app-dir /usr/lib/freedomnas/webui api.main:app --host 0.0.0.0 --port 8080"
+WEBUI_DIR="/usr/lib/freedomnas/webui"
+WEBUI_CMD="python3 -m uvicorn api.main:app --host 0.0.0.0 --port 8080"
+
+# The app mounts its static files and templates by relative path, so it has
+# to run from its own directory. `python3 -m` then puts that directory on
+# sys.path as well, which is what makes `api.main` importable.
+cd "$WEBUI_DIR" || exit 1
 
 while true; do
     $WEBUI_CMD
