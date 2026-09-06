@@ -1,6 +1,7 @@
 {
   "network": {
     "list_interfaces": "ifconfig -l -ether",
+    "list_interfaces_json": "ifconfig --libxo json",
     "list_addresses": "ifconfig -a",
     "rename_interface": "ifconfig {old_name} name {new_name}",
     "bridge_create": [

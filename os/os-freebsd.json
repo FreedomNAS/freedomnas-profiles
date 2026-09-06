@@ -23,6 +23,7 @@
   "system": {
     "hostname_set": "hostname {hostname} && sysrc hostname=\"{hostname}\"",
     "timezone_set": "tzsetup {timezone}",
+    "timezone_get": "cat /var/db/zoneinfo",
     "reboot": "shutdown -r now",
     "shutdown": "shutdown -p now",
     "uptime": "sysctl -n kern.boottime",
@@ -34,5 +35,9 @@
     "mount_list": "mount | column -t",
     "df": "df -h",
     "dmesg": "dmesg"
+  },
+  "updates": {
+    "run_topgrade": "topgrade",
+    "topgrade_config": "/root/.config/topgrade.toml"
   }
 }

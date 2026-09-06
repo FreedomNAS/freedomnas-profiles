@@ -22,6 +22,7 @@
   "system": {
     "hostname_set": "hostnamectl set-hostname {hostname}",
     "timezone_set": "timedatectl set-timezone {timezone}",
+    "timezone_get": "timedatectl show -p Timezone --value",
     "reboot": "systemctl reboot",
     "shutdown": "systemctl poweroff",
     "uptime": "uptime -s",
@@ -33,5 +34,9 @@
     "mount_list": "mount | column -t",
     "df": "df -h",
     "dmesg": "dmesg"
+  },
+  "updates": {
+    "run_topgrade": "topgrade",
+    "topgrade_config": "/root/.config/topgrade.toml"
   }
 }

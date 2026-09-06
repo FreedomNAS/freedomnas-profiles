@@ -24,6 +24,7 @@
   "system": {
     "hostname_set": "hostname {hostname}",
     "timezone_set": "ln -sf /usr/share/zoneinfo/{timezone} /etc/localtime",
+    "timezone_get": "readlink /etc/localtime | sed 's|.*/zoneinfo/||'",
     "reboot": "openrc-shutdown --reboot now",
     "shutdown": "openrc-shutdown --poweroff now",
     "uptime": "uptime -s",
@@ -35,5 +36,9 @@
     "mount_list": "mount | column -t",
     "df": "df -h",
     "dmesg": "dmesg"
+  },
+  "updates": {
+    "run_topgrade": "topgrade",
+    "topgrade_config": "/root/.config/topgrade.toml"
   }
 }

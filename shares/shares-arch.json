@@ -10,9 +10,10 @@
     "nmb_service": "nmbd",
     "reload_config": "smbcontrol smbd reload-config"
   },
-
   "nfs": {
     "config_file": "/etc/exports",
+    "export_add": "echo '{path} {clients}({options})' >> /etc/exports",
+    "export_remove": "sed -i '\\#^{path} #d' /etc/exports",
     "export_list": "showmount -e localhost",
     "exportfs_reload": "exportfs -ra",
     "exportfs_list": "exportfs -v",
