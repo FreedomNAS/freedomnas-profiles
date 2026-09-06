@@ -39,6 +39,7 @@
   },
   "updates": {
     "run_topgrade": "su - {username} -c 'topgrade --config /etc/freedomnas/topgrade.toml'",
-    "topgrade_config": "/etc/freedomnas/topgrade.toml"
+    "topgrade_config": "/etc/freedomnas/topgrade.toml",
+    "topgrade_extra_config": "[linux]\nemerge_update_flags = \"-uDN --with-bdeps=y world\"\n"
   }
 }
