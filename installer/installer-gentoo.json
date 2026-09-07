@@ -116,6 +116,7 @@
     "export_all": "zpool export -a",
     "list_importable": "zpool import -d /dev/disk/by-id",
     "list_pools": "zpool list -H -o name",
+    "detect_root_dataset": "zfs list -H -o name /",
     "dataset_exists": "zfs list -H -o name {dataset}"
   },
   "bootstrap": {

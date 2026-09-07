@@ -23,7 +23,19 @@ set -u
 
 log() { echo "firstboot: $*"; }
 
-zpool import -a -N 2>/dev/null || true
+# Pools already imported when we got here: whatever the admin or the boot
+# services set up is not ours to touch.
+already_imported=$(zpool list -H -o name 2>/dev/null)
+
+was_already_imported() {
+    printf '%s\n' "$already_imported" | grep -qx "$1"
+}
+
+# cachefile=none matters more than it looks: without it, importing a pool
+# writes it into /etc/zfs/zpool.cache, and from the next boot onward the
+# system's own zfs-import/zfs-mount services adopt it and mount its datasets
+# over the running system's -- a foreign pool's /var/log shadowing this one's.
+zpool import -a -N -o cachefile=none 2>/dev/null || true
 
 # Encrypted-pool unlock (zero-touch USB key, TTY passphrase fallback).
 # Delegates entirely to the Python engine/profile layer -- this script never
@@ -34,12 +46,24 @@ python3 -m freedomnas unlock-pools --tty /dev/console || \
     log "WARNING: one or more encrypted pools remain locked"
 
 found_dataset=""
+found_pool=""
 for pool in $(zpool list -H -o name 2>/dev/null); do
     if zfs list -H -o name "$pool/.freedomnas" >/dev/null 2>&1; then
         found_dataset="$pool/.freedomnas"
+        found_pool="$pool"
         zfs mount "$found_dataset" 2>/dev/null || true
         break
     fi
+done
+
+# Give back everything we imported and did not need. A NAS must not adopt the
+# pools of whatever disk happens to be attached -- least of all another
+# operating system's root pool.
+for pool in $(zpool list -H -o name 2>/dev/null); do
+    was_already_imported "$pool" && continue
+    [ "$pool" = "$found_pool" ] && continue
+    log "releasing $pool -- imported while looking for the FreedomNAS dataset"
+    zpool export "$pool" 2>/dev/null || true
 done
 
 if [ -n "$found_dataset" ] && [ -f /etc/freedomnas/state/config.yaml ]; then

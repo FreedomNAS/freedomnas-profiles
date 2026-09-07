@@ -27,9 +27,9 @@
     "pool_keystatus": "zfs get -H -o value keystatus {pool_name}",
     "load_key_file": "zfs load-key -L file://{keyfile_path} {pool_name}",
     "unload_key": "zfs unload-key {pool_name}",
-    "mount_all": "zfs mount -a"
+    "mount_all": "zfs mount -a",
+    "mount_pool": "zfs list -rH -o name {pool_name} | xargs -r -n1 zfs mount"
   },
-
   "media": {
     "_note": "Assumes FAT32-formatted USB sticks -- FreeBSD mount(8) does not autodetect filesystem type the way Linux mount does.",
     "list_removable": "camcontrol devlist -v",

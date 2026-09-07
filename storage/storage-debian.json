@@ -27,16 +27,15 @@
     "pool_keystatus": "zfs get -H -o value keystatus {pool_name}",
     "load_key_file": "zfs load-key -L file://{keyfile_path} {pool_name}",
     "unload_key": "zfs unload-key {pool_name}",
-    "mount_all": "zfs mount -a"
+    "mount_all": "zfs mount -a",
+    "mount_pool": "zfs list -rH -o name {pool_name} | xargs -r -n1 zfs mount"
   },
-
   "media": {
     "list_removable": "lsblk -rno NAME,RM,TYPE",
     "mount_ro": "mount -o ro,noexec,nosuid,nodev {device} {mountpoint}",
     "mount_rw": "mount {device} {mountpoint}",
     "unmount": "umount {mountpoint}"
   },
-
   "btrfs": {
     "filesystem_create": "mkfs.btrfs -L {label} -f {device}",
     "subvolume_create": "btrfs subvolume create {path}/{name}",
