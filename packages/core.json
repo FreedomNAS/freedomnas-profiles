@@ -20,6 +20,7 @@
       "e2fsprogs",
       "dosfstools",
       "efibootmgr",
+      "systemd-boot-efi",
       "linux-image-amd64",
       "linux-headers-amd64",
       "python3",
@@ -121,6 +122,7 @@
       "dosfstools",
       "dracut",
       "efibootmgr",
+      "systemd-boot-efistub",
       "linux",
       "linux-headers"
     ],
@@ -135,6 +137,7 @@
       "sys-kernel/linux-firmware",
       "sys-kernel/dracut",
       "sys-fs/zfs",
+      "sys-apps/systemd-utils",
       "sys-boot/efibootmgr",
       "sys-fs/dosfstools",
       "sys-fs/e2fsprogs",

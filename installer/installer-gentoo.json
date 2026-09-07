@@ -157,7 +157,7 @@
     },
     "package_use": {
       "path": "/etc/portage/package.use/freedomnas",
-      "content": "sys-fs/zfs dist-kernel rootfs\nsys-fs/zfs-kmod rootfs\n"
+      "content": "sys-fs/zfs dist-kernel rootfs\nsys-fs/zfs-kmod rootfs\nsys-apps/systemd-utils boot\n"
     },
     "package_accept_keywords": {
       "path": "/etc/portage/package.accept_keywords/freedomnas",
