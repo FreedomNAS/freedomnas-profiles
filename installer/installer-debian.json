@@ -111,6 +111,9 @@
       "umount -l {root}/proc",
       "umount -l {root}/dev/pts",
       "umount -l {root}/dev"
+    ],
+    "finalize": [
+      "rm -f /usr/sbin/policy-rc.d"
     ]
   },
   "partitioning": {
@@ -153,8 +156,8 @@
     "debootstrap": "debootstrap --arch={arch} --include=ca-certificates,apt-transport-https {suite} {root} {mirror}",
     "fetch_tarball": "curl -fL --retry 3 -o {output} {url}",
     "unpack_tarball": "tar -xpf {tarball} -C {root} --numeric-owner",
-    "update_cache": "apt-get update -qq",
-    "install_base": "apt-get install -y --no-install-recommends {package_list}",
+    "update_cache": "env DEBIAN_FRONTEND=noninteractive apt-get update -qq",
+    "install_base": "env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends {package_list}",
     "locale_gen": "locale-gen"
   },
   "files": {
@@ -187,6 +190,11 @@
       "content": "@reboot root /usr/lib/freedomnas/webui/bin/firstboot.sh >> /var/log/freedomnas-webui.log 2>&1\n",
       "mode": 420
     },
+    "policy_rc": {
+      "path": "/usr/sbin/policy-rc.d",
+      "mode": 493,
+      "content": "#!/bin/sh\nexit 101\n"
+    },
     "sudoers": {
       "path": "/etc/sudoers.d/freedomnas",
       "inplace": true,
@@ -196,7 +204,7 @@
   },
   "repositories": {
     "containers": [
-      "apt-get install -y --no-install-recommends ca-certificates curl",
+      "env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates curl",
       "install -m 0755 -d /etc/apt/keyrings",
       "curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc",
       "chmod a+r /etc/apt/keyrings/docker.asc",
