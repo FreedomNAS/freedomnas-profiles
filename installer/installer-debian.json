@@ -150,7 +150,7 @@
     "dataset_exists": "zfs list -H -o name {dataset}"
   },
   "bootstrap": {
-    "debootstrap": "debootstrap --arch={arch} {suite} {root} {mirror}",
+    "debootstrap": "debootstrap --arch={arch} --include=ca-certificates {suite} {root} {mirror}",
     "fetch_tarball": "curl -fL --retry 3 -o {output} {url}",
     "unpack_tarball": "tar -xpf {tarball} -C {root} --numeric-owner",
     "update_cache": "apt-get update -qq",
