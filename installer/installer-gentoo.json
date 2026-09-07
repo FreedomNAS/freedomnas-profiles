@@ -109,7 +109,7 @@
     "create_state_dataset": "zfs create -o canmount=noauto -o mountpoint=/etc/freedomnas/state {pool_name}/.freedomnas",
     "set_bootfs": "zpool set bootfs={pool_name}/ROOT/{edition} {pool_name}",
     "mount_root": "zfs mount {pool_name}/ROOT/{edition}",
-    "mount_all": "zfs mount --all",
+    "mount_all": "zfs mount -a",
     "mount_dataset": "zfs mount {dataset}",
     "unmount_all": "zfs umount -a",
     "export": "zpool export {pool_name}",
