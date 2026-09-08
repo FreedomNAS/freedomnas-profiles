@@ -53,6 +53,7 @@
     "mount_dataset": "zfs mount {dataset}",
     "unmount_all": "zfs umount -a",
     "export": "zpool export {pool_name}",
+    "export_force": "zpool export -f {pool_name}",
     "export_all": "zpool export -a",
     "list_importable": "zpool import",
     "list_pools": "zpool list -H -o name",
