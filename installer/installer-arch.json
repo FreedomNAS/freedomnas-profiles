@@ -29,11 +29,13 @@
   "chroot": {
     "exec_prefix": "chroot {root}",
     "mount": [
-      "mount --bind /dev {root}/dev",
-      "mount --bind /dev/pts {root}/dev/pts",
-      "mount --bind /proc {root}/proc",
-      "mount --bind /sys {root}/sys",
-      "mount --bind /run {root}/run"
+      "mount --rbind /dev {root}/dev",
+      "mount --make-rslave {root}/dev",
+      "mount -t proc proc {root}/proc",
+      "mount --rbind /sys {root}/sys",
+      "mount --make-rslave {root}/sys",
+      "mount --rbind /run {root}/run",
+      "mount --make-rslave {root}/run"
     ],
     "unmount": [
       "umount -l {root}/run",
