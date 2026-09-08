@@ -8,23 +8,38 @@
 #
 # Called by dpkg's kernel postinst with $1 = kernel version. Must never
 # abort the kernel install over a UKI or ZFS problem: log and continue.
+#
+# The pool name, the edition and the UKI filenames are decided when the
+# system is installed, so they are read from /etc/freedomnas/uki.conf rather
+# than written here.
 
 set -u
 
 version="${1:-$(uname -r)}"
 
 esp_linux_dir="/boot/efi/EFI/Linux"
-current="$esp_linux_dir/debian-uki.efi"
-previous="$esp_linux_dir/debian-uki-previous.efi"
-previous_snap="$esp_linux_dir/debian-uki-previous.snapshot"
-recovery="$esp_linux_dir/debian-recovery.efi"
 
 boot_state_dir="/boot/efi/EFI/FreedomNAS"
 boot_state="$boot_state_dir/boot.state"
 
-root_dataset="rpool/ROOT/debian"
-
 log() { echo "zz-dracut-uki: $*"; }
+
+ROOT_DATASET=""
+UKI_NAME=""
+UKI_RECOVERY_NAME=""
+conf="/etc/freedomnas/uki.conf"
+[ -r "$conf" ] && . "$conf"
+
+if [ -z "$ROOT_DATASET" ] || [ -z "$UKI_NAME" ]; then
+    log "no usable $conf, skipping"
+    exit 0
+fi
+
+root_dataset="$ROOT_DATASET"
+current="$esp_linux_dir/$UKI_NAME"
+previous="$esp_linux_dir/${UKI_NAME%.efi}-previous.efi"
+previous_snap="$esp_linux_dir/${UKI_NAME%.efi}-previous.snapshot"
+recovery="$esp_linux_dir/$UKI_RECOVERY_NAME"
 
 [ -d "$esp_linux_dir" ] || { log "no $esp_linux_dir, skipping (ESP not mounted?)"; exit 0; }
 
@@ -50,7 +65,7 @@ if [ -f "$current" ]; then
     fi
 fi
 
-# 1. Standard UKI (parameters from /etc/dracut.conf.d/uki.conf)
+# 1. Standard UKI (dracut settings come from /etc/dracut.conf.d/uki.conf)
 if dracut --force --uefi --kernel-cmdline "root=ZFS=${root_dataset} rw" "$current" "$version"; then
     log "standard UKI rebuilt: $current"
 else
@@ -60,11 +75,13 @@ fi
 
 # 2. Recovery UKI always tracks the newest kernel -- it's for manual rescue
 #    access, not automatic rollback, so it is never rotated.
-if dracut --force --uefi \
-        --kernel-cmdline "root=ZFS=${root_dataset} ro single" "$recovery" "$version"; then
-    log "recovery UKI rebuilt: $recovery"
-else
-    log "WARNING: dracut failed building recovery UKI for $version"
+if [ -n "$UKI_RECOVERY_NAME" ]; then
+    if dracut --force --uefi \
+            --kernel-cmdline "root=ZFS=${root_dataset} ro single" "$recovery" "$version"; then
+        log "recovery UKI rebuilt: $recovery"
+    else
+        log "WARNING: dracut failed building recovery UKI for $version"
+    fi
 fi
 
 # A freshly installed kernel earns a fresh set of boot attempts.
