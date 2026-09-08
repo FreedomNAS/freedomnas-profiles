@@ -173,6 +173,14 @@
       "path": "/etc/dracut.conf.d/uki.conf",
       "content": "# The UKI is built inside a chroot, where dracut's idea of \"this host\" is\n# the installer's, not the machine being installed.\nhostonly=\"no\"\n"
     },
+    "rescue_sulogin": {
+      "path": "/etc/systemd/system/rescue.service.d/freedomnas.conf",
+      "content": "# There is no root password on a FreedomNAS appliance, and sulogin\n# refuses a locked root account: without this, the rescue and\n# emergency consoles are unreachable when they are needed most.\n[Service]\nEnvironment=SYSTEMD_SULOGIN_FORCE=1\n"
+    },
+    "emergency_sulogin": {
+      "path": "/etc/systemd/system/emergency.service.d/freedomnas.conf",
+      "content": "[Service]\nEnvironment=SYSTEMD_SULOGIN_FORCE=1\n"
+    },
     "fstab": {
       "path": "/etc/fstab",
       "content": "# /etc/fstab - ZFS datasets are mounted by ZFS, not fstab\n{esp_spec}\t/boot/efi\tvfat\tdefaults\t0\t2\n"

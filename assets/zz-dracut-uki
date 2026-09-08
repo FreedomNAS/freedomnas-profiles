@@ -77,7 +77,7 @@ fi
 #    access, not automatic rollback, so it is never rotated.
 if [ -n "$UKI_RECOVERY_NAME" ]; then
     if dracut --force --uefi \
-            --kernel-cmdline "root=ZFS=${root_dataset} ro single" "$recovery" "$version"; then
+            --kernel-cmdline "root=ZFS=${root_dataset} ro single rd.shell SYSTEMD_SULOGIN_FORCE=1" "$recovery" "$version"; then
         log "recovery UKI rebuilt: $recovery"
     else
         log "WARNING: dracut failed building recovery UKI for $version"

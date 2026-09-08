@@ -18,7 +18,7 @@
   },
   "bootloader": {
     "build_uki": "dracut --force --uefi --kernel-cmdline \"root=ZFS={dataset} rw\" {output_path} {kernel_version}",
-    "build_uki_recovery": "dracut --force --uefi --kernel-cmdline \"root=ZFS={dataset} ro single\" {output_path} {kernel_version}",
+    "build_uki_recovery": "dracut --force --uefi --kernel-cmdline \"root=ZFS={dataset} ro single rd.shell SYSTEMD_SULOGIN_FORCE=1\" {output_path} {kernel_version}",
     "efi_boot_entry": "efibootmgr --create --disk {disk} --part {part_num} --loader {loader_path} --label {label}"
   },
   "system": {
