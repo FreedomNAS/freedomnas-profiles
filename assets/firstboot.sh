@@ -21,6 +21,12 @@
 # can intervene manually.
 set -u
 
+# cron's @reboot environment has neither sbin directory on PATH, and every
+# administrative tool the reconciler calls -- useradd, zpool, rc-service --
+# lives in one of them.
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+export PATH
+
 log() { echo "firstboot: $*"; }
 
 # Pools already imported when we got here: whatever the admin or the boot
