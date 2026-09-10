@@ -196,43 +196,15 @@ print(configs)
 # → ['/etc/docker/daemon.json']
 ```
 
-### Using BackupManager
+### Recording what is installed
 
-```python
-from freedomnas_core.backup_manager import BackupManager
+The categories a system has are kept in `config.yaml` under
+`installed_features`, written by the installer and read by the reconciler.
+There is no separate `packages.yaml`: the module that maintained one was
+removed once it became clear nothing ever called it, and that the appliance
+restores itself by re-applying the desired state rather than by putting saved
+files back.
 
-bm = BackupManager()
-
-# Save the packages.yaml state
-config = {
-    "version": "4.0.0",
-    "edition": "debian",
-    "installed_categories": [
-        {"id": "core", "status": "installed"},
-        {"id": "samba-cifs", "status": "installed"}
-    ]
-}
-bm.save_packages_config(config)
-
-# Backup a category's configs
-config_paths = ["/etc/samba/smb.conf", "/etc/samba/smbusers"]
-backup_file = bm.backup_category_config("samba-cifs", config_paths)
-# → /var/backups/freedomnas/samba-cifs-2026-05-22_14-45-00.tar.gz
-
-# Create a full system backup
-category_configs = {
-    "core": ["/etc/hostname", "/etc/hosts"],
-    "samba-cifs": ["/etc/samba/smb.conf"],
-    "containers": ["/etc/docker/daemon.json"]
-}
-backup_dir = bm.create_full_backup(config, category_configs)
-# → /var/backups/freedomnas/freedomnas-backup-2026-05-22_14-30-00/
-
-# Restore from backup
-results = bm.restore_from_backup(backup_dir, selected_categories=["samba-cifs", "containers"])
-print(results)
-# → {'restored_categories': ['samba-cifs', 'containers'], 'restored_files': [...], 'errors': []}
-```
 
 ## Design Principles
 

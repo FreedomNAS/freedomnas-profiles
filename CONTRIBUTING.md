@@ -30,7 +30,7 @@ freedomnas-profiles/
 │   os-arch.json
 │   os-artix.json       ("exotic" edition, Phase 3 — see below)
 │   os-void.json        ("exotic" edition, Phase 3 — see below)
-├── storage/            zfs, media, btrfs
+├── storage/            zfs, media, zfs_properties
 │   storage-<os>.json
 ├── network/            network
 │   network-<os>.json
@@ -187,7 +187,7 @@ Alpine profile from any machine.
     The fragments above make FreedomNAS *run* on an OS. To make
     `freedomnas-install` able to *install* it, add
     `installer/installer-<os>.json` as well — see
-    [PROFILE_SPECIFICATION_v1.md](../PROFILE_SPECIFICATION_v1.md#installer-profile-structure)
+    [PROFILE_SPECIFICATION_v1.md](../freedomnas-spec/PROFILE_SPECIFICATION_v1.md#installer-profile-structure)
     for the schema, and copy `installer/installer-void.json` if your OS has
     no native bootstrapper reachable from other distros (it uses the rootfs
     tarball method, which needs only `curl` and `tar` on the installer

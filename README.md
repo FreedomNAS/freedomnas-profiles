@@ -36,7 +36,7 @@ freedomnas-profiles/
 │   ├── init-s6.json
 │   ├── init-dinit.json
 │   └── init-bsd_rc.json
-├── storage/                 ← Storage module: zfs, btrfs, media
+├── storage/                 ← Storage module: zfs, media, zfs_properties
 │   ├── storage-debian.json
 │   ├── storage-freebsd.json
 │   └── storage-arch.json / storage-gentoo.json / storage-artix.json / storage-void.json
@@ -177,7 +177,7 @@ Per-module fragments contain only the categories that module owns, e.g.
 {
   "zfs": { /* ZFS commands, incl. encrypted pools + load-key for keymgmt.py */ },
   "media": { /* removable-device list/mount/unmount, for keymgmt.py's USB zero-touch unlock */ },
-  "btrfs": { /* Btrfs commands — where supported */ }
+  "zfs_properties": { /* the properties this edition supports */ }
 }
 ```
 
@@ -222,6 +222,6 @@ reason no installation command lives in its Python:
 | `files` | The *contents* of OS-specific files: `sources.list`, `fstab`, `hosts`, `rc.conf`, `loader.conf`, the cron hook. A file's text is as distro-specific as a command |
 
 Full schema in
-[PROFILE_SPECIFICATION_v1.md](../PROFILE_SPECIFICATION_v1.md#installer-profile-structure).
+[PROFILE_SPECIFICATION_v1.md](../freedomnas-spec/PROFILE_SPECIFICATION_v1.md#installer-profile-structure).
 
 See the JSON files for complete examples of every category.
