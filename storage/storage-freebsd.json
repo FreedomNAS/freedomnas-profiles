@@ -11,7 +11,7 @@
     "pool_online": "zpool online {pool_name} {device}",
     "dataset_create": "zfs create -o mountpoint={mountpoint} {pool_name}/{dataset_name}",
     "dataset_list": "zfs list -Hp -o name,used,avail,refer,mountpoint",
-    "dataset_get": "zfs get all {dataset}",
+    "dataset_get": "zfs get -H -o property,value,source all {dataset}",
     "dataset_set": "zfs set {property}={value} {dataset}",
     "dataset_destroy": "zfs destroy {dataset}",
     "snapshot_create": "zfs snapshot {dataset}@{snap_name}",
@@ -32,7 +32,8 @@
     "load_key_file": "zfs load-key -L file://{keyfile_path} {pool_name}",
     "unload_key": "zfs unload-key {pool_name}",
     "mount_all": "zfs mount -a",
-    "mount_pool": "zfs list -rH -o name {pool_name} | xargs -r -n1 zfs mount"
+    "mount_pool": "zfs list -rH -o name {pool_name} | xargs -r -n1 zfs mount",
+    "dataset_get_property": "zfs get -H -o value,source {property} {dataset}"
   },
   "media": {
     "_note": "Assumes FAT32-formatted USB sticks -- FreeBSD mount(8) does not autodetect filesystem type the way Linux mount does.",
@@ -40,5 +41,340 @@
     "mount_ro": "mount -t msdosfs -o ro {device} {mountpoint}",
     "mount_rw": "mount -t msdosfs {device} {mountpoint}",
     "unmount": "umount {mountpoint}"
+  },
+  "zfs_properties": {
+    "aclinherit": {
+      "level": "advanced",
+      "type": "enum",
+      "values": [
+        "discard",
+        "noallow",
+        "restricted",
+        "passthrough",
+        "passthrough-x"
+      ],
+      "help": "What a new file inherits from its parent's ACL.",
+      "default": "restricted"
+    },
+    "aclmode": {
+      "level": "advanced",
+      "type": "enum",
+      "values": [
+        "discard",
+        "groupmask",
+        "passthrough",
+        "restricted"
+      ],
+      "help": "How chmod treats an existing ACL.",
+      "default": "discard"
+    },
+    "atime": {
+      "level": "assisted",
+      "type": "enum",
+      "values": [
+        "on",
+        "off"
+      ],
+      "help": "Update access times on read. Off saves writes on a busy share.",
+      "default": "on"
+    },
+    "canmount": {
+      "level": "expert",
+      "type": "enum",
+      "values": [
+        "on",
+        "off",
+        "noauto"
+      ],
+      "help": "Whether the dataset mounts at all. 'off' makes it a container.",
+      "default": "on"
+    },
+    "casesensitivity": {
+      "level": "expert",
+      "type": "enum",
+      "values": [
+        "sensitive",
+        "insensitive",
+        "mixed"
+      ],
+      "help": "Set once, at creation. 'mixed' is what Samba shares usually want.",
+      "default": "sensitive",
+      "create_only": true
+    },
+    "checksum": {
+      "level": "advanced",
+      "type": "enum",
+      "values": [
+        "on",
+        "fletcher2",
+        "fletcher4",
+        "sha256",
+        "sha512",
+        "skein",
+        "edonr",
+        "blake3"
+      ],
+      "help": "Checksum algorithm for data integrity.",
+      "default": "on"
+    },
+    "compression": {
+      "level": "assisted",
+      "type": "enum",
+      "values": [
+        "off",
+        "on",
+        "lz4",
+        "zstd",
+        "zstd-fast",
+        "gzip",
+        "gzip-9",
+        "zle",
+        "lzjb"
+      ],
+      "help": "Transparent compression. lz4 is nearly free; zstd trades CPU for space.",
+      "default": "lz4"
+    },
+    "copies": {
+      "level": "advanced",
+      "type": "enum",
+      "values": [
+        "1",
+        "2",
+        "3"
+      ],
+      "help": "Copies of each block within the same pool — not a substitute for redundancy.",
+      "default": "1"
+    },
+    "dedup": {
+      "level": "expert",
+      "type": "enum",
+      "values": [
+        "off",
+        "on",
+        "verify",
+        "sha256,verify",
+        "blake3,verify"
+      ],
+      "help": "Deduplication. Needs several GB of RAM per TB and is hard to undo.",
+      "default": "off"
+    },
+    "devices": {
+      "level": "advanced",
+      "type": "enum",
+      "values": [
+        "on",
+        "off"
+      ],
+      "help": "Allow device nodes to be opened.",
+      "default": "on"
+    },
+    "dnodesize": {
+      "level": "expert",
+      "type": "enum",
+      "values": [
+        "legacy",
+        "auto",
+        "1k",
+        "2k",
+        "4k",
+        "8k",
+        "16k"
+      ],
+      "help": "Dnode size. 'auto' suits datasets with long names or many xattrs.",
+      "default": "legacy"
+    },
+    "exec": {
+      "level": "advanced",
+      "type": "enum",
+      "values": [
+        "on",
+        "off"
+      ],
+      "help": "Allow executing files from this dataset.",
+      "default": "on"
+    },
+    "jailed": {
+      "level": "expert",
+      "type": "enum",
+      "values": [
+        "on",
+        "off"
+      ],
+      "help": "Hand the dataset to a jail.",
+      "default": "off"
+    },
+    "logbias": {
+      "level": "advanced",
+      "type": "enum",
+      "values": [
+        "latency",
+        "throughput"
+      ],
+      "help": "Optimise the intent log for response time or for bulk throughput.",
+      "default": "latency"
+    },
+    "normalization": {
+      "level": "expert",
+      "type": "enum",
+      "values": [
+        "none",
+        "formC",
+        "formD",
+        "formKC",
+        "formKD"
+      ],
+      "help": "Unicode normalisation of file names. Set once, at creation.",
+      "default": "none",
+      "create_only": true
+    },
+    "primarycache": {
+      "level": "advanced",
+      "type": "enum",
+      "values": [
+        "all",
+        "metadata",
+        "none"
+      ],
+      "help": "What the ARC (RAM cache) keeps.",
+      "default": "all"
+    },
+    "quota": {
+      "level": "assisted",
+      "type": "size",
+      "help": "Hard limit on what this dataset and its children may use."
+    },
+    "readonly": {
+      "level": "assisted",
+      "type": "enum",
+      "values": [
+        "on",
+        "off"
+      ],
+      "help": "Refuse every write to this dataset.",
+      "default": "off"
+    },
+    "recordsize": {
+      "level": "advanced",
+      "type": "enum",
+      "values": [
+        "512",
+        "4K",
+        "8K",
+        "16K",
+        "32K",
+        "64K",
+        "128K",
+        "256K",
+        "512K",
+        "1M"
+      ],
+      "help": "Largest block written. Lower for databases, higher for big files.",
+      "default": "128K"
+    },
+    "redundant_metadata": {
+      "level": "advanced",
+      "type": "enum",
+      "values": [
+        "all",
+        "most"
+      ],
+      "help": "Extra copies of metadata. 'most' trades some resilience for speed.",
+      "default": "all"
+    },
+    "refquota": {
+      "level": "advanced",
+      "type": "size",
+      "help": "Limit that ignores snapshots and children."
+    },
+    "refreservation": {
+      "level": "advanced",
+      "type": "size",
+      "help": "Guarantee that ignores snapshots and children."
+    },
+    "reservation": {
+      "level": "assisted",
+      "type": "size",
+      "help": "Space guaranteed to this dataset."
+    },
+    "secondarycache": {
+      "level": "advanced",
+      "type": "enum",
+      "values": [
+        "all",
+        "metadata",
+        "none"
+      ],
+      "help": "What the L2ARC (cache device) keeps.",
+      "default": "all"
+    },
+    "setuid": {
+      "level": "advanced",
+      "type": "enum",
+      "values": [
+        "on",
+        "off"
+      ],
+      "help": "Honour setuid bits.",
+      "default": "on"
+    },
+    "snapdev": {
+      "level": "expert",
+      "type": "enum",
+      "values": [
+        "hidden",
+        "visible"
+      ],
+      "help": "Whether volume snapshots get device nodes.",
+      "default": "hidden"
+    },
+    "snapdir": {
+      "level": "assisted",
+      "type": "enum",
+      "values": [
+        "hidden",
+        "visible"
+      ],
+      "help": "Whether .zfs/snapshot is visible in the directory listing.",
+      "default": "hidden"
+    },
+    "special_small_blocks": {
+      "level": "advanced",
+      "type": "enum",
+      "values": [
+        "0",
+        "4K",
+        "8K",
+        "16K",
+        "32K",
+        "64K",
+        "128K"
+      ],
+      "help": "Blocks up to this size go to the special vdev, if the pool has one.",
+      "default": "0"
+    },
+    "sync": {
+      "level": "advanced",
+      "type": "enum",
+      "values": [
+        "standard",
+        "always",
+        "disabled"
+      ],
+      "help": "How synchronous writes are honoured. 'disabled' risks the last seconds on a crash.",
+      "default": "standard"
+    },
+    "volmode": {
+      "level": "expert",
+      "type": "enum",
+      "values": [
+        "default",
+        "full",
+        "geom",
+        "dev",
+        "none"
+      ],
+      "help": "How a volume is exposed to the system.",
+      "default": "default"
+    }
   }
 }
