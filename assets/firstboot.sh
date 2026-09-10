@@ -51,12 +51,23 @@ zpool import -a -N -o cachefile=none 2>/dev/null || true
 python3 -m freedomnas unlock-pools --tty /dev/console || \
     log "WARNING: one or more encrypted pools remain locked"
 
+# The pool this system booted from comes first. A NAS can have several pools
+# carrying a .freedomnas dataset -- an older install, another machine's disk --
+# and restoring a foreign configuration would create that machine's users and
+# start that machine's services here.
+root_dataset=$(zfs list -H -o name / 2>/dev/null)
+root_pool="${root_dataset%%/*}"
+search_order=$(printf '%s\n%s\n' "$root_pool" "$(zpool list -H -o name 2>/dev/null)" \
+               | awk 'NF && !seen[$0]++')
+
 found_dataset=""
 found_pool=""
-for pool in $(zpool list -H -o name 2>/dev/null); do
+for pool in $search_order; do
     if zfs list -H -o name "$pool/.freedomnas" >/dev/null 2>&1; then
         found_dataset="$pool/.freedomnas"
         found_pool="$pool"
+        [ -n "$root_pool" ] && [ "$pool" != "$root_pool" ] && \
+            log "NOTE: the configuration comes from $pool, not from the root pool $root_pool"
         zfs mount "$found_dataset" 2>/dev/null || true
         break
     fi

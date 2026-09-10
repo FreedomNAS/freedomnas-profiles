@@ -99,6 +99,10 @@
       "path": "/etc/hosts",
       "content": "127.0.0.1\tlocalhost\n127.0.1.1\t{fqdn} {hostname}\n\n::1\t\tlocalhost ip6-localhost ip6-loopback\n"
     },
+    "dracut_uki": {
+      "path": "/etc/dracut.conf.d/uki.conf",
+      "content": "# The UKI is built inside a chroot, where dracut's idea of \"this host\" is\n# the installer's, not the machine being installed.\nhostonly=\"no\"\n"
+    },
     "fstab": {
       "path": "/etc/fstab",
       "content": "# /etc/fstab - ZFS datasets are mounted by ZFS, not fstab\n{esp_spec}\t/boot/efi\tvfat\tdefaults\t0\t2\n"

@@ -82,7 +82,7 @@
       "parted",
       "e2fsprogs",
       "dosfstools",
-      "grub",
+      "dracut",
       "efibootmgr",
       "linux",
       "linux-firmware",

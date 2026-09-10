@@ -12,7 +12,7 @@
   },
   "nfs": {
     "config_file": "/etc/exports",
-    "export_add": "echo '{path} -{options} {clients}' >> /etc/exports",
+    "export_add": "grep -qxF '{path} -{options} {clients}' /etc/exports || echo '{path} -{options} {clients}' >> /etc/exports",
     "export_remove": "sed -i '\\#^{path} #d' /etc/exports",
     "export_list": "showmount -e localhost",
     "exportfs_reload": "exportfs -ra",
