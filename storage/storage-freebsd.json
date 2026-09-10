@@ -33,7 +33,10 @@
     "unload_key": "zfs unload-key {pool_name}",
     "mount_all": "zfs mount -a",
     "mount_pool": "zfs list -rH -o name {pool_name} | xargs -r -n1 zfs mount",
-    "dataset_get_property": "zfs get -H -o value,source {property} {dataset}"
+    "dataset_get_property": "zfs get -H -o value,source {property} {dataset}",
+    "pool_add_cache": "zpool add {pool_name} cache {devices}",
+    "pool_add_log": "zpool add {pool_name} log {devices}",
+    "pool_remove_device": "zpool remove {pool_name} {device}"
   },
   "media": {
     "_note": "Assumes FAT32-formatted USB sticks -- FreeBSD mount(8) does not autodetect filesystem type the way Linux mount does.",
