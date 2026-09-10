@@ -91,4 +91,8 @@ else
     log "no existing FreedomNAS config found -- first-run wizard will handle setup"
 fi
 
+# The WebUI's certificate: created once, then left alone. A certificate that
+# changed at every boot would train the admin to click through the warning.
+python3 -m freedomnas ensure-tls || log "WARNING: no TLS certificate — the WebUI will serve plain HTTP"
+
 exec /usr/lib/freedomnas/webui/bin/supervisor.sh

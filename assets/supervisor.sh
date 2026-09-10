@@ -5,6 +5,16 @@ MAX_FAILURES=5
 WEBUI_DIR="/usr/lib/freedomnas/webui"
 WEBUI_CMD="python3 -m uvicorn api.main:app --host 0.0.0.0 --port 8080"
 
+# HTTP Basic sends the administrator's password on every request, so the WebUI
+# speaks TLS whenever the certificate is there. An installation from before
+# the certificate existed keeps working over plain HTTP rather than refusing
+# to start.
+TLS_CERT="/etc/freedomnas/tls/cert.pem"
+TLS_KEY="/etc/freedomnas/tls/key.pem"
+if [ -r "$TLS_CERT" ] && [ -r "$TLS_KEY" ]; then
+    WEBUI_CMD="$WEBUI_CMD --ssl-certfile $TLS_CERT --ssl-keyfile $TLS_KEY"
+fi
+
 # The app mounts its static files and templates by relative path, so it has
 # to run from its own directory. `python3 -m` then puts that directory on
 # sys.path as well, which is what makes `api.main` importable.

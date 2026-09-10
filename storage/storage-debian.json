@@ -35,21 +35,5 @@
     "mount_ro": "mount -o ro,noexec,nosuid,nodev {device} {mountpoint}",
     "mount_rw": "mount {device} {mountpoint}",
     "unmount": "umount {mountpoint}"
-  },
-  "btrfs": {
-    "filesystem_create": "mkfs.btrfs -L {label} -f {device}",
-    "subvolume_create": "btrfs subvolume create {path}/{name}",
-    "subvolume_snapshot": "btrfs subvolume snapshot {source} {dest}",
-    "subvolume_list": "btrfs subvolume list {mountpoint}",
-    "subvolume_delete": "btrfs subvolume delete {path}/{name}",
-    "filesystem_label": "btrfs filesystem label {device} {label}",
-    "filesystem_usage": "btrfs filesystem usage -b {mountpoint}",
-    "filesystem_show": "btrfs filesystem show {device}",
-    "mount": "mount -t btrfs -o {options} {device} {mountpoint}",
-    "mount_with_subvol": "mount -t btrfs -o subvol={subvol},{options} {device} {mountpoint}",
-    "unmount": "umount {mountpoint}",
-    "snapshot_create": "btrfs subvolume snapshot -r {source} {dest}",
-    "snapshot_list": "btrfs subvolume list -s {mountpoint}",
-    "get_default_subvol": "btrfs property get {mountpoint} ro"
   }
 }
