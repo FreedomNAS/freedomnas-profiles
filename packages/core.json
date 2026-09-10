@@ -16,6 +16,7 @@
       "openssh-client",
       "systemd",
       "systemd-resolved",
+      "network-manager",
       "parted",
       "e2fsprogs",
       "dosfstools",
@@ -38,6 +39,7 @@
     ],
     "services": [
       "systemd-resolved",
+      "NetworkManager",
       "ssh"
     ]
   },
@@ -77,6 +79,7 @@
       "vim",
       "sudo",
       "openssh",
+      "dhcpcd",
       "systemd",
       "systemd-resolved",
       "parted",
@@ -97,6 +100,7 @@
     ],
     "services": [
       "systemd-resolved",
+      "dhcpcd",
       "sshd"
     ]
   },
@@ -113,6 +117,7 @@
       "openssh",
       "openrc",
       "openresolv",
+      "dhcpcd",
       "parted",
       "e2fsprogs",
       "dosfstools",
@@ -130,6 +135,7 @@
       "uvicorn"
     ],
     "services": [
+      "dhcpcd",
       "sshd"
     ]
   },

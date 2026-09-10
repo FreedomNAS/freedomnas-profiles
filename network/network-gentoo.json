@@ -16,7 +16,7 @@
       "ip addr add {ip}/{cidr} dev {interface}",
       "ip route add default via {gateway}"
     ],
-    "set_dynamic_ip": "dhclient {interface}",
+    "set_dynamic_ip": "dhcpcd {interface}",
     "bring_up_interface": "ip link set {interface} up",
     "bring_down_interface": "ip link set {interface} down",
     "hostname_set": "hostname {hostname}",
