@@ -42,7 +42,8 @@
     "list_removable": "lsblk -rno NAME,RM,TYPE",
     "mount_ro": "mount -o ro,noexec,nosuid,nodev {device} {mountpoint}",
     "mount_rw": "mount {device} {mountpoint}",
-    "unmount": "umount {mountpoint}"
+    "unmount": "umount {mountpoint}",
+    "list_devices": "lsblk -pbP -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINT,MODEL"
   },
   "zfs_properties": {
     "acltype": {

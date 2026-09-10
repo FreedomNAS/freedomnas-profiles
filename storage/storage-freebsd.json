@@ -43,7 +43,8 @@
     "list_removable": "camcontrol devlist -v",
     "mount_ro": "mount -t msdosfs -o ro {device} {mountpoint}",
     "mount_rw": "mount -t msdosfs {device} {mountpoint}",
-    "unmount": "umount {mountpoint}"
+    "unmount": "umount {mountpoint}",
+    "list_devices": "sysctl -n kern.disks"
   },
   "zfs_properties": {
     "aclinherit": {
