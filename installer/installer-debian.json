@@ -200,6 +200,11 @@
       "path": "/etc/localtime",
       "symlink_to": "/usr/share/zoneinfo/{timezone}"
     },
+    "snapshot_cron": {
+      "path": "/etc/cron.d/freedomnas-snapshots",
+      "content": "# Scheduled ZFS snapshots. Cron decides when, the retention policy in\n# config.yaml decides what: a dataset with no policy costs one no-op.\nPATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\n0  * * * *  root  python3 -m freedomnas snapshot-run --interval hourly  >> /var/log/freedomnas-snapshots.log 2>&1\n5  0 * * *  root  python3 -m freedomnas snapshot-run --interval daily   >> /var/log/freedomnas-snapshots.log 2>&1\n10 0 * * 0  root  python3 -m freedomnas snapshot-run --interval weekly  >> /var/log/freedomnas-snapshots.log 2>&1\n15 0 1 * *  root  python3 -m freedomnas snapshot-run --interval monthly >> /var/log/freedomnas-snapshots.log 2>&1\n",
+      "mode": 420
+    },
     "webui_cron": {
       "path": "/etc/cron.d/freedomnas-webui",
       "content": "@reboot root /usr/lib/freedomnas/webui/bin/firstboot.sh >> /var/log/freedomnas-webui.log 2>&1\n",
