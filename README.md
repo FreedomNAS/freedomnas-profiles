@@ -222,6 +222,6 @@ reason no installation command lives in its Python:
 | `files` | The *contents* of OS-specific files: `sources.list`, `fstab`, `hosts`, `rc.conf`, `loader.conf`, the cron hook. A file's text is as distro-specific as a command |
 
 Full schema in
-[PROFILE_SPECIFICATION_v1.md](../freedomnas-spec/PROFILE_SPECIFICATION_v1.md#installer-profile-structure).
+[PROFILE_SPECIFICATION_v1.md](../freedomnas-specs/PROFILE_SPECIFICATION_v1.md#installer-profile-structure).
 
 See the JSON files for complete examples of every category.

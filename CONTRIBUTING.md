@@ -187,7 +187,7 @@ Alpine profile from any machine.
     The fragments above make FreedomNAS *run* on an OS. To make
     `freedomnas-install` able to *install* it, add
     `installer/installer-<os>.json` as well — see
-    [PROFILE_SPECIFICATION_v1.md](../freedomnas-spec/PROFILE_SPECIFICATION_v1.md#installer-profile-structure)
+    [PROFILE_SPECIFICATION_v1.md](../freedomnas-specs/PROFILE_SPECIFICATION_v1.md#installer-profile-structure)
     for the schema, and copy `installer/installer-void.json` if your OS has
     no native bootstrapper reachable from other distros (it uses the rootfs
     tarball method, which needs only `curl` and `tar` on the installer
