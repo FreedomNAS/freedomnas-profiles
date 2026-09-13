@@ -129,7 +129,7 @@
       "rm -rf /var/tmp/freedomnas-build/{package_name}",
       "runuser -u freedomnas-build -- git clone --depth 1 {git_url} /var/tmp/freedomnas-build/{package_name}",
       "cd /var/tmp/freedomnas-build/{package_name} && runuser -u freedomnas-build -- env HOME=/var/tmp/freedomnas-build makepkg --nodeps --noconfirm",
-      "cd /var/tmp/freedomnas-build/{package_name} && pacman -U --noconfirm --needed ./*.pkg.tar.zst",
+      "cd /var/tmp/freedomnas-build/{package_name} && pacman -U --noconfirm --needed ./{package_name}-[0-9]*.pkg.tar.zst",
       "userdel --remove freedomnas-build"
     ]
   },
