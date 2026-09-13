@@ -99,7 +99,7 @@
   "bootstrap_files": {
     "pacman_conf": {
       "path": "pacman.conf",
-      "content": "[options]\nArchitecture = auto\nSigLevel = Required DatabaseOptional\nLocalFileSigLevel = Optional\nGPGDir = {bootstrap_dir}/gnupg\nParallelDownloads = 5\n\n[core]\nServer = {mirror}/$repo/os/$arch\nServer = https://fastly.mirror.pkgbuild.com/$repo/os/$arch\n\n[extra]\nServer = {mirror}/$repo/os/$arch\nServer = https://fastly.mirror.pkgbuild.com/$repo/os/$arch\n"
+      "content": "[options]\nArchitecture = auto\nSigLevel = Required DatabaseOptional\nLocalFileSigLevel = Optional\nGPGDir = {bootstrap_dir}/gnupg\nParallelDownloads = 5\n\n[core]\nServer = {mirror}/$repo/os/$arch\nServer = https://fastly.mirror.pkgbuild.com/$repo/os/$arch\nServer = https://ftp.fau.de/archlinux/$repo/os/$arch\n\n[extra]\nServer = {mirror}/$repo/os/$arch\nServer = https://fastly.mirror.pkgbuild.com/$repo/os/$arch\nServer = https://ftp.fau.de/archlinux/$repo/os/$arch\n"
     }
   },
   "repositories": {
@@ -150,7 +150,7 @@
     },
     "pacman_mirrorlist": {
       "path": "/etc/pacman.d/mirrorlist",
-      "content": "Server = {mirror}/$repo/os/$arch\nServer = https://fastly.mirror.pkgbuild.com/$repo/os/$arch\n"
+      "content": "Server = {mirror}/$repo/os/$arch\nServer = https://fastly.mirror.pkgbuild.com/$repo/os/$arch\nServer = https://ftp.fau.de/archlinux/$repo/os/$arch\n"
     }
   }
 }

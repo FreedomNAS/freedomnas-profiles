@@ -110,7 +110,7 @@
   "bootstrap_files": {
     "pacman_conf": {
       "path": "pacman.conf",
-      "content": "[options]\nArchitecture = auto\nSigLevel = Required DatabaseOptional\nLocalFileSigLevel = Optional\nGPGDir = {bootstrap_dir}/gnupg\nParallelDownloads = 5\n\n[system]\nServer = {mirror}/$repo/os/$arch\nServer = https://mirrors.dotsrc.org/artix-linux/repos/$repo/os/$arch\n\n[world]\nServer = {mirror}/$repo/os/$arch\nServer = https://mirrors.dotsrc.org/artix-linux/repos/$repo/os/$arch\n\n[galaxy]\nServer = {mirror}/$repo/os/$arch\nServer = https://mirrors.dotsrc.org/artix-linux/repos/$repo/os/$arch\n"
+      "content": "[options]\nArchitecture = auto\nSigLevel = Required DatabaseOptional\nLocalFileSigLevel = Optional\nGPGDir = {bootstrap_dir}/gnupg\nParallelDownloads = 5\n\n[system]\nServer = {mirror}/$repo/os/$arch\nServer = https://mirror2.artixlinux.org/$repo/os/$arch\nServer = https://artixlinux.mirror.garr.it/$repo/os/$arch\n\n[world]\nServer = {mirror}/$repo/os/$arch\nServer = https://mirror2.artixlinux.org/$repo/os/$arch\nServer = https://artixlinux.mirror.garr.it/$repo/os/$arch\n\n[galaxy]\nServer = {mirror}/$repo/os/$arch\nServer = https://mirror2.artixlinux.org/$repo/os/$arch\nServer = https://artixlinux.mirror.garr.it/$repo/os/$arch\n"
     }
   },
   "repositories": {
@@ -172,7 +172,7 @@
     },
     "pacman_mirrorlist": {
       "path": "/etc/pacman.d/mirrorlist",
-      "content": "Server = {mirror}/$repo/os/$arch\nServer = https://mirrors.dotsrc.org/artix-linux/repos/$repo/os/$arch\n"
+      "content": "Server = {mirror}/$repo/os/$arch\nServer = https://mirror2.artixlinux.org/$repo/os/$arch\nServer = https://artixlinux.mirror.garr.it/$repo/os/$arch\n"
     }
   }
 }
