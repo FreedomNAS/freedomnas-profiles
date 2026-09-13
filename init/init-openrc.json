@@ -6,9 +6,10 @@
     "stop": "rc-service {service_name} stop",
     "restart": "rc-service {service_name} restart",
     "enable": "rc-update add {service_name} default",
+    "enable_early": "rc-update add {service_name} sysinit",
     "disable": "rc-update del {service_name}",
     "status": "rc-service {service_name} status",
-    "is_enabled": "rc-update show default | grep {service_name}",
+    "is_enabled": "rc-update show | grep -w {service_name}",
     "reload": "rc-service {service_name} reload",
     "daemon_reload": "",
     "list_managed": "rc-status -a"

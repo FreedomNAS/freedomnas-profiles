@@ -155,12 +155,14 @@
             "git": "https://aur.archlinux.org/zfs-openrc.git"
           }
         ],
+        "early_services": [
+          "zfs-import",
+          "zfs-mount"
+        ],
         "services": [
           "dhcpcd",
           "sshd",
           "cronie",
-          "zfs-import",
-          "zfs-mount",
           "zfs-zed"
         ]
       },
@@ -176,11 +178,13 @@
             "git": "https://codeberg.org/sarahmeow86/zfs-dinit.git"
           }
         ],
+        "early_services": [
+          "zfs-mount"
+        ],
         "services": [
           "dhcpcd",
           "sshd",
           "cronie",
-          "zfs-mount",
           "zed"
         ]
       }
@@ -249,12 +253,14 @@
       "dev-python/uvicorn",
       "dev-python/python-pam"
     ],
+    "early_services": [
+      "zfs-import",
+      "zfs-mount"
+    ],
     "services": [
       "sshd",
       "cronie",
       "dhcpcd",
-      "zfs-import",
-      "zfs-mount",
       "zfs-zed"
     ]
   }
