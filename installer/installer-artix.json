@@ -1,9 +1,17 @@
 {
   "installer_meta": {
     "community_maintained": true,
-    "maintainer_note": "Community-maintained (exotic edition). basestrap is used on an Artix host; anywhere else — the FreedomNAS live ISO included — pacstrap does the same job from pacman, arch-install-scripts and artix-keyring (freedomnas-overlay), pointed at bootstrap_files.pacman_conf with a throwaway keyring and no host mirrorlist (-M). files.pacman_mirrorlist gives the installed system the same mirror. OpenRC init, so services come from init/init-openrc.json. ZFS comes from Chaotic-AUR (repositories.core), as on Arch; its packages ship systemd units only, so the OpenRC scripts come from the AUR package zfs-openrc, built by aur.install.",
+    "maintainer_note": "Community-maintained (exotic edition). The installer asks for the init system (installer_meta.init_systems, OpenRC first as the default): installer_meta.init_packages names the init and its elogind provider for basestrap/pacstrap, because base alone lets pacman pick dinit's providers and a later openrc then conflicts with them; packages/*.json carry the per-init service packages (openssh-openrc, openssh-dinit, ...) and service names under init.<name>. basestrap is used on an Artix host; anywhere else — the FreedomNAS live ISO included — pacstrap does the same job from pacman, arch-install-scripts and artix-keyring (freedomnas-overlay), pointed at bootstrap_files.pacman_conf with a throwaway keyring and no host mirrorlist (-M). files.pacman_mirrorlist gives the installed system the same mirror. ZFS comes from Chaotic-AUR (repositories.core), as on Arch; its packages ship systemd units only, so the service scripts are built by pkgbuild.install from git: zfs-openrc from the AUR, zfs-dinit from codeberg.org/sarahmeow86/zfs-dinit.",
     "arch": "x86_64",
     "suite": "",
+    "init_systems": [
+      "openrc",
+      "dinit"
+    ],
+    "init_packages": {
+      "openrc": "openrc elogind-openrc",
+      "dinit": "dinit elogind-dinit"
+    },
     "mirror": "https://mirror1.artixlinux.org/repos",
     "esp_size": "512MiB",
     "esp_mountpoint": "/boot/efi",
@@ -85,12 +93,12 @@
     "dataset_exists": "zfs list -H -o name {dataset}"
   },
   "bootstrap": {
-    "basestrap": "basestrap {root} base openrc elogind-openrc linux linux-firmware",
+    "basestrap": "basestrap {root} base {init_packages} linux linux-firmware",
     "pacstrap": [
       "install -d -m 700 {bootstrap_dir}/gnupg",
       "pacman-key --config {bootstrap_dir}/pacman.conf --init",
       "pacman-key --config {bootstrap_dir}/pacman.conf --populate artix",
-      "pacstrap -K -M -C {bootstrap_dir}/pacman.conf {root} base openrc elogind-openrc linux linux-firmware",
+      "pacstrap -K -M -C {bootstrap_dir}/pacman.conf {root} base {init_packages} linux linux-firmware",
       "gpgconf --homedir {bootstrap_dir}/gnupg --kill all"
     ],
     "fetch_tarball": "curl -fL --retry 3 -o {output} {url}",
@@ -114,15 +122,15 @@
       "gpgconf --homedir /etc/pacman.d/gnupg --kill all"
     ]
   },
-  "aur": {
+  "pkgbuild": {
     "install": [
       "pacman -S --noconfirm --needed git base-devel",
-      "id -u freedomnas-aur >/dev/null 2>&1 || useradd --system --create-home --home-dir /var/tmp/freedomnas-aur freedomnas-aur",
-      "rm -rf /var/tmp/freedomnas-aur/{package_name}",
-      "runuser -u freedomnas-aur -- git clone --depth 1 https://aur.archlinux.org/{package_name}.git /var/tmp/freedomnas-aur/{package_name}",
-      "cd /var/tmp/freedomnas-aur/{package_name} && runuser -u freedomnas-aur -- env HOME=/var/tmp/freedomnas-aur makepkg --nodeps --noconfirm",
-      "cd /var/tmp/freedomnas-aur/{package_name} && pacman -U --noconfirm --needed ./*.pkg.tar.zst",
-      "userdel --remove freedomnas-aur"
+      "id -u freedomnas-build >/dev/null 2>&1 || useradd --system --create-home --home-dir /var/tmp/freedomnas-build freedomnas-build",
+      "rm -rf /var/tmp/freedomnas-build/{package_name}",
+      "runuser -u freedomnas-build -- git clone --depth 1 {git_url} /var/tmp/freedomnas-build/{package_name}",
+      "cd /var/tmp/freedomnas-build/{package_name} && runuser -u freedomnas-build -- env HOME=/var/tmp/freedomnas-build makepkg --nodeps --noconfirm",
+      "cd /var/tmp/freedomnas-build/{package_name} && pacman -U --noconfirm --needed ./*.pkg.tar.zst",
+      "userdel --remove freedomnas-build"
     ]
   },
   "files": {

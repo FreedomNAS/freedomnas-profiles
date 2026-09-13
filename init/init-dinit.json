@@ -6,6 +6,7 @@
     "stop": "dinitctl stop {service_name}",
     "restart": "dinitctl restart {service_name}",
     "enable": "dinitctl enable {service_name}",
+    "enable_offline": "dinitctl --offline enable {service_name}",
     "disable": "dinitctl disable {service_name}",
     "status": "dinitctl status {service_name}",
     "is_enabled": "dinitctl is-enabled {service_name}",

@@ -47,13 +47,28 @@
     "packages": [
       "docker",
       "docker-compose",
-      "docker-openrc",
       "containerd"
     ],
-    "services": [
-      "docker",
-      "containerd"
-    ],
+    "init": {
+      "openrc": {
+        "packages": [
+          "docker-openrc",
+          "containerd-openrc"
+        ],
+        "services": [
+          "containerd",
+          "docker"
+        ]
+      },
+      "dinit": {
+        "packages": [
+          "docker-dinit"
+        ],
+        "services": [
+          "dockerd"
+        ]
+      }
+    },
     "config_paths": [
       "/etc/docker/daemon.json"
     ]

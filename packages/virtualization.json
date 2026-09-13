@@ -54,15 +54,29 @@
     "packages": [
       "qemu-full",
       "libvirt",
-      "libvirt-openrc",
       "virt-manager",
       "bridge-utils",
       "ovmf",
       "dnsmasq"
     ],
-    "services": [
-      "libvirtd"
-    ],
+    "init": {
+      "openrc": {
+        "packages": [
+          "libvirt-openrc"
+        ],
+        "services": [
+          "libvirtd"
+        ]
+      },
+      "dinit": {
+        "packages": [
+          "libvirt-dinit"
+        ],
+        "services": [
+          "libvirtd"
+        ]
+      }
+    },
     "config_paths": [
       "/etc/libvirt/libvirtd.conf",
       "/etc/libvirt/qemu.conf"

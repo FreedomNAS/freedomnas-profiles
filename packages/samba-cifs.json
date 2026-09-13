@@ -33,12 +33,11 @@
   },
   "arch": {
     "packages": [
-      "samba",
-      "samba-support-tools"
+      "samba"
     ],
     "services": [
-      "smbd",
-      "nmbd",
+      "smb",
+      "nmb",
       "winbind"
     ],
     "config_paths": [
@@ -47,14 +46,28 @@
   },
   "artix": {
     "packages": [
-      "samba",
-      "samba-support-tools"
+      "samba"
     ],
-    "services": [
-      "smbd",
-      "nmbd",
-      "winbind"
-    ],
+    "init": {
+      "openrc": {
+        "packages": [
+          "samba-openrc"
+        ],
+        "services": [
+          "smb"
+        ]
+      },
+      "dinit": {
+        "packages": [
+          "samba-dinit"
+        ],
+        "services": [
+          "smbd",
+          "nmbd",
+          "winbindd"
+        ]
+      }
+    },
     "config_paths": [
       "/etc/samba/smb.conf"
     ]

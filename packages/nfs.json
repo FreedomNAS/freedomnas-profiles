@@ -32,8 +32,7 @@
   },
   "arch": {
     "packages": [
-      "nfs-utils",
-      "libnfsidmap"
+      "nfs-utils"
     ],
     "services": [
       "nfs-server",
@@ -46,13 +45,30 @@
   },
   "artix": {
     "packages": [
-      "nfs-utils",
-      "libnfsidmap"
+      "nfs-utils"
     ],
-    "services": [
-      "nfs-server",
-      "rpcbind"
-    ],
+    "init": {
+      "openrc": {
+        "packages": [
+          "nfs-utils-openrc",
+          "rpcbind-openrc"
+        ],
+        "services": [
+          "rpcbind",
+          "nfs"
+        ]
+      },
+      "dinit": {
+        "packages": [
+          "nfs-utils-dinit",
+          "rpcbind-dinit"
+        ],
+        "services": [
+          "rpcbind",
+          "nfs-server"
+        ]
+      }
+    },
     "config_paths": [
       "/etc/exports",
       "/etc/idmapd.conf"

@@ -79,9 +79,9 @@
       "vim",
       "sudo",
       "openssh",
+      "cronie",
       "dhcpcd",
       "systemd",
-      "systemd-resolved",
       "parted",
       "e2fsprogs",
       "dosfstools",
@@ -101,7 +101,14 @@
     "services": [
       "systemd-resolved",
       "dhcpcd",
-      "sshd"
+      "sshd",
+      "cronie",
+      "zfs-import-cache",
+      "zfs-import-scan",
+      "zfs-import.target",
+      "zfs-mount",
+      "zfs-zed",
+      "zfs.target"
     ]
   },
   "artix": {
@@ -115,7 +122,7 @@
       "vim",
       "sudo",
       "openssh",
-      "openrc",
+      "cronie",
       "openresolv",
       "dhcpcd",
       "parted",
@@ -123,6 +130,7 @@
       "dosfstools",
       "dracut",
       "efibootmgr",
+      "egummiboot",
       "linux",
       "linux-firmware",
       "linux-headers",
@@ -134,16 +142,49 @@
       "python-fastapi",
       "uvicorn"
     ],
-    "aur": [
-      "zfs-openrc"
-    ],
-    "services": [
-      "dhcpcd",
-      "sshd",
-      "zfs-import",
-      "zfs-mount",
-      "zfs-zed"
-    ]
+    "init": {
+      "openrc": {
+        "packages": [
+          "openssh-openrc",
+          "dhcpcd-openrc",
+          "cronie-openrc"
+        ],
+        "pkgbuilds": [
+          {
+            "name": "zfs-openrc",
+            "git": "https://aur.archlinux.org/zfs-openrc.git"
+          }
+        ],
+        "services": [
+          "dhcpcd",
+          "sshd",
+          "cronie",
+          "zfs-import",
+          "zfs-mount",
+          "zfs-zed"
+        ]
+      },
+      "dinit": {
+        "packages": [
+          "openssh-dinit",
+          "dhcpcd-dinit",
+          "cronie-dinit"
+        ],
+        "pkgbuilds": [
+          {
+            "name": "zfs-dinit",
+            "git": "https://codeberg.org/sarahmeow86/zfs-dinit.git"
+          }
+        ],
+        "services": [
+          "dhcpcd",
+          "sshd",
+          "cronie",
+          "zfs-mount",
+          "zed"
+        ]
+      }
+    }
   },
   "void": {
     "packages": [
