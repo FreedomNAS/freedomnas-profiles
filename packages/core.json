@@ -70,8 +70,8 @@
   },
   "arch": {
     "packages": [
-      "zfs-dkms",
-      "zfs-utils",
+      "zfs-dkms-git",
+      "zfs-utils-git",
       "curl",
       "wget",
       "net-tools",
@@ -106,8 +106,8 @@
   },
   "artix": {
     "packages": [
-      "zfs-dkms",
-      "zfs-utils",
+      "zfs-dkms-git",
+      "zfs-utils-git",
       "curl",
       "wget",
       "net-tools",
@@ -134,9 +134,15 @@
       "python-fastapi",
       "uvicorn"
     ],
+    "aur": [
+      "zfs-openrc"
+    ],
     "services": [
       "dhcpcd",
-      "sshd"
+      "sshd",
+      "zfs-import",
+      "zfs-mount",
+      "zfs-zed"
     ]
   },
   "void": {
