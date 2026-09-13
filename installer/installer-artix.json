@@ -1,18 +1,20 @@
 {
   "installer_meta": {
     "community_maintained": true,
-    "maintainer_note": "Community-maintained (exotic edition). basestrap needs artix-install-scripts on the installer host. OpenRC init, so services come from init/init-openrc.json.",
+    "maintainer_note": "Community-maintained (exotic edition). basestrap is used on an Artix host; anywhere else — the FreedomNAS live ISO included — pacstrap does the same job from pacman, arch-install-scripts and artix-keyring (freedomnas-overlay), pointed at bootstrap_files.pacman_conf with a throwaway keyring and no host mirrorlist (-M). files.pacman_mirrorlist gives the installed system the same mirror. OpenRC init, so services come from init/init-openrc.json.",
     "arch": "x86_64",
     "suite": "",
-    "mirror": "",
+    "mirror": "https://mirror1.artixlinux.org/repos",
     "esp_size": "512MiB",
     "esp_mountpoint": "/boot/efi",
     "bootstrap_methods": [
       "basestrap",
+      "pacstrap",
       "tarball"
     ],
     "bootstrap_tools": {
       "basestrap": "basestrap",
+      "pacstrap": "pacstrap",
       "tarball": "tar"
     },
     "rootfs_tarball_url": "",
@@ -83,12 +85,25 @@
     "dataset_exists": "zfs list -H -o name {dataset}"
   },
   "bootstrap": {
-    "basestrap": "basestrap {root} base openrc linux linux-firmware",
+    "basestrap": "basestrap {root} base openrc elogind-openrc linux linux-firmware",
+    "pacstrap": [
+      "install -d -m 700 {bootstrap_dir}/gnupg",
+      "pacman-key --config {bootstrap_dir}/pacman.conf --init",
+      "pacman-key --config {bootstrap_dir}/pacman.conf --populate artix",
+      "pacstrap -K -M -C {bootstrap_dir}/pacman.conf {root} base openrc elogind-openrc linux linux-firmware",
+      "gpgconf --homedir {bootstrap_dir}/gnupg --kill all"
+    ],
     "fetch_tarball": "curl -fL --retry 3 -o {output} {url}",
     "unpack_tarball": "tar -xpf {tarball} -C {root} --numeric-owner",
     "update_cache": "pacman -Sy --noconfirm",
     "install_base": "pacman -S --noconfirm --needed {package_list}",
     "locale_gen": "locale-gen"
+  },
+  "bootstrap_files": {
+    "pacman_conf": {
+      "path": "pacman.conf",
+      "content": "[options]\nArchitecture = auto\nSigLevel = Required DatabaseOptional\nLocalFileSigLevel = Optional\nGPGDir = {bootstrap_dir}/gnupg\nParallelDownloads = 5\n\n[system]\nServer = {mirror}/$repo/os/$arch\n\n[world]\nServer = {mirror}/$repo/os/$arch\n\n[galaxy]\nServer = {mirror}/$repo/os/$arch\n"
+    }
   },
   "files": {
     "hostname": {
@@ -126,6 +141,10 @@
       "inplace": true,
       "mode": 288,
       "content": "# FreedomNAS: the WebUI runs updates as the signed-in user,\n# and topgrade calls sudo itself for the steps that need root.\n%{sudo_group} ALL=(ALL) NOPASSWD: ALL\n"
+    },
+    "pacman_mirrorlist": {
+      "path": "/etc/pacman.d/mirrorlist",
+      "content": "Server = {mirror}/$repo/os/$arch\n"
     }
   }
 }
