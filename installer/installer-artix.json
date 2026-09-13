@@ -82,6 +82,8 @@
     "set_bootfs": "zpool set bootfs={pool_name}/ROOT/{edition} {pool_name}",
     "mount_root": "zfs mount {pool_name}/ROOT/{edition}",
     "mount_all": "zfs mount -a",
+    "cachefile_set": "zpool set cachefile={cachefile} {pool_name}",
+    "cachefile_install": "install -D -m 644 {cachefile} {root}/etc/zfs/zpool.cache",
     "mount_dataset": "zfs mount {dataset}",
     "unmount_all": "zfs umount -a",
     "export": "zpool export {pool_name}",
