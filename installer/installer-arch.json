@@ -37,6 +37,9 @@
       "mount --rbind /run {root}/run",
       "mount --make-rslave {root}/run"
     ],
+    "finalize": [
+      "gpgconf --homedir /etc/pacman.d/gnupg --kill all"
+    ],
     "unmount": [
       "umount -l {root}/run",
       "umount -l {root}/sys",
@@ -78,6 +81,7 @@
     "cachefile_install": "install -D -m 644 {cachefile} {root}/etc/zfs/zpool.cache",
     "mount_dataset": "zfs mount {dataset}",
     "unmount_all": "zfs umount -a",
+    "unmount_target": "umount -R -l {root}",
     "export": "zpool export {pool_name}",
     "export_force": "zpool export -f {pool_name}",
     "export_all": "zpool export -a",
@@ -93,6 +97,7 @@
       "pacman-key --config {bootstrap_dir}/pacman.conf --init",
       "pacman-key --config {bootstrap_dir}/pacman.conf --populate archlinux",
       "pacstrap -K -M -C {bootstrap_dir}/pacman.conf {root} base linux linux-firmware",
+      "gpgconf --homedir {root}/etc/pacman.d/gnupg --kill all",
       "gpgconf --homedir {bootstrap_dir}/gnupg --kill all"
     ],
     "fetch_tarball": "curl -fL --retry 3 -o {output} {url}",

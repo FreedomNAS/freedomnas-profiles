@@ -78,6 +78,7 @@
     "cachefile_install": "install -D -m 644 {cachefile} {root}/etc/zfs/zpool.cache",
     "mount_dataset": "zfs mount {dataset}",
     "unmount_all": "zfs umount -a",
+    "unmount_target": "umount -R -l {root}",
     "export": "zpool export {pool_name}",
     "export_force": "zpool export -f {pool_name}",
     "export_all": "zpool export -a",
