@@ -62,6 +62,9 @@
     "detect_root_dataset": "zfs list -H -o name /",
     "dataset_exists": "zfs list -H -o name {dataset}"
   },
+  "python": {
+    "site_dir": "python3 -c \"import sysconfig; print(sysconfig.get_path('purelib'))\""
+  },
   "bootstrap": {
     "fetch_tarball": "fetch -o {output} {url}",
     "unpack_tarball": "tar -xpf {tarball} -C {root}",
@@ -91,7 +94,7 @@
     },
     "scheduled_jobs": {
       "path": "/etc/crontab",
-      "content": "# FreedomNAS scheduled work. Cron decides when; config.yaml decides what,\n# so a system with no policies costs a handful of no-ops a day.\nPATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\n0  * * * *  root  python3 -m freedomnas snapshot-run --interval hourly  >> /var/log/freedomnas-scheduled.log 2>&1\n5  0 * * *  root  python3 -m freedomnas snapshot-run --interval daily   >> /var/log/freedomnas-scheduled.log 2>&1\n10 0 * * 0  root  python3 -m freedomnas snapshot-run --interval weekly  >> /var/log/freedomnas-scheduled.log 2>&1\n15 0 1 * *  root  python3 -m freedomnas snapshot-run --interval monthly >> /var/log/freedomnas-scheduled.log 2>&1\n# The configuration's shadow copy on every other pool: what a reinstall\n# onto a blank disk finds waiting for it on the data pool.\n30 3 * * *  root  python3 -m freedomnas shadow-sync                     >> /var/log/freedomnas-scheduled.log 2>&1\n",
+      "content": "# FreedomNAS scheduled work. Cron decides when; config.yaml decides what,\n# so a system with no policies costs a handful of no-ops a day.\nPATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\nPYTHONPATH=/usr/lib/freedomnas/core\n0  * * * *  root  python3 -m freedomnas snapshot-run --interval hourly  >> /var/log/freedomnas-scheduled.log 2>&1\n5  0 * * *  root  python3 -m freedomnas snapshot-run --interval daily   >> /var/log/freedomnas-scheduled.log 2>&1\n10 0 * * 0  root  python3 -m freedomnas snapshot-run --interval weekly  >> /var/log/freedomnas-scheduled.log 2>&1\n15 0 1 * *  root  python3 -m freedomnas snapshot-run --interval monthly >> /var/log/freedomnas-scheduled.log 2>&1\n# The configuration's shadow copy on every other pool: what a reinstall\n# onto a blank disk finds waiting for it on the data pool.\n30 3 * * *  root  python3 -m freedomnas shadow-sync                     >> /var/log/freedomnas-scheduled.log 2>&1\n",
       "append": true
     },
     "webui_cron": {

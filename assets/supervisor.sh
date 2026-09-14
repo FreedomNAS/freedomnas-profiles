@@ -3,6 +3,11 @@
 FAILURES=0
 MAX_FAILURES=5
 WEBUI_DIR="/usr/lib/freedomnas/webui"
+
+# The WebUI imports freedomnas-core, which is on no interpreter's default path
+# -- see firstboot.sh.
+PYTHONPATH="/usr/lib/freedomnas/core${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONPATH
 WEBUI_CMD="python3 -m uvicorn api.main:app --host 0.0.0.0 --port 8080"
 
 # HTTP Basic sends the administrator's password on every request, so the WebUI

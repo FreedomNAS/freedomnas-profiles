@@ -8,7 +8,9 @@
     "set_user_password": "smbpasswd -a {username}",
     "smb_service": "samba",
     "nmb_service": "samba",
-    "reload_config": "smbcontrol smbd reload-config"
+    "reload_config": "smbcontrol smbd reload-config",
+    "usershare_path": "/var/lib/samba/usershares",
+    "usershare_prepare": "install -d -m 1770 {path}"
   },
   "nfs": {
     "config_file": "/etc/exports",

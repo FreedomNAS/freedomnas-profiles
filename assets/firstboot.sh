@@ -27,6 +27,12 @@ set -u
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 export PATH
 
+# freedomnas-core lives outside every interpreter's site-packages, whose name
+# carries the Python version and so moves on an upgrade; naming it here keeps
+# `python3 -m freedomnas` working whatever the distribution and version.
+PYTHONPATH="/usr/lib/freedomnas/core${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONPATH
+
 log() { echo "firstboot: $*"; }
 
 # Pools already imported when we got here: whatever the admin or the boot
