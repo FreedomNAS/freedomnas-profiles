@@ -87,7 +87,9 @@
   },
   "partitioning": {
     "list_disks": "lsblk -d -n -b -o NAME,SIZE,MODEL",
+    "disk_pools": "lsblk -nrpo NAME,FSTYPE,LABEL {disk}",
     "wipe": "sgdisk --zap-all {disk}",
+    "labelclear": "zpool labelclear -f {device}",
     "clear": "sgdisk --clear {disk}",
     "create_esp": "sgdisk -n 1:0:+{esp_size} -t 1:EF00 {disk}",
     "create_root": "sgdisk -n 2:0:-0 -t 2:BF00 {disk}",
@@ -99,7 +101,7 @@
     "unmount": "umount {mountpoint}"
   },
   "rootpool": {
-    "create": "zpool create -o ashift={ashift} -O acltype=posixacl -O canmount=off -O compression={compression} -O dnodesize=auto -O normalization=formD -O relatime=on -O xattr=sa -O mountpoint=/ -R {altroot} {pool_name} {device}",
+    "create": "zpool create {force} -o ashift={ashift} -O acltype=posixacl -O canmount=off -O compression={compression} -O dnodesize=auto -O normalization=formD -O relatime=on -O xattr=sa -O mountpoint=/ -R {altroot} {pool_name} {device}",
     "create_datasets": [
       "zfs create -o canmount=off -o mountpoint=none {pool_name}/ROOT",
       "zfs create -o canmount=noauto -o mountpoint=/ {pool_name}/ROOT/{edition}",
@@ -121,6 +123,7 @@
     "export_all": "zpool export -a",
     "list_importable": "zpool import -d /dev/disk/by-id",
     "list_pools": "zpool list -H -o name",
+    "imported_devices": "zpool status -LP",
     "detect_root_dataset": "zfs list -H -o name /",
     "dataset_exists": "zfs list -H -o name {dataset}"
   },
