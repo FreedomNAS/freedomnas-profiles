@@ -62,9 +62,11 @@
   },
   "rootpool": {
     "create": "zpool create {force} -o ashift={ashift} -O acltype=posixacl -O canmount=off -O compression={compression} -O dnodesize=auto -O normalization=formD -O relatime=on -O xattr=sa -O mountpoint=/ -R {altroot} {pool_name} {device}",
-    "create_datasets": [
+    "create_boot_environment": [
       "zfs create -o canmount=off -o mountpoint=none {pool_name}/ROOT",
-      "zfs create -o canmount=noauto -o mountpoint=/ {pool_name}/ROOT/{edition}",
+      "zfs create -o canmount=noauto -o mountpoint=/ {pool_name}/ROOT/{edition}"
+    ],
+    "create_datasets": [
       "zfs create -o setuid=off {pool_name}/home",
       "zfs create -o canmount=off -o mountpoint=/var {pool_name}/var",
       "zfs create -o atime=on {pool_name}/var/log",
