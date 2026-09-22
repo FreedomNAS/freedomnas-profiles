@@ -9,6 +9,9 @@
       "docker-buildx-plugin",
       "docker-compose-plugin"
     ],
+    "admin_groups": [
+      "docker"
+    ],
     "services": [
       "docker",
       "containerd"
@@ -21,6 +24,9 @@
     "packages": [
       "docker",
       "docker-compose"
+    ],
+    "admin_groups": [
+      "docker"
     ],
     "services": [
       "docker"
@@ -35,6 +41,9 @@
       "docker-compose",
       "containerd"
     ],
+    "admin_groups": [
+      "docker"
+    ],
     "services": [
       "docker",
       "containerd"
@@ -48,6 +57,9 @@
       "docker",
       "docker-compose",
       "containerd"
+    ],
+    "admin_groups": [
+      "docker"
     ],
     "init": {
       "openrc": {
@@ -79,6 +91,9 @@
       "docker-compose",
       "containerd"
     ],
+    "admin_groups": [
+      "docker"
+    ],
     "services": [
       "docker",
       "containerd"
@@ -93,6 +108,9 @@
       "app-containers/docker-cli",
       "app-containers/containerd",
       "app-containers/docker-compose"
+    ],
+    "admin_groups": [
+      "docker"
     ],
     "services": [
       "docker",
