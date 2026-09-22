@@ -144,6 +144,11 @@
       "gpgconf --homedir /etc/pacman.d/gnupg --kill all"
     ]
   },
+  "dkms": {
+    "fix_gitrev": "for d in /usr/src/zfs-*/; do [ -d \"$d/scripts\" ] || continue; [ -e \"$d/scripts/make_gitrev.sh\" ] && continue; printf '#!/bin/sh\\nexit 0\\n' > \"$d/scripts/make_gitrev.sh\"; chmod 755 \"$d/scripts/make_gitrev.sh\"; done",
+    "autoinstall": "dkms autoinstall -k {kernel_version}",
+    "module_present": "modinfo -k {kernel_version} -n zfs"
+  },
   "pkgbuild": {
     "install": [
       "pacman -S --noconfirm --needed git base-devel",
