@@ -41,7 +41,7 @@
     "dmesg": "dmesg"
   },
   "updates": {
-    "run_topgrade": "su - {username} -c 'topgrade --config /etc/freedomnas/topgrade.toml'",
+    "run_topgrade": "su - {username} -c 'topgrade --yes --config /etc/freedomnas/topgrade.toml'",
     "topgrade_config": "/etc/freedomnas/topgrade.toml"
   }
 }

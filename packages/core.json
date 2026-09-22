@@ -99,7 +99,8 @@
       "python-cryptography",
       "python-fastapi",
       "uvicorn",
-      "python-websockets"
+      "python-websockets",
+      "topgrade"
     ],
     "services": [
       "systemd-resolved",
@@ -144,7 +145,8 @@
       "python-cryptography",
       "python-fastapi",
       "uvicorn",
-      "python-websockets"
+      "python-websockets",
+      "topgrade"
     ],
     "init": {
       "openrc": {
@@ -222,7 +224,8 @@
       "python3-cryptography",
       "python3-fastapi",
       "python3-uvicorn",
-      "python3-websockets"
+      "python3-websockets",
+      "topgrade"
     ],
     "services": [
       "sshd",
