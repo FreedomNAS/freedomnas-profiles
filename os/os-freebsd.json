@@ -12,7 +12,10 @@
     "autoremove": "pkg autoremove -y",
     "search": "pkg search {package_name}",
     "show": "pkg info {package_name}",
-    "upgrade": "pkg upgrade -y"
+    "upgrade": "pkg upgrade -y",
+    "multi_args": [
+      "package_name"
+    ]
   },
   "bootloader": {
     "_note": "FreeBSD boots ZFS-on-root natively -- no UKI/Clover needed. gptzfsboot (BIOS) and loader.efi (UEFI) both understand the same GPT+ZFS layout directly, so one image is bootable both ways without a third-party shim.",
@@ -21,7 +24,7 @@
     "efi_boot_entry": "efibootmgr --create --disk {disk} --part {part_num} --loader {loader_path} --label {label}"
   },
   "system": {
-    "hostname_set": "hostname {hostname} && sysrc hostname=\"{hostname}\"",
+    "hostname_set": "hostname {hostname} && sysrc hostname={hostname}",
     "timezone_set": "tzsetup {timezone}",
     "timezone_get": "cat /var/db/zoneinfo",
     "reboot": "shutdown -r now",

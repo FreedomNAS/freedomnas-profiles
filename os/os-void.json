@@ -14,12 +14,15 @@
     "autoremove": "xbps-remove -oy",
     "search": "xbps-query -Rs {package_name}",
     "show": "xbps-query -R {package_name}",
-    "upgrade": "xbps-install -Suy"
+    "upgrade": "xbps-install -Suy",
+    "multi_args": [
+      "package_name"
+    ]
   },
   "bootloader": {
-    "build_uki": "dracut --force --uefi --kernel-cmdline \"root=ZFS={dataset} rw\" {output_path} {kernel_version}",
+    "build_uki": "dracut --force --uefi --kernel-cmdline \"root=ZFS=\"{dataset}\" rw\" {output_path} {kernel_version}",
     "efi_boot_entry": "efibootmgr --create --disk {disk} --part {part_num} --loader {loader_path} --label {label}",
-    "build_uki_recovery": "dracut --force --uefi --kernel-cmdline \"root=ZFS={dataset} ro single rd.shell SYSTEMD_SULOGIN_FORCE=1\" {output_path} {kernel_version}"
+    "build_uki_recovery": "dracut --force --uefi --kernel-cmdline \"root=ZFS=\"{dataset}\" ro single rd.shell SYSTEMD_SULOGIN_FORCE=1\" {output_path} {kernel_version}"
   },
   "system": {
     "hostname_set": "hostname {hostname}",

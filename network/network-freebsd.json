@@ -11,13 +11,13 @@
     "bridge_add_port": "ifconfig {bridge_name} addm {interface}",
     "bridge_stp": "ifconfig {bridge_name} stp {interface}",
     "set_static_ip": [
-      "sysrc ifconfig_{logical_name}=\"inet {ip} netmask {netmask}\"",
-      "sysrc defaultrouter=\"{gateway}\""
+      "sysrc ifconfig_{logical_name}=\"inet \"{ip}\" netmask \"{netmask}",
+      "sysrc defaultrouter={gateway}"
     ],
     "set_dynamic_ip": "sysrc ifconfig_{logical_name}=dhcp",
     "bring_up_interface": "ifconfig {interface} up",
     "bring_down_interface": "ifconfig {interface} down",
-    "hostname_set": "hostname {hostname} && sysrc hostname=\"{hostname}\"",
+    "hostname_set": "hostname {hostname} && sysrc hostname={hostname}",
     "hostname_get": "hostname",
     "persistent_rename": "ifconfig_{old_name}_name=\"{logical_name}\""
   }

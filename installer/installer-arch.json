@@ -91,7 +91,10 @@
     "list_pools": "zpool list -H -o name",
     "imported_devices": "zpool status -LP",
     "detect_root_dataset": "zfs list -H -o name /",
-    "dataset_exists": "zfs list -H -o name {dataset}"
+    "dataset_exists": "zfs list -H -o name {dataset}",
+    "multi_args": [
+      "force"
+    ]
   },
   "python": {
     "site_dir": "python3 -c \"import sysconfig; print(sysconfig.get_path('purelib'))\""
@@ -109,7 +112,10 @@
     "unpack_tarball": "tar -xpf {tarball} -C {root} --numeric-owner",
     "update_cache": "pacman -Sy --noconfirm",
     "install_base": "pacman -S --noconfirm --needed {package_list}",
-    "locale_gen": "locale-gen"
+    "locale_gen": "locale-gen",
+    "multi_args": [
+      "package_list"
+    ]
   },
   "bootstrap_files": {
     "pacman_conf": {

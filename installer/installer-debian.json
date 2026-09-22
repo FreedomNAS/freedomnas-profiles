@@ -161,7 +161,10 @@
     "list_pools": "zpool list -H -o name",
     "imported_devices": "zpool status -LP",
     "detect_root_dataset": "zfs list -H -o name /",
-    "dataset_exists": "zfs list -H -o name {dataset}"
+    "dataset_exists": "zfs list -H -o name {dataset}",
+    "multi_args": [
+      "force"
+    ]
   },
   "python": {
     "site_dir": "python3 -c \"import sysconfig; print(sysconfig.get_path('purelib'))\""
@@ -172,7 +175,10 @@
     "unpack_tarball": "tar -xpf {tarball} -C {root} --numeric-owner",
     "update_cache": "env DEBIAN_FRONTEND=noninteractive LC_ALL=C.UTF-8 LANG=C.UTF-8 apt-get update -qq",
     "install_base": "env DEBIAN_FRONTEND=noninteractive LC_ALL=C.UTF-8 LANG=C.UTF-8 apt-get install -y --no-install-recommends {package_list}",
-    "locale_gen": "locale-gen"
+    "locale_gen": "locale-gen",
+    "multi_args": [
+      "package_list"
+    ]
   },
   "files": {
     "hostname": {
@@ -244,7 +250,7 @@
       "install -m 0755 -d /etc/apt/keyrings",
       "curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc",
       "chmod a+r /etc/apt/keyrings/docker.asc",
-      "printf 'Types: deb\\nURIs: https://download.docker.com/linux/debian\\nSuites: {suite}\\nComponents: stable\\nArchitectures: {arch}\\nSigned-By: /etc/apt/keyrings/docker.asc\\n' > /etc/apt/sources.list.d/docker.sources"
+      "printf 'Types: deb\\nURIs: https://download.docker.com/linux/debian\\nSuites: %s\\nComponents: stable\\nArchitectures: %s\\nSigned-By: /etc/apt/keyrings/docker.asc\\n' {suite} {arch} > /etc/apt/sources.list.d/docker.sources"
     ]
   }
 }

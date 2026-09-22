@@ -36,7 +36,11 @@
     "dataset_get_property": "zfs get -H -o value,source {property} {dataset}",
     "pool_add_cache": "zpool add {pool_name} cache {devices}",
     "pool_add_log": "zpool add {pool_name} log {devices}",
-    "pool_remove_device": "zpool remove {pool_name} {device}"
+    "pool_remove_device": "zpool remove {pool_name} {device}",
+    "multi_args": [
+      "devices",
+      "vdev_type"
+    ]
   },
   "media": {
     "list_removable": "lsblk -rno NAME,RM,TYPE",

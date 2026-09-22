@@ -60,7 +60,10 @@
     "list_importable": "zpool import",
     "list_pools": "zpool list -H -o name",
     "detect_root_dataset": "zfs list -H -o name /",
-    "dataset_exists": "zfs list -H -o name {dataset}"
+    "dataset_exists": "zfs list -H -o name {dataset}",
+    "multi_args": [
+      "force"
+    ]
   },
   "python": {
     "site_dir": "python3 -c \"import sysconfig; print(sysconfig.get_path('purelib'))\""
@@ -69,7 +72,10 @@
     "fetch_tarball": "fetch -o {output} {url}",
     "unpack_tarball": "tar -xpf {tarball} -C {root}",
     "update_cache": "pkg update -f",
-    "install_base": "pkg install -y {package_list}"
+    "install_base": "pkg install -y {package_list}",
+    "multi_args": [
+      "package_list"
+    ]
   },
   "files": {
     "rc_conf": {

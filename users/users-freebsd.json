@@ -2,7 +2,6 @@
   "users": {
     "create": "pw useradd {username} -m -s /usr/local/bin/bash -G {groups}",
     "delete": "pw userdel {username} -r",
-    "set_password": "echo '{password}' | pw usermod {username} -h 0",
     "list": "pw usershow -a | awk -F: '$3 >= 1001 && $3 < 65534'",
     "get_user_info": "pw usershow {username}",
     "list_groups": "id -nG {username}",
