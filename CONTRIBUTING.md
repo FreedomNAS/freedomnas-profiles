@@ -123,7 +123,7 @@ of `storage/`, `network/`, `shares/`, `users/` you're able to fill in:
   "users": {
     "create": "adduser -D -u {uid} -G {groups} {username}",
     "delete": "deluser {username}",
-    "set_password": "chpasswd",
+    "set_password_stdin": "chpasswd",
     "list": "getent passwd | awk -F: '$3 >= 1000 && $3 < 65534'",
     "get_user_info": "getent passwd {username}",
     "add_to_group": "adduser {username} {group}",
@@ -266,10 +266,13 @@ Keep new variable names consistent with existing ones for the same concept
   `shell=True` when it detects shell metacharacters in *your* command
   string — so a command with an unnecessary pipe silently opts into a
   larger attack surface than a plain argv command.
-- Never build a command that would need an untrusted string to reach the
-  shell unescaped. Template variables are sanitized (shell metacharacters
-  stripped) before substitution, but that's a safety net, not a reason to
-  design around it.
+- Never put a placeholder inside quotes of its own. The engine quotes every
+  value into exactly one argument, and a quote in the value would close
+  yours. To make a value part of a larger word, concatenate:
+  `{path}' '{clients}'('{options}')'`, `"root=ZFS="{dataset}" rw"`.
+- A variable that carries several arguments (`{devices}`, `{package_list}`,
+  an optional flag like `{force}`) must be listed in its category's
+  `"multi_args"`; everything else is one argument, even when empty.
 - Prefer commands that fail loudly (non-zero exit, clear stderr) over ones
   that silently no-op.
 
