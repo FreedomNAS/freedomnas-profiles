@@ -34,6 +34,7 @@
       "python3-cryptography",
       "python3-fastapi",
       "python3-uvicorn",
+      "python3-websockets",
       "cron",
       "locales"
     ],
@@ -61,7 +62,8 @@
       "py312-Jinja2",
       "py312-cryptography",
       "py312-fastapi",
-      "py312-uvicorn"
+      "py312-uvicorn",
+      "py312-websockets"
     ],
     "services": [
       "sshd",
@@ -96,7 +98,8 @@
       "python-jinja",
       "python-cryptography",
       "python-fastapi",
-      "uvicorn"
+      "uvicorn",
+      "python-websockets"
     ],
     "services": [
       "systemd-resolved",
@@ -140,7 +143,8 @@
       "python-jinja",
       "python-cryptography",
       "python-fastapi",
-      "uvicorn"
+      "uvicorn",
+      "python-websockets"
     ],
     "init": {
       "openrc": {
@@ -217,7 +221,8 @@
       "python3-Jinja2",
       "python3-cryptography",
       "python3-fastapi",
-      "python3-uvicorn"
+      "python3-uvicorn",
+      "python3-websockets"
     ],
     "services": [
       "sshd",
@@ -251,6 +256,7 @@
       "dev-python/cryptography",
       "dev-python/fastapi",
       "dev-python/uvicorn",
+      "dev-python/websockets",
       "dev-python/python-pam"
     ],
     "early_services": [
