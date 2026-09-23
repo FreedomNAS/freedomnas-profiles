@@ -1,8 +1,8 @@
-freedomnas-profiles (4.0.0-1) unstable; urgency=medium
+freedomnas-profiles (1.0-1) unstable; urgency=medium
 
   * Initial release
   * JSON profiles for Debian, FreeBSD, and Arch Linux
   * Universal command abstraction via JSON Translator Layer
   * Extensible for future OS support
 
- -- FreedomNAS Team <dev@freedomnas.io>  Thu, 22 May 2026 14:00:00 +0000
+ -- FreedomNAS Team <dev@freedomnas.io>  Wed, 23 Sep 2026 08:00:00 +0000

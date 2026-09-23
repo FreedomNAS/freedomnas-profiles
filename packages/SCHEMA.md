@@ -67,33 +67,33 @@ The installer/WebUI stores a `packages.yaml` file in the system:
 
 **Format:**
 ```yaml
-version: "4.0.0"
+version: "1.0"
 edition: debian              # or freebsd, arch
 installed_categories:
   - id: core
     status: installed
     installed_date: "2026-05-22T14:30:00Z"
-    version: "4.0.0"
+    version: "1.0"
 
   - id: samba-cifs
     status: installed
     installed_date: "2026-05-22T14:45:00Z"
-    version: "4.0.0"
+    version: "1.0"
     config_backup: "/var/backups/freedomnas/samba-cifs-2026-05-22.tar.gz"
 
   - id: nfs
     status: available
-    version: "4.0.0"
+    version: "1.0"
     
   - id: containers
     status: installed
     installed_date: "2026-05-23T09:15:00Z"
-    version: "4.0.0"
+    version: "1.0"
     config_backup: "/var/backups/freedomnas/containers-2026-05-23.tar.gz"
 
   - id: virtualization
     status: available
-    version: "4.0.0"
+    version: "1.0"
 ```
 
 ## Disaster Recovery Flow

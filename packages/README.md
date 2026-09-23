@@ -17,7 +17,7 @@ The FreedomNAS package management system is a **modular, category-based architec
 During installation, you'll be asked to select optional features:
 
 ```
-FreedomNAS 4.0 Setup
+FreedomNAS 1.0 Setup
 ===================
 
 [✓] Core NAS (required)

@@ -1,6 +1,6 @@
 # Maintainer: FreedomNAS Team <dev@freedomnas.io>
 pkgname=freedomnas-profiles
-pkgver=4.0.0
+pkgver=1.0
 pkgrel=1
 pkgdesc="FreedomNAS OS Profiles — JSON Translator Layer for universal appliance"
 arch=('any')
