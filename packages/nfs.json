@@ -67,6 +67,16 @@
           "rpcbind",
           "nfs-server"
         ]
+      },
+      "runit": {
+        "packages": [
+          "nfs-utils-runit",
+          "rpcbind-runit"
+        ],
+        "services": [
+          "rpcbind",
+          "nfs-server"
+        ]
       }
     },
     "config_paths": [

@@ -75,6 +75,14 @@
         "services": [
           "libvirtd"
         ]
+      },
+      "runit": {
+        "packages": [
+          "libvirt-runit"
+        ],
+        "services": [
+          "libvirtd"
+        ]
       }
     },
     "config_paths": [

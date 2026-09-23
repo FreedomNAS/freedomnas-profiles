@@ -79,6 +79,14 @@
         "services": [
           "dockerd"
         ]
+      },
+      "runit": {
+        "packages": [
+          "docker-runit"
+        ],
+        "services": [
+          "docker"
+        ]
       }
     },
     "config_paths": [

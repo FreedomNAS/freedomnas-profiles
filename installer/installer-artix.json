@@ -6,11 +6,13 @@
     "suite": "",
     "init_systems": [
       "openrc",
-      "dinit"
+      "dinit",
+      "runit"
     ],
     "init_packages": {
       "openrc": "openrc elogind-openrc",
-      "dinit": "dinit elogind-dinit"
+      "dinit": "dinit elogind-dinit",
+      "runit": "runit elogind-runit"
     },
     "mirror": "https://mirror1.artixlinux.org/repos",
     "esp_size": "512MiB",

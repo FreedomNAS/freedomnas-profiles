@@ -193,6 +193,25 @@
           "cronie",
           "zed"
         ]
+      },
+      "runit": {
+        "packages": [
+          "openssh-runit",
+          "dhcpcd-runit",
+          "cronie-runit"
+        ],
+        "pkgbuilds": [
+          {
+            "name": "zfs-runit",
+            "git": "https://codeberg.org/sarahmeow86/zfs-dinit.git"
+          }
+        ],
+        "services": [
+          "dhcpcd",
+          "sshd",
+          "cronie",
+          "zed"
+        ]
       }
     }
   },
