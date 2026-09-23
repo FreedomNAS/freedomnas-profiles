@@ -279,7 +279,8 @@
       "dev-python/fastapi",
       "dev-python/uvicorn",
       "dev-python/websockets",
-      "dev-python/python-pam"
+      "dev-python/python-pam",
+      "app-admin/topgrade-bin"
     ],
     "early_services": [
       "zfs-import",

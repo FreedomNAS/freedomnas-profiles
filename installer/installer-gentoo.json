@@ -146,6 +146,12 @@
       "package_list"
     ]
   },
+  "repositories": {
+    "core": [
+      "emerge --quiet --noreplace dev-vcs/git",
+      "emaint sync --repo freedomnas"
+    ]
+  },
   "files": {
     "hostname_conf": {
       "path": "/etc/conf.d/hostname",
@@ -207,6 +213,10 @@
     "samba_conf": {
       "path": "/etc/samba/smb.conf",
       "content": "# Written by the FreedomNAS installer. Shares are created as usershares\n# (net usershare) by the WebUI, so only the global settings live here.\n[global]\n   workgroup = WORKGROUP\n   server string = FreedomNAS\n   server role = standalone server\n   security = user\n   log file = /var/log/samba/%m.log\n   max log size = 1000\n   usershare path = /var/lib/samba/usershares\n   usershare max shares = 100\n   usershare allow guests = no\n"
+    },
+    "repos_conf": {
+      "path": "/etc/portage/repos.conf/freedomnas.conf",
+      "content": "# The FreedomNAS overlay: app-admin/topgrade-bin, and the FreedomNAS\n# packages themselves. Synced with git, which the stage3 does not have\n# -- see repositories.core.\n[freedomnas]\nlocation = /var/db/repos/freedomnas\nsync-type = git\nsync-uri = https://codeberg.org/FreedomNAS/freedomnas-overlay.git\nauto-sync = yes\n"
     }
   }
 }
