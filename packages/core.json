@@ -35,6 +35,9 @@
       "python3-fastapi",
       "python3-uvicorn",
       "python3-websockets",
+      "freedomnas-core",
+      "freedomnas-profiles",
+      "freedomnas-webui",
       "topgrade",
       "cron",
       "locales"

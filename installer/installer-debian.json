@@ -94,6 +94,11 @@
         "label": "Japan (ftp.jp.debian.org)",
         "url": "http://ftp.jp.debian.org/debian"
       }
+    ],
+    "core_packages": [
+      "freedomnas-core",
+      "freedomnas-profiles",
+      "freedomnas-webui"
     ]
   },
   "chroot": {
@@ -167,7 +172,8 @@
     ]
   },
   "python": {
-    "site_dir": "python3 -c \"import sysconfig; print(sysconfig.get_path('purelib'))\""
+    "site_dir": "python3 -c \"import sysconfig; print(sysconfig.get_path('purelib'))\"",
+    "import_check": "python3 -c \"import freedomnas, sys; print(freedomnas.__file__)\""
   },
   "bootstrap": {
     "debootstrap": "debootstrap --arch={arch} --include=ca-certificates,apt-transport-https,curl {suite} {root} {mirror}",
