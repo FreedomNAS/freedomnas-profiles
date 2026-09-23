@@ -35,6 +35,7 @@
       "python3-fastapi",
       "python3-uvicorn",
       "python3-websockets",
+      "topgrade",
       "cron",
       "locales"
     ],
