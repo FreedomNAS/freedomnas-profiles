@@ -170,7 +170,7 @@
     "site_dir": "python3 -c \"import sysconfig; print(sysconfig.get_path('purelib'))\""
   },
   "bootstrap": {
-    "debootstrap": "debootstrap --arch={arch} --include=ca-certificates,apt-transport-https {suite} {root} {mirror}",
+    "debootstrap": "debootstrap --arch={arch} --include=ca-certificates,apt-transport-https,curl {suite} {root} {mirror}",
     "fetch_tarball": "curl -fL --retry 3 -o {output} {url}",
     "unpack_tarball": "tar -xpf {tarball} -C {root} --numeric-owner",
     "update_cache": "env DEBIAN_FRONTEND=noninteractive LC_ALL=C.UTF-8 LANG=C.UTF-8 apt-get update -qq",
