@@ -4,7 +4,7 @@
     "pool_import": "zpool import {pool_name}",
     "pool_export": "zpool export {pool_name}",
     "pool_status": "zpool status -p {pool_name}",
-    "pool_list": "zpool list -Hp",
+    "pool_list": "zpool list -Hp -o name,size,alloc,free,capacity,health",
     "pool_scrub": "zpool scrub {pool_name}",
     "pool_scrub_stop": "zpool scrub -s {pool_name}",
     "pool_offline": "zpool offline {pool_name} {device}",
