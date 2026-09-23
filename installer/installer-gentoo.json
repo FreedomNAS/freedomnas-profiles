@@ -216,6 +216,7 @@
     },
     "repos_conf": {
       "path": "/etc/portage/repos.conf/freedomnas.conf",
+      "inplace": true,
       "content": "# The FreedomNAS overlay: app-admin/topgrade-bin, and the FreedomNAS\n# packages themselves. Synced with git, which the stage3 does not have\n# -- see repositories.core.\n[freedomnas]\nlocation = /var/db/repos/freedomnas\nsync-type = git\nsync-uri = https://codeberg.org/FreedomNAS/freedomnas-overlay.git\nauto-sync = yes\n"
     }
   }
