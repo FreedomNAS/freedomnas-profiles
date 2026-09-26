@@ -3,6 +3,10 @@
   "os_family": "bsd",
   "os_version": "13.0+",
   "init_system": "bsd_rc",
+  "paths": {
+    "install_root": "/usr/local/lib/freedomnas",
+    "config_dir": "/usr/local/etc/freedomnas"
+  },
   "packages": {
     "update_cache": "pkg update",
     "list_updatable": "pkg upgrade -n --raw-format json-compact",
@@ -40,7 +44,7 @@
     "dmesg": "dmesg"
   },
   "updates": {
-    "run_topgrade": "su - {username} -c 'topgrade --yes --config /etc/freedomnas/topgrade.toml'",
-    "topgrade_config": "/etc/freedomnas/topgrade.toml"
+    "run_topgrade": "su - {username} -c 'topgrade --yes --config /usr/local/etc/freedomnas/topgrade.toml'",
+    "topgrade_config": "/usr/local/etc/freedomnas/topgrade.toml"
   }
 }

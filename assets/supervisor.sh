@@ -2,11 +2,14 @@
 # FreedomNAS WebUI supervisor -- init-agnostic, circuit breaker after 5 failures.
 FAILURES=0
 MAX_FAILURES=5
-WEBUI_DIR="/usr/lib/freedomnas/webui"
+# <install_root>/profiles/assets/supervisor.sh, or a copy in
+# <install_root>/webui/bin: the root is three levels up from the real file.
+INSTALL_ROOT=$(dirname "$(dirname "$(dirname "$(realpath "$0")")")")
+WEBUI_DIR="$INSTALL_ROOT/webui"
 
 # The WebUI imports freedomnas-core, which is on no interpreter's default path
 # -- see firstboot.sh.
-PYTHONPATH="/usr/lib/freedomnas/core${PYTHONPATH:+:$PYTHONPATH}"
+PYTHONPATH="$INSTALL_ROOT/core${PYTHONPATH:+:$PYTHONPATH}"
 export PYTHONPATH
 WEBUI_CMD="python3 -m uvicorn api.main:app --host 0.0.0.0 --port 8080"
 
@@ -14,8 +17,9 @@ WEBUI_CMD="python3 -m uvicorn api.main:app --host 0.0.0.0 --port 8080"
 # speaks TLS whenever the certificate is there. An installation from before
 # the certificate existed keeps working over plain HTTP rather than refusing
 # to start.
-TLS_CERT="/etc/freedomnas/tls/cert.pem"
-TLS_KEY="/etc/freedomnas/tls/key.pem"
+TLS_DIR=$(python3 -m freedomnas path tls)
+TLS_CERT="$TLS_DIR/cert.pem"
+TLS_KEY="$TLS_DIR/key.pem"
 if [ -r "$TLS_CERT" ] && [ -r "$TLS_KEY" ]; then
     WEBUI_CMD="$WEBUI_CMD --ssl-certfile $TLS_CERT --ssl-keyfile $TLS_KEY"
 fi

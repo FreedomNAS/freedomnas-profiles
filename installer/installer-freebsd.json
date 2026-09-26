@@ -46,9 +46,9 @@
       "zfs create -o setuid=off {pool_name}/home",
       "zfs create -o canmount=off -o mountpoint=/var {pool_name}/var",
       "zfs create -o atime=on {pool_name}/var/log",
-      "zfs create -o canmount=noauto -o mountpoint=/etc/freedomnas/state {pool_name}/.freedomnas"
+      "zfs create -o canmount=noauto -o mountpoint=/usr/local/etc/freedomnas/state {pool_name}/.freedomnas"
     ],
-    "create_state_dataset": "zfs create -o canmount=noauto -o mountpoint=/etc/freedomnas/state {pool_name}/.freedomnas",
+    "create_state_dataset": "zfs create -o canmount=noauto -o mountpoint=/usr/local/etc/freedomnas/state {pool_name}/.freedomnas",
     "set_bootfs": "zpool set bootfs={pool_name}/ROOT/{edition} {pool_name}",
     "mount_root": "zfs mount {pool_name}/ROOT/{edition}",
     "mount_all": "zfs mount -a",
@@ -100,13 +100,13 @@
     },
     "scheduled_jobs": {
       "path": "/etc/crontab",
-      "content": "# FreedomNAS scheduled work. Cron decides when; config.yaml decides what,\n# so a system with no policies costs a handful of no-ops a day.\nPATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\nPYTHONPATH=/usr/lib/freedomnas/core\n0  * * * *  root  python3 -m freedomnas snapshot-run --interval hourly  >> /var/log/freedomnas-scheduled.log 2>&1\n5  0 * * *  root  python3 -m freedomnas snapshot-run --interval daily   >> /var/log/freedomnas-scheduled.log 2>&1\n10 0 * * 0  root  python3 -m freedomnas snapshot-run --interval weekly  >> /var/log/freedomnas-scheduled.log 2>&1\n15 0 1 * *  root  python3 -m freedomnas snapshot-run --interval monthly >> /var/log/freedomnas-scheduled.log 2>&1\n# The configuration's shadow copy on every other pool: what a reinstall\n# onto a blank disk finds waiting for it on the data pool.\n30 3 * * *  root  python3 -m freedomnas shadow-sync                     >> /var/log/freedomnas-scheduled.log 2>&1\n",
+      "content": "# FreedomNAS scheduled work. Cron decides when; config.yaml decides what,\n# so a system with no policies costs a handful of no-ops a day.\nPATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\nPYTHONPATH={install_root}/core\n0  * * * *  root  python3 -m freedomnas snapshot-run --interval hourly  >> /var/log/freedomnas-scheduled.log 2>&1\n5  0 * * *  root  python3 -m freedomnas snapshot-run --interval daily   >> /var/log/freedomnas-scheduled.log 2>&1\n10 0 * * 0  root  python3 -m freedomnas snapshot-run --interval weekly  >> /var/log/freedomnas-scheduled.log 2>&1\n15 0 1 * *  root  python3 -m freedomnas snapshot-run --interval monthly >> /var/log/freedomnas-scheduled.log 2>&1\n# The configuration's shadow copy on every other pool: what a reinstall\n# onto a blank disk finds waiting for it on the data pool.\n30 3 * * *  root  python3 -m freedomnas shadow-sync                     >> /var/log/freedomnas-scheduled.log 2>&1\n",
       "append": true
     },
     "webui_cron": {
       "path": "/etc/crontab",
       "append": true,
-      "content": "@reboot root /usr/lib/freedomnas/webui/bin/firstboot.sh >> /var/log/freedomnas-webui.log 2>&1\n",
+      "content": "@reboot root {install_root}/webui/bin/firstboot.sh >> /var/log/freedomnas-webui.log 2>&1\n",
       "_note": "FreeBSD's cron is vixie-cron heritage and honours @reboot, but base ships no /etc/cron.d drop-in directory, so the entry is appended to the system crontab."
     },
     "sudoers": {

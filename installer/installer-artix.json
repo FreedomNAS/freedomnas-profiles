@@ -185,12 +185,12 @@
     },
     "scheduled_jobs": {
       "path": "/etc/cron.d/freedomnas",
-      "content": "# FreedomNAS scheduled work. Cron decides when; config.yaml decides what,\n# so a system with no policies costs a handful of no-ops a day.\nPATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\nPYTHONPATH=/usr/lib/freedomnas/core\n0  * * * *  root  python3 -m freedomnas snapshot-run --interval hourly  >> /var/log/freedomnas-scheduled.log 2>&1\n5  0 * * *  root  python3 -m freedomnas snapshot-run --interval daily   >> /var/log/freedomnas-scheduled.log 2>&1\n10 0 * * 0  root  python3 -m freedomnas snapshot-run --interval weekly  >> /var/log/freedomnas-scheduled.log 2>&1\n15 0 1 * *  root  python3 -m freedomnas snapshot-run --interval monthly >> /var/log/freedomnas-scheduled.log 2>&1\n# The configuration's shadow copy on every other pool: what a reinstall\n# onto a blank disk finds waiting for it on the data pool.\n30 3 * * *  root  python3 -m freedomnas shadow-sync                     >> /var/log/freedomnas-scheduled.log 2>&1\n",
+      "content": "# FreedomNAS scheduled work. Cron decides when; config.yaml decides what,\n# so a system with no policies costs a handful of no-ops a day.\nPATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\nPYTHONPATH={install_root}/core\n0  * * * *  root  python3 -m freedomnas snapshot-run --interval hourly  >> /var/log/freedomnas-scheduled.log 2>&1\n5  0 * * *  root  python3 -m freedomnas snapshot-run --interval daily   >> /var/log/freedomnas-scheduled.log 2>&1\n10 0 * * 0  root  python3 -m freedomnas snapshot-run --interval weekly  >> /var/log/freedomnas-scheduled.log 2>&1\n15 0 1 * *  root  python3 -m freedomnas snapshot-run --interval monthly >> /var/log/freedomnas-scheduled.log 2>&1\n# The configuration's shadow copy on every other pool: what a reinstall\n# onto a blank disk finds waiting for it on the data pool.\n30 3 * * *  root  python3 -m freedomnas shadow-sync                     >> /var/log/freedomnas-scheduled.log 2>&1\n",
       "mode": 420
     },
     "webui_cron": {
       "path": "/etc/cron.d/freedomnas-webui",
-      "content": "@reboot root /usr/lib/freedomnas/webui/bin/firstboot.sh >> /var/log/freedomnas-webui.log 2>&1\n",
+      "content": "@reboot root {install_root}/webui/bin/firstboot.sh >> /var/log/freedomnas-webui.log 2>&1\n",
       "mode": 420
     },
     "sudoers": {

@@ -3,6 +3,10 @@
   "os_family": "linux",
   "os_version": "12+",
   "init_system": "systemd",
+  "paths": {
+    "install_root": "/usr/lib/freedomnas",
+    "config_dir": "/etc/freedomnas"
+  },
   "packages": {
     "update_cache": "apt update",
     "list_updatable": "apt list --upgradable 2>/dev/null | tail -n +2",

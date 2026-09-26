@@ -3,6 +3,10 @@
   "os_family": "linux",
   "os_version": "rolling",
   "init_system": "systemd",
+  "paths": {
+    "install_root": "/usr/lib/freedomnas",
+    "config_dir": "/etc/freedomnas"
+  },
   "community_maintained": true,
   "maintainer_note": "Community-maintained profile. Contributions welcome!",
   "packages": {

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Baked into every image at /usr/lib/freedomnas/webui/bin/firstboot.sh and
+# Baked into every image at <install_root>/webui/bin/firstboot.sh and
 # launched from cron's @reboot entry (replacing the old direct call to
 # supervisor.sh — this script now does the ADR-002 boot-time decision
 # and then hands off to supervisor.sh itself).
@@ -27,11 +27,19 @@ set -u
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 export PATH
 
+# This script is <install_root>/profiles/assets/firstboot.sh, or a copy of it
+# in <install_root>/webui/bin: either way the root is three levels up from
+# the real file, whatever the edition decided the root is.
+INSTALL_ROOT=$(dirname "$(dirname "$(dirname "$(realpath "$0")")")")
+
 # freedomnas-core lives outside every interpreter's site-packages, whose name
 # carries the Python version and so moves on an upgrade; naming it here keeps
 # `python3 -m freedomnas` working whatever the distribution and version.
-PYTHONPATH="/usr/lib/freedomnas/core${PYTHONPATH:+:$PYTHONPATH}"
+PYTHONPATH="$INSTALL_ROOT/core${PYTHONPATH:+:$PYTHONPATH}"
 export PYTHONPATH
+
+# Where this edition keeps the configuration comes from its OS profile.
+STATE_DIR=$(python3 -m freedomnas path state)
 
 log() { echo "firstboot: $*"; }
 
@@ -74,6 +82,11 @@ for pool in $search_order; do
         found_pool="$pool"
         [ -n "$root_pool" ] && [ "$pool" != "$root_pool" ] && \
             log "NOTE: the configuration comes from $pool, not from the root pool $root_pool"
+        # A pool made by another edition carries that edition's mountpoint
+        # (Linux mounts the dataset at /etc/freedomnas/state, FreeBSD under
+        # /usr/local/etc): bring it to this one's before mounting it.
+        [ "$(zfs get -H -o value mountpoint "$found_dataset" 2>/dev/null)" = "$STATE_DIR" ] || \
+            zfs set mountpoint="$STATE_DIR" "$found_dataset" 2>/dev/null || true
         zfs mount "$found_dataset" 2>/dev/null || true
         break
     fi
@@ -89,7 +102,7 @@ for pool in $(zpool list -H -o name 2>/dev/null); do
     zpool export "$pool" 2>/dev/null || true
 done
 
-if [ -n "$found_dataset" ] && [ -f /etc/freedomnas/state/config.yaml ]; then
+if [ -n "$found_dataset" ] && [ -f "$STATE_DIR/config.yaml" ]; then
     log "found existing config on $found_dataset -- reconciling (disaster_recovery)"
     python3 -m freedomnas reconcile --mode disaster_recovery || \
         log "WARNING: reconcile failed, continuing to boot the WebUI anyway"
@@ -101,4 +114,4 @@ fi
 # changed at every boot would train the admin to click through the warning.
 python3 -m freedomnas ensure-tls || log "WARNING: no TLS certificate — the WebUI will serve plain HTTP"
 
-exec /usr/lib/freedomnas/webui/bin/supervisor.sh
+exec "$INSTALL_ROOT/webui/bin/supervisor.sh"
