@@ -1,9 +1,9 @@
 {
   "installer_meta": {
-    "maintainer_note": "FreeBSD provisioning is native: gpart for the layout, base.txz for the userland, and the loader reads ZFS directly, so there is no UKI and no Clover. A FreeBSD target requires a FreeBSD installer environment - Linux hosts cannot run gpart/pkg, which is why the installer filters targets by os_family.",
+    "maintainer_note": "FreeBSD provisioning is native: gpart for the layout, base.txz for the userland and kernel.txz for the kernel (base.txz has none), and the loader reads ZFS directly, so there is no UKI and no Clover. A FreeBSD target requires a FreeBSD installer environment - Linux hosts cannot run gpart/pkg, which is why the installer filters targets by os_family.",
     "arch": "amd64",
-    "suite": "14.2-RELEASE",
-    "mirror": "https://download.freebsd.org/ftp/releases/amd64/14.2-RELEASE",
+    "suite": "15.1-RELEASE",
+    "mirror": "https://download.freebsd.org/ftp/releases/amd64/15.1-RELEASE",
     "esp_size": "512M",
     "esp_mountpoint": "/boot/efi",
     "bootstrap_methods": [
@@ -12,7 +12,10 @@
     "bootstrap_tools": {
       "tarball": "tar"
     },
-    "rootfs_tarball_url": "https://download.freebsd.org/ftp/releases/amd64/14.2-RELEASE/base.txz",
+    "rootfs_tarball_url": "https://download.freebsd.org/ftp/releases/amd64/15.1-RELEASE/base.txz",
+    "extra_tarball_urls": [
+      "https://download.freebsd.org/ftp/releases/amd64/15.1-RELEASE/kernel.txz"
+    ],
     "chroot_dirs": [
       "/dev"
     ]
