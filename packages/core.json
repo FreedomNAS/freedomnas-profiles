@@ -50,16 +50,12 @@
   },
   "freebsd": {
     "packages": [
-      "zfs",
       "curl",
       "wget",
       "vim",
       "sudo",
       "openssh-portable",
       "pkg",
-      "base",
-      "kernel-generic",
-      "efibootmgr",
       "python3",
       "py312-pyyaml",
       "py312-python-pam",
@@ -67,11 +63,11 @@
       "py312-cryptography",
       "py312-fastapi",
       "py312-uvicorn",
-      "py312-websockets"
+      "py312-websockets",
+      "topgrade"
     ],
     "services": [
-      "sshd",
-      "resolvconf"
+      "sshd"
     ]
   },
   "arch": {

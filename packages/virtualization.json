@@ -21,7 +21,6 @@
   },
   "freebsd": {
     "packages": [
-      "bhyve",
       "libvirt",
       "vm-bhyve",
       "grub2-bhyve"
@@ -30,7 +29,7 @@
       "libvirtd"
     ],
     "config_paths": [
-      "/etc/libvirt/libvirtd.conf"
+      "/usr/local/etc/libvirt/libvirtd.conf"
     ]
   },
   "arch": {

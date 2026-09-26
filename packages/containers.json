@@ -22,17 +22,14 @@
   },
   "freebsd": {
     "packages": [
-      "docker",
-      "docker-compose"
+      "podman"
     ],
-    "admin_groups": [
-      "docker"
-    ],
+    "admin_groups": [],
     "services": [
-      "docker"
+      "podman"
     ],
     "config_paths": [
-      "/etc/docker/daemon.json"
+      "/usr/local/etc/containers/containers.conf"
     ]
   },
   "arch": {

@@ -18,16 +18,14 @@
     ]
   },
   "freebsd": {
-    "packages": [
-      "nfs-ganesha"
-    ],
+    "packages": [],
     "services": [
-      "nfsd",
-      "rpcbind"
+      "rpcbind",
+      "mountd",
+      "nfsd"
     ],
     "config_paths": [
-      "/etc/exports",
-      "/etc/idmapd.conf"
+      "/etc/exports"
     ]
   },
   "arch": {

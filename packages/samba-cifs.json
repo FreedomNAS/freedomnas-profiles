@@ -21,14 +21,13 @@
   },
   "freebsd": {
     "packages": [
-      "samba416",
-      "winbind"
+      "samba416"
     ],
     "services": [
-      "samba"
+      "samba_server"
     ],
     "config_paths": [
-      "/usr/local/etc/smb.conf"
+      "/usr/local/etc/smb4.conf"
     ]
   },
   "arch": {
