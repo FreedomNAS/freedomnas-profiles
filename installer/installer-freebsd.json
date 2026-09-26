@@ -1,9 +1,9 @@
 {
   "installer_meta": {
-    "maintainer_note": "FreeBSD provisioning is native: gpart for the layout, base.txz for the userland and kernel.txz for the kernel (base.txz has none), and the loader reads ZFS directly, so there is no UKI and no Clover. A FreeBSD target requires a FreeBSD installer environment - Linux hosts cannot run gpart/pkg, which is why the installer filters targets by os_family.",
+    "maintainer_note": "FreeBSD provisioning is native: gpart for the layout, base.txz for the userland and kernel.txz for the kernel (base.txz has none), and the loader reads ZFS directly, so there is no UKI and no Clover. The release is not pinned: an empty suite makes the installer run bootstrap.latest_suite, the newest release on the mirror that ships kernel.txz. A FreeBSD target requires a FreeBSD installer environment - Linux hosts cannot run gpart/pkg, which is why the installer filters targets by os_family.",
     "arch": "amd64",
-    "suite": "15.1-RELEASE",
-    "mirror": "https://download.freebsd.org/ftp/releases/amd64/15.1-RELEASE",
+    "suite": "",
+    "mirror": "https://download.freebsd.org/ftp/releases/{arch}/{suite}",
     "esp_size": "512M",
     "esp_mountpoint": "/boot/efi",
     "bootstrap_methods": [
@@ -12,9 +12,9 @@
     "bootstrap_tools": {
       "tarball": "tar"
     },
-    "rootfs_tarball_url": "https://download.freebsd.org/ftp/releases/amd64/15.1-RELEASE/base.txz",
+    "rootfs_tarball_url": "https://download.freebsd.org/ftp/releases/{arch}/{suite}/base.txz",
     "extra_tarball_urls": [
-      "https://download.freebsd.org/ftp/releases/amd64/15.1-RELEASE/kernel.txz"
+      "https://download.freebsd.org/ftp/releases/{arch}/{suite}/kernel.txz"
     ],
     "chroot_dirs": [
       "/dev"
@@ -34,10 +34,13 @@
     "wipe": "gpart destroy -F {disk}",
     "clear": "gpart create -s gpt {disk}",
     "create_esp": "gpart add -t efi -s {esp_size} -i 1 -l efiboot {disk}",
+    "create_bios_boot": "gpart add -t freebsd-boot -s 512k -i 3 -l gptboot {disk}",
     "create_root": "gpart add -t freebsd-zfs -i 2 -l rpool {disk}",
-    "format_esp": "newfs_msdos -F 32 -L EFI {device}",
+    "format_esp": "newfs_msdos -F 32 -c 1 -L EFI {device}",
     "mount_esp": "mount -t msdosfs {device} {mountpoint}",
-    "unmount": "umount {mountpoint}"
+    "unmount": "umount {mountpoint}",
+    "disk_pools": "for d in {disk} {disk}p* {disk}s*; do [ -c \"$d\" ] || continue; n=$(zdb -l \"$d\" 2>/dev/null | sed -n \"s/^ *name: .\\(.*\\).$/\\1/p\" | head -n 1); if [ -n \"$n\" ]; then echo \"$d zfs_member $n\"; else echo \"$d\"; fi; done",
+    "labelclear": "zpool labelclear -f {device}"
   },
   "rootpool": {
     "create": "zpool create {force} -o ashift={ashift} -O aclinherit=passthrough -O aclmode=passthrough -O canmount=off -O compression={compression} -O atime=off -O mountpoint=/ -R {altroot} {pool_name} {device}",
@@ -66,7 +69,8 @@
     "dataset_exists": "zfs list -H -o name {dataset}",
     "multi_args": [
       "force"
-    ]
+    ],
+    "imported_devices": "zpool status -LP"
   },
   "python": {
     "site_dir": "python3 -c \"import sysconfig; print(sysconfig.get_path('purelib'))\""
@@ -78,7 +82,8 @@
     "install_base": "pkg install -y {package_list}",
     "multi_args": [
       "package_list"
-    ]
+    ],
+    "latest_suite": "for r in $(fetch -qo - https://download.freebsd.org/ftp/releases/{arch}/ | grep -o '[0-9][0-9]*\\.[0-9][0-9]*-RELEASE' | sort -u -t. -k1,1nr -k2,2nr); do fetch -qs https://download.freebsd.org/ftp/releases/{arch}/$r/kernel.txz >/dev/null 2>&1 && echo $r && break; done"
   },
   "files": {
     "rc_conf": {
