@@ -22,6 +22,7 @@
     ]
   },
   "bootloader": {
+    "firmware_mode": "test -d /sys/firmware/efi && echo UEFI || echo BIOS",
     "build_uki": "dracut --force --uefi --kernel-cmdline \"root=ZFS=\"{dataset}\" rw\" {output_path} {kernel_version}",
     "efi_boot_entry": "efibootmgr --create --disk {disk} --part {part_num} --loader {loader_path} --label {label}",
     "build_uki_recovery": "dracut --force --uefi --kernel-cmdline \"root=ZFS=\"{dataset}\" ro single rd.shell SYSTEMD_SULOGIN_FORCE=1\" {output_path} {kernel_version}"

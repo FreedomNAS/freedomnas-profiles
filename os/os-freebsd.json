@@ -22,10 +22,11 @@
     ]
   },
   "bootloader": {
+    "firmware_mode": "sysctl -n machdep.bootmethod",
     "_note": "FreeBSD boots ZFS-on-root natively -- no UKI/Clover needed. gptzfsboot (BIOS) and loader.efi (UEFI) both understand the same GPT+ZFS layout directly, so one image is bootable both ways without a third-party shim.",
     "install_gptzfsboot": "gpart bootcode -b /boot/pmbr -p /boot/gptzfsboot -i 3 {disk}",
     "install_efi_loader": "cp /boot/loader.efi {esp_mount}/EFI/BOOT/BOOTX64.efi",
-    "efi_boot_entry": "efibootmgr --create --disk {disk} --part {part_num} --loader {loader_path} --label {label}"
+    "efi_boot_entry": "efibootmgr --activate --create --loader $(expr {disk} : '/dev/\\(.*\\)')p{part_num}:{loader_path} --label {label}"
   },
   "system": {
     "hostname_set": "hostname {hostname} && sysrc hostname={hostname}",
