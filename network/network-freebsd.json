@@ -1,7 +1,7 @@
 {
   "network": {
     "list_interfaces": "ifconfig -l -ether",
-    "list_interfaces_json": "ifconfig --libxo json",
+    "list_interfaces_json": "ifconfig -f inet:cidr,inet6:cidr -a | awk 'function flush() {{ if (name != \"\") {{ printf \"%s{{\\\"ifname\\\":\\\"%s\\\",\\\"operstate\\\":\\\"%s\\\",\\\"address\\\":\\\"%s\\\",\\\"addr_info\\\":[%s]}}\", sep, name, state, mac, addrs; sep = \",\" }} }} function add(family, cidr) {{ split(cidr, part, \"/\"); sub(/%.*/, \"\", part[1]); addrs = addrs (addrs == \"\" ? \"\" : \",\") sprintf(\"{{\\\"family\\\":\\\"%s\\\",\\\"local\\\":\\\"%s\\\",\\\"prefixlen\\\":%d}}\", family, part[1], part[2]) }} BEGIN {{ printf \"[\" }} /^[^ \\t]/ {{ flush(); name = $1; sub(/:$/, \"\", name); state = ($0 ~ /[<,]UP[,>]/) ? \"UP\" : \"DOWN\"; mac = \"\"; addrs = \"\" }} $1 == \"ether\" {{ mac = $2 }} $1 == \"inet\" {{ add(\"inet\", $2) }} $1 == \"inet6\" {{ add(\"inet6\", $2) }} END {{ flush(); print \"]\" }}'",
     "list_addresses": "ifconfig -a",
     "rename_interface": "ifconfig {old_name} name {new_name}",
     "bridge_create": [
@@ -11,10 +11,14 @@
     "bridge_add_port": "ifconfig {bridge_name} addm {interface}",
     "bridge_stp": "ifconfig {bridge_name} stp {interface}",
     "set_static_ip": [
-      "sysrc ifconfig_{logical_name}=\"inet \"{ip}\" netmask \"{netmask}",
-      "sysrc defaultrouter={gateway}"
+      "sysrc ifconfig_{interface}=\"inet {ip}/{cidr}\"",
+      "sysrc defaultrouter={gateway}",
+      "sysrc -f /etc/resolvconf.conf name_servers={dns}",
+      "ifconfig {interface} inet {ip}/{cidr}",
+      "route -n change default {gateway} || route -n add default {gateway}",
+      "resolvconf -u"
     ],
-    "set_dynamic_ip": "sysrc ifconfig_{logical_name}=dhcp",
+    "set_dynamic_ip": "sysrc ifconfig_{interface}=DHCP",
     "bring_up_interface": "ifconfig {interface} up",
     "bring_down_interface": "ifconfig {interface} down",
     "hostname_set": "hostname {hostname} && sysrc hostname={hostname}",
