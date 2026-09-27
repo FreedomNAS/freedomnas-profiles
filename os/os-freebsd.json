@@ -29,6 +29,7 @@
     "efi_boot_entry": "efibootmgr --activate --create --loader $(expr {disk} : '/dev/\\(.*\\)')p{part_num}:{loader_path} --label {label}"
   },
   "system": {
+    "ssh_service": "sshd",
     "hostname_set": "hostname {hostname} && sysrc hostname={hostname}",
     "timezone_set": "tzsetup {timezone}",
     "timezone_get": "cat /var/db/zoneinfo",

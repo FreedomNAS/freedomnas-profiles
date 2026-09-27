@@ -28,6 +28,7 @@
     "build_uki_recovery": "dracut --force --uefi --kernel-cmdline \"root=ZFS=\"{dataset}\" ro single rd.shell SYSTEMD_SULOGIN_FORCE=1\" {output_path} {kernel_version}"
   },
   "system": {
+    "ssh_service": "ssh",
     "hostname_set": "hostnamectl set-hostname {hostname}",
     "timezone_set": "timedatectl set-timezone {timezone}",
     "timezone_get": "timedatectl show -p Timezone --value",

@@ -45,8 +45,7 @@
     ],
     "services": [
       "systemd-resolved",
-      "NetworkManager",
-      "ssh"
+      "NetworkManager"
     ]
   },
   "freebsd": {
@@ -68,7 +67,6 @@
       "topgrade"
     ],
     "services": [
-      "sshd"
     ]
   },
   "arch": {
@@ -106,7 +104,6 @@
     "services": [
       "systemd-resolved",
       "dhcpcd",
-      "sshd",
       "cronie",
       "zfs-import-cache",
       "zfs-import-scan",
@@ -169,7 +166,6 @@
         ],
         "services": [
           "dhcpcd",
-          "sshd",
           "cronie",
           "zfs-zed"
         ]
@@ -191,7 +187,6 @@
         ],
         "services": [
           "dhcpcd",
-          "sshd",
           "cronie",
           "zed"
         ]
@@ -210,7 +205,6 @@
         ],
         "services": [
           "dhcpcd",
-          "sshd",
           "cronie",
           "zed"
         ]
@@ -249,7 +243,6 @@
       "topgrade"
     ],
     "services": [
-      "sshd",
       "dhcpcd"
     ]
   },
@@ -289,7 +282,6 @@
       "zfs-mount"
     ],
     "services": [
-      "sshd",
       "cronie",
       "dhcpcd",
       "zfs-zed"
