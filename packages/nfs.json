@@ -73,6 +73,7 @@
         ],
         "services": [
           "rpcbind",
+          "statd",
           "nfs-server"
         ]
       }
