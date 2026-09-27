@@ -9,6 +9,14 @@
     "pool_scrub_stop": "zpool scrub -s {pool_name}",
     "pool_offline": "zpool offline {pool_name} {device}",
     "pool_online": "zpool online {pool_name} {device}",
+    "pool_leaf_devices": "zpool list -vHPL {pool_name}",
+    "partition_of": "dev=$(glabel status -s | awk -v l={device} 'l == \"/dev/\" $1 {{ print $3 }}'); dev=${{dev:-$(basename {device})}}; geom part list | awk -v p=\"$dev\" '/^Geom name:/ {{ g = $3 }} $2 == \"Name:\" && $3 == p {{ f = 1 }} f && $1 == \"length:\" {{ n = $2 }} f && $1 == \"offset:\" {{ o = $2 }} f && $1 == \"index:\" {{ print \"/dev/\" g, $2, o, n; exit }}'",
+    "disk_size": "diskinfo {disk} | awk '{{ print $3 }}'",
+    "partition_grow": [
+      "gpart recover {disk}",
+      "gpart resize -i {part_num} {disk}"
+    ],
+    "pool_expand": "zpool online -e {pool_name} {device}",
     "dataset_create": "zfs create -o mountpoint={mountpoint} {pool_name}/{dataset_name}",
     "dataset_list": "zfs list -Hp -o name,used,avail,refer,mountpoint",
     "dataset_get": "zfs get -H -o property,value,source all {dataset}",

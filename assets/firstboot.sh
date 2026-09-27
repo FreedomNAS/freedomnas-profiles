@@ -43,6 +43,10 @@ STATE_DIR=$(python3 -m freedomnas path state)
 
 log() { echo "firstboot: $*"; }
 
+# An image flashed onto a larger disk: take the rest of it. Does nothing once
+# the root pool's partition reaches the end of the disk.
+python3 -m freedomnas grow-root-pool || log "WARNING: could not grow the root pool"
+
 # Pools already imported when we got here: whatever the admin or the boot
 # services set up is not ours to touch.
 already_imported=$(zpool list -H -o name 2>/dev/null)

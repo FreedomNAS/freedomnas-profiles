@@ -9,6 +9,15 @@
     "pool_scrub_stop": "zpool scrub -s {pool_name}",
     "pool_offline": "zpool offline {pool_name} {device}",
     "pool_online": "zpool online {pool_name} {device}",
+    "pool_leaf_devices": "zpool list -vHPL {pool_name}",
+    "partition_of": "lsblk -bnrpo PKNAME,PARTN,START,SIZE {device} | awk '{{ print $1, $2, $3 * 512, $4 }}'",
+    "disk_size": "lsblk -bdnro SIZE {disk}",
+    "partition_grow": [
+      "sfdisk --relocate gpt-bak-std {disk}",
+      "echo ', +' | sfdisk --no-reread --no-tell-kernel -N {part_num} {disk}",
+      "partx -u {disk}"
+    ],
+    "pool_expand": "zpool online -e {pool_name} {device}",
     "dataset_create": "zfs create -o mountpoint={mountpoint} {pool_name}/{dataset_name}",
     "dataset_list": "zfs list -Hp -o name,used,avail,refer,mountpoint",
     "dataset_get": "zfs get -H -o property,value,source all {dataset}",
