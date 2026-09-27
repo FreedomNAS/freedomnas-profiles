@@ -98,6 +98,7 @@
     "core_packages": [
       "freedomnas-core",
       "freedomnas-profiles",
+      "freedomnas-docs",
       "freedomnas-webui"
     ]
   },

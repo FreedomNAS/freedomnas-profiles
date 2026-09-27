@@ -37,6 +37,7 @@
       "python3-websockets",
       "freedomnas-core",
       "freedomnas-profiles",
+      "freedomnas-docs",
       "freedomnas-webui",
       "topgrade",
       "cron",
