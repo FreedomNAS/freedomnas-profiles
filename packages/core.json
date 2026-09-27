@@ -126,6 +126,7 @@
       "htop",
       "vim",
       "sudo",
+      "inetutils",
       "openssh",
       "cronie",
       "openresolv",
