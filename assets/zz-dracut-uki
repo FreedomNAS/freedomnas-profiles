@@ -18,6 +18,8 @@ set -u
 version="${1:-$(uname -r)}"
 
 esp_linux_dir="/boot/efi/EFI/Linux"
+# What UEFI firmware starts when it has no NVRAM entry for this disk.
+efi_fallback="/boot/efi/EFI/BOOT/BOOTX64.efi"
 
 boot_state_dir="/boot/efi/EFI/FreedomNAS"
 boot_state="$boot_state_dir/boot.state"
@@ -68,6 +70,13 @@ fi
 # 1. Standard UKI (dracut settings come from /etc/dracut.conf.d/uki.conf)
 if dracut --force --uefi --kernel-cmdline "root=ZFS=${root_dataset} rw" "$current" "$version"; then
     log "standard UKI rebuilt: $current"
+    # The fallback copy must follow: left behind, it would boot the old
+    # kernel against the new kernel's modules.
+    if mkdir -p "${efi_fallback%/*}" && cp -f "$current" "$efi_fallback"; then
+        log "UEFI fallback updated: $efi_fallback"
+    else
+        log "WARNING: failed to update $efi_fallback, UEFI machines without an NVRAM entry boot the old kernel"
+    fi
 else
     log "ERROR: dracut failed building standard UKI for $version"
     exit 0   # never fail the kernel postinst over this

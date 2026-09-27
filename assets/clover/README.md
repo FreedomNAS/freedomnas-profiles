@@ -13,8 +13,8 @@ bump the vendored version without re-running the hardware validation.
 | `boot0ss`        | MBR boot0 stage (first 440 bytes written to the disk's MBR)         |
 | `boot1f32alt`    | FAT32 boot1/VBR stage (BPB-preserving merge into the ESP's boot sector) |
 | `boot7`          | DUET firmware, BiosBlockIO variant (legacy-BIOS-INT13h based, avoids DUET's native AHCI/ATA driver stack) — deployed to the ESP root as `boot` |
-| `CLOVERX64.efi`  | Clover's picker/BDS, deployed to `EFI/CLOVER/CLOVERX64.efi`         |
-| `BOOTX64.efi`    | Generic UEFI fallback stub, deployed to `EFI/BOOT/BOOTX64.efi`      |
+| `CLOVERX64.efi`  | Clover's picker/BDS, deployed to `EFI/CLOVER/CLOVERX64.efi`, which is what `boot7` starts |
+| `BOOTX64.efi`    | Clover's UEFI fallback stub (same binary as `CLOVERX64.efi`). **Not deployed**: Clover is for BIOS boot only, and `EFI/BOOT/BOOTX64.efi` holds the UKI so UEFI firmware starts Linux directly |
 
 SHA-256 checksums at time of vendoring:
 ```
