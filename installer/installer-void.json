@@ -69,8 +69,7 @@
     "create_datasets": [
       "zfs create -o setuid=off {pool_name}/home",
       "zfs create -o canmount=off -o mountpoint=/var {pool_name}/var",
-      "zfs create -o atime=on {pool_name}/var/log",
-      "zfs create -o canmount=noauto -o mountpoint=/etc/freedomnas/state {pool_name}/.freedomnas"
+      "zfs create -o atime=on {pool_name}/var/log"
     ],
     "create_state_dataset": "zfs create -o canmount=noauto -o mountpoint=/etc/freedomnas/state {pool_name}/.freedomnas",
     "set_bootfs": "zpool set bootfs={pool_name}/ROOT/{edition} {pool_name}",
