@@ -33,7 +33,6 @@
     "ssh_service": "sshd",
     "hostname_set": "hostnamectl set-hostname {hostname}",
     "timezone_set": "timedatectl set-timezone {timezone}",
-    "hostname_get": "hostname",
     "timezone_get": "timedatectl show -p Timezone --value",
     "reboot": "systemctl reboot",
     "shutdown": "systemctl poweroff",

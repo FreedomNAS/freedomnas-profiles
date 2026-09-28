@@ -32,7 +32,6 @@
     "ssh_service": "sshd",
     "hostname_set": "hostname {hostname} && sysrc hostname={hostname}",
     "timezone_set": "tzsetup {timezone}",
-    "hostname_get": "hostname",
     "timezone_get": "cat /var/db/zoneinfo",
     "reboot": "shutdown -r now",
     "shutdown": "shutdown -p now",
