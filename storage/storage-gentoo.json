@@ -24,6 +24,7 @@
     "dataset_set": "zfs set {property}={value} {dataset}",
     "dataset_destroy": "zfs destroy {dataset}",
     "snapshot_create": "zfs snapshot {dataset}@{snap_name}",
+    "snapshot_create_recursive": "zfs snapshot -r {dataset}@{snap_name}",
     "snapshot_rollback": "zfs rollback {dataset}@{snap_name}",
     "snapshot_list": "zfs list -t snapshot -Hp -o name,creation,used",
     "snapshot_destroy": "zfs destroy {dataset}@{snap_name}",
