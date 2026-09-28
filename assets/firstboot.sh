@@ -10,8 +10,9 @@
 # importable pool:
 #
 #   - present -> mount it, run `freedomnas reconcile --mode
-#                disaster_recovery` (restores hostname/users/shares/etc
-#                from the shadow-copy config.yaml already on disk)
+#                declarative`: the system is made to match the
+#                config.yaml on disk exactly (hostname, users, shares,
+#                ...), removals included
 #   - absent  -> do nothing extra; the WebUI's existing first-run guard
 #                (config.is_initialized() == False) redirects to /setup/
 #                exactly as it does today
@@ -107,8 +108,8 @@ for pool in $(zpool list -H -o name 2>/dev/null); do
 done
 
 if [ -n "$found_dataset" ] && [ -f "$STATE_DIR/config.yaml" ]; then
-    log "found existing config on $found_dataset -- reconciling (disaster_recovery)"
-    python3 -m freedomnas reconcile --mode disaster_recovery || \
+    log "found existing config on $found_dataset -- reconciling (declarative)"
+    python3 -m freedomnas reconcile --mode declarative || \
         log "WARNING: reconcile failed, continuing to boot the WebUI anyway"
 else
     log "no existing FreedomNAS config found -- first-run wizard will handle setup"

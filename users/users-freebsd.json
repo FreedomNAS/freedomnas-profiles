@@ -2,6 +2,7 @@
   "users": {
     "create": "pw useradd {username} -m -s /bin/sh -G {groups}",
     "delete": "pw userdel {username} -r",
+    "delete_keep_home": "pw userdel {username}",
     "list": "pw usershow -a | awk -F: '$3 >= 1001 && $3 < 65534'",
     "get_user_info": "pw usershow {username}",
     "list_groups": "id -nG {username}",

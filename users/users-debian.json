@@ -2,6 +2,7 @@
   "users": {
     "create": "useradd -m -s /bin/bash -G {groups} {username}",
     "delete": "userdel -r {username}",
+    "delete_keep_home": "userdel {username}",
     "list": "getent passwd | awk -F: '$3 >= 1000 && $3 < 65534'",
     "get_user_info": "getent passwd {username}",
     "list_groups": "id -nG {username}",

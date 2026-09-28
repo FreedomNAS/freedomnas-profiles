@@ -33,6 +33,7 @@
     "ssh_service": "sshd",
     "hostname_set": "hostname {hostname}",
     "timezone_set": "ln -sf /usr/share/zoneinfo/{timezone} /etc/localtime",
+    "hostname_get": "hostname",
     "timezone_get": "readlink /etc/localtime | sed 's|.*/zoneinfo/||'",
     "reboot": "reboot",
     "shutdown": "poweroff",
