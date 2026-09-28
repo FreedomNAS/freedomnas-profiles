@@ -3,6 +3,7 @@
     "pool_create": "zpool create -o ashift={ashift} -O compression={compression} -O acltype=posixacl {pool_name} {vdev_type} {devices}",
     "pool_import": "zpool import -d /dev/disk/by-id {pool_name}",
     "pool_export": "zpool export {pool_name}",
+    "pool_destroy": "zpool destroy {pool_name}",
     "pool_importable": "zpool import -d /dev/disk/by-id",
     "pool_import_inspect": "zpool import -N -t -o readonly=on -o cachefile=none {force} -d /dev/disk/by-id {pool_id} {pool_name}",
     "pool_import_id": "zpool import -N {force} -d /dev/disk/by-id {pool_id} {pool_name}",
