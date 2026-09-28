@@ -26,11 +26,14 @@
     ],
     "pool_expand": "zpool online -e {pool_name} {device}",
     "dataset_create": "zfs create -o mountpoint={mountpoint} {pool_name}/{dataset_name}",
+    "dataset_create_with": "zfs create {options} {dataset}",
+    "dataset_rename": "zfs rename {dataset} {new_name}",
     "dataset_list": "zfs list -Hp -o name,used,avail,refer,mountpoint",
     "dataset_get": "zfs get -H -o property,value,source all {dataset}",
     "dataset_set": "zfs set {property}={value} {dataset}",
     "dataset_inherit": "zfs inherit {property} {dataset}",
     "dataset_destroy": "zfs destroy {dataset}",
+    "dataset_destroy_recursive": "zfs destroy -r {dataset}",
     "snapshot_create": "zfs snapshot {dataset}@{snap_name}",
     "snapshot_create_recursive": "zfs snapshot -r {dataset}@{snap_name}",
     "snapshot_rollback": "zfs rollback {dataset}@{snap_name}",
@@ -58,7 +61,8 @@
     "multi_args": [
       "devices",
       "vdev_type",
-      "force"
+      "force",
+      "options"
     ]
   },
   "media": {
