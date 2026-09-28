@@ -1,6 +1,8 @@
 {
   "users": {
     "create": "useradd -m -s /bin/bash -G {groups} {username}",
+    "create_with_uid": "useradd -m -u {uid} -s /bin/bash -G {groups} {username}",
+    "group_exists": "getent group {group}",
     "delete": "userdel -r {username}",
     "delete_keep_home": "userdel {username}",
     "list": "getent passwd | awk -F: '$3 >= 1000 && $3 < 65534'",

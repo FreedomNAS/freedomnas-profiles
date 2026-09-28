@@ -1,6 +1,8 @@
 {
   "users": {
     "create": "pw useradd {username} -m -s /bin/sh -G {groups}",
+    "create_with_uid": "pw useradd {username} -m -u {uid} -s /bin/sh -G {groups}",
+    "group_exists": "pw groupshow {group}",
     "delete": "pw userdel {username} -r",
     "delete_keep_home": "pw userdel {username}",
     "list": "pw usershow -a | awk -F: '$3 >= 1001 && $3 < 65534'",
