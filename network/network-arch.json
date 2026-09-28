@@ -1,6 +1,6 @@
 {
   "network": {
-    "list_interfaces": "ip -j link show",
+    "list_interfaces": "ip -j addr show",
     "list_addresses": "ip -j address show",
     "rename_interface": [
       "ip link set {old_name} down",
