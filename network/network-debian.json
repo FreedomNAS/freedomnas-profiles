@@ -13,8 +13,14 @@
       "nmcli connection modify {bridge_name} bridge.forward-delay 0"
     ],
     "bridge_add_port": "nmcli connection add type bridge-slave ifname {interface} master {bridge_name}",
-    "set_static_ip": "nmcli connection modify {conn_name} ipv4.addresses {ip}/{cidr} ipv4.gateway {gateway} ipv4.dns {dns} ipv4.method manual",
-    "set_dynamic_ip": "nmcli connection modify {conn_name} ipv4.method auto",
+    "set_static_ip": [
+      "nmcli connection delete fnas-{interface} || true",
+      "nmcli connection add type ethernet ifname {interface} con-name fnas-{interface} connection.autoconnect-priority 100 ipv4.method manual ipv4.addresses {ip}/{cidr} ipv4.gateway {gateway} ipv4.dns {dns}",
+      "nmcli connection up fnas-{interface}"
+    ],
+    "set_dynamic_ip": [
+      "nmcli connection delete fnas-{interface} || true"
+    ],
     "bring_up_interface": "ip link set {interface} up",
     "bring_down_interface": "ip link set {interface} down",
     "hostname_set": "hostnamectl set-hostname {hostname}",
