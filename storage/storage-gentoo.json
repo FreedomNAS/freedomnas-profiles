@@ -9,9 +9,10 @@
     "pool_scrub_stop": "zpool scrub -s {pool_name}",
     "pool_offline": "zpool offline {pool_name} {device}",
     "pool_online": "zpool online {pool_name} {device}",
-    "pool_leaf_devices": "zpool list -vHPL {pool_name}",
+    "pool_leaf_devices": "zpool list -vHP {pool_name}",
     "partition_of": "lsblk -bnrpo PKNAME,PARTN,START,SIZE {device} | awk '{{ print $1, $2, $3 * 512, $4 }}'",
     "disk_size": "lsblk -bdnro SIZE {disk}",
+    "partition_offsets": "lsblk -bnrpo START,TYPE {disk} | awk '$2 == \"part\" {{ print $1 * 512 }}'",
     "partition_grow": [
       "sfdisk --relocate gpt-bak-std {disk}",
       "echo ', +' | sfdisk --no-reread --no-tell-kernel -N {part_num} {disk}",

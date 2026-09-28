@@ -9,9 +9,10 @@
     "pool_scrub_stop": "zpool scrub -s {pool_name}",
     "pool_offline": "zpool offline {pool_name} {device}",
     "pool_online": "zpool online {pool_name} {device}",
-    "pool_leaf_devices": "zpool list -vHPL {pool_name}",
+    "pool_leaf_devices": "zpool list -vHP {pool_name}",
     "partition_of": "dev=$(glabel status -s | awk -v l={device} 'l == \"/dev/\" $1 {{ print $3 }}'); dev=${{dev:-$(basename {device})}}; geom part list | awk -v p=\"$dev\" '/^Geom name:/ {{ g = $3 }} $2 == \"Name:\" && $3 == p {{ f = 1 }} f && $1 == \"length:\" {{ n = $2 }} f && $1 == \"offset:\" {{ o = $2 }} f && $1 == \"index:\" {{ print \"/dev/\" g, $2, o, n; exit }}'",
     "disk_size": "diskinfo {disk} | awk '{{ print $3 }}'",
+    "partition_offsets": "geom part list $(basename {disk}) | awk '$1 == \"offset:\" {{ print $2 }}'",
     "partition_grow": [
       "gpart recover {disk}",
       "gpart resize -i {part_num} {disk}"
