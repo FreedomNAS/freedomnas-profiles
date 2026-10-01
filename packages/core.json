@@ -71,8 +71,8 @@
   },
   "arch": {
     "packages": [
-      "zfs-dkms-git",
-      "zfs-utils-git",
+      "linux-freedomnas",
+      "zfs-utils-freedomnas",
       "curl",
       "wget",
       "net-tools",
@@ -88,9 +88,7 @@
       "dosfstools",
       "dracut",
       "efibootmgr",
-      "linux",
       "linux-firmware",
-      "linux-headers",
       "python",
       "python-yaml",
       "python-pam",
@@ -99,7 +97,7 @@
       "python-fastapi",
       "uvicorn",
       "python-websockets",
-      "topgrade"
+      "topgrade-bin"
     ],
     "services": [
       "systemd-resolved",
@@ -115,8 +113,8 @@
   },
   "artix": {
     "packages": [
-      "zfs-dkms-git",
-      "zfs-utils-git",
+      "linux-freedomnas",
+      "zfs-utils-freedomnas",
       "curl",
       "wget",
       "net-tools",
@@ -134,9 +132,7 @@
       "dracut",
       "efibootmgr",
       "egummiboot",
-      "linux",
       "linux-firmware",
-      "linux-headers",
       "python",
       "python-yaml",
       "python-pam",
@@ -145,20 +141,15 @@
       "python-fastapi",
       "uvicorn",
       "python-websockets",
-      "topgrade"
+      "topgrade-bin"
     ],
     "init": {
       "openrc": {
         "packages": [
           "openssh-openrc",
           "dhcpcd-openrc",
-          "cronie-openrc"
-        ],
-        "pkgbuilds": [
-          {
-            "name": "zfs-openrc",
-            "git": "https://aur.archlinux.org/zfs-openrc.git"
-          }
+          "cronie-openrc",
+          "zfs-openrc"
         ],
         "early_services": [
           "zfs-import",
@@ -174,13 +165,8 @@
         "packages": [
           "openssh-dinit",
           "dhcpcd-dinit",
-          "cronie-dinit"
-        ],
-        "pkgbuilds": [
-          {
-            "name": "zfs-dinit",
-            "git": "https://codeberg.org/sarahmeow86/zfs-dinit.git"
-          }
+          "cronie-dinit",
+          "zfs-dinit"
         ],
         "early_services": [
           "zfs-mount"
@@ -195,13 +181,8 @@
         "packages": [
           "openssh-runit",
           "dhcpcd-runit",
-          "cronie-runit"
-        ],
-        "pkgbuilds": [
-          {
-            "name": "zfs-runit",
-            "git": "https://codeberg.org/sarahmeow86/zfs-dinit.git"
-          }
+          "cronie-runit",
+          "zfs-runit"
         ],
         "services": [
           "dhcpcd",

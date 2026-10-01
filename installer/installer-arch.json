@@ -1,7 +1,7 @@
 {
   "installer_meta": {
     "community_maintained": true,
-    "maintainer_note": "Community-maintained (exotic edition). pacstrap runs on any host that has pacman, arch-install-scripts and archlinux-keyring — an Arch system, or the FreedomNAS live ISO, which gets them from freedomnas-overlay. It is pointed at bootstrap_files.pacman_conf, a throwaway keyring in the same temporary directory and no host mirrorlist (-M), so a non-Arch host needs nothing configured; files.pacman_mirrorlist then gives the installed system the same mirror. The tarball method uses Arch's own bootstrap tarball (archlinux-bootstrap-x86_64.tar.zst), whose name is date-stamped, so rootfs_tarball_url is left empty and the installer asks for it. ZFS comes from Chaotic-AUR (repositories.core): zfs-dkms-git and zfs-utils-git build their DKMS module against the upstream kernel, not only linux-lts, and ship the dracut module the UKI needs.",
+    "maintainer_note": "Community-maintained (exotic edition). pacstrap runs on any host that has pacman, arch-install-scripts and archlinux-keyring — an Arch system, or the FreedomNAS live ISO, which gets them from freedomnas-overlay. It is pointed at bootstrap_files.pacman_conf, a throwaway keyring in the same temporary directory and no host mirrorlist (-M), so a non-Arch host needs nothing configured; files.pacman_mirrorlist then gives the installed system the same mirror. The tarball method uses Arch's own bootstrap tarball (archlinux-bootstrap-x86_64.tar.zst), whose name is date-stamped, so rootfs_tarball_url is left empty and the installer asks for it. The kernel is linux-freedomnas (linux-lts with OpenZFS built in) from the FreedomNAS pacman repository (freedomnas-arch, published to Codeberg's generic registry), added by repositories.core and signed with its own key: no DKMS, and zfs-utils-freedomnas ships the dracut module the UKI needs. pacstrap therefore installs no kernel; the core packages bring linux-freedomnas, whose initramfs dependency dracut satisfies. pacman never runs /etc/kernel/postinst.d, so files.freedomnas_uki_hook rebuilds the UKI on every kernel install or upgrade.",
     "arch": "x86_64",
     "suite": "",
     "mirror": "https://geo.mirror.pkgbuild.com",
@@ -103,7 +103,7 @@
       "install -d -m 700 {bootstrap_dir}/gnupg",
       "pacman-key --config {bootstrap_dir}/pacman.conf --init",
       "pacman-key --config {bootstrap_dir}/pacman.conf --populate archlinux",
-      "pacstrap -K -M -C {bootstrap_dir}/pacman.conf {root} base linux linux-firmware",
+      "pacstrap -K -M -C {bootstrap_dir}/pacman.conf {root} base linux-firmware",
       "gpgconf --homedir {root}/etc/pacman.d/gnupg --kill all",
       "gpgconf --homedir {bootstrap_dir}/gnupg --kill all"
     ],
@@ -124,17 +124,13 @@
   },
   "repositories": {
     "core": [
-      "pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com",
-      "pacman-key --lsign-key 3056513887B78AEB",
-      "pacman -U --noconfirm --needed https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst",
-      "grep -q '^\\[chaotic-aur\\]' /etc/pacman.conf || printf '\\n[chaotic-aur]\\nInclude = /etc/pacman.d/chaotic-mirrorlist\\n' >> /etc/pacman.conf",
+      "curl -fsSL -o /tmp/freedomnas-arch.key https://codeberg.org/api/packages/FreedomNAS/generic/freedomnas-arch/dev/repository.key",
+      "pacman-key --add /tmp/freedomnas-arch.key",
+      "pacman-key --lsign-key 015549123DF4D6D5ADBE4179522C9783DC389A3B",
+      "rm -f /tmp/freedomnas-arch.key",
+      "grep -q '^\\[freedomnas\\]' /etc/pacman.conf || printf '\\n[freedomnas]\\nSigLevel = Required\\nServer = https://codeberg.org/api/packages/FreedomNAS/generic/freedomnas-arch/dev\\n' >> /etc/pacman.conf",
       "gpgconf --homedir /etc/pacman.d/gnupg --kill all"
     ]
-  },
-  "dkms": {
-    "fix_gitrev": "for d in /usr/src/zfs-*/; do [ -d \"$d/scripts\" ] || continue; [ -e \"$d/scripts/make_gitrev.sh\" ] && continue; printf '#!/bin/sh\\nexit 0\\n' > \"$d/scripts/make_gitrev.sh\"; chmod 755 \"$d/scripts/make_gitrev.sh\"; done",
-    "autoinstall": "dkms autoinstall -k {kernel_version}",
-    "module_present": "modinfo -k {kernel_version} -n zfs"
   },
   "files": {
     "hostname": {
@@ -172,6 +168,11 @@
       "inplace": true,
       "mode": 288,
       "content": "# FreedomNAS: the WebUI runs updates as the signed-in user,\n# and topgrade calls sudo itself for the steps that need root.\n%{sudo_group} ALL=(ALL) NOPASSWD: ALL\n"
+    },
+    "freedomnas_uki_hook": {
+      "path": "/etc/pacman.d/hooks/90-freedomnas-uki.hook",
+      "content": "# pacman never runs /etc/kernel/postinst.d, so the UKI is rebuilt here\n# whenever a kernel is installed or upgraded.\n[Trigger]\nType = Path\nOperation = Install\nOperation = Upgrade\nTarget = usr/lib/modules/*/vmlinuz\n\n[Action]\nDescription = Rebuilding the FreedomNAS UKI...\nWhen = PostTransaction\nExec = /bin/sh -c '[ -x /etc/kernel/postinst.d/zz-dracut-uki ] || exit 0; while read -r f; do /etc/kernel/postinst.d/zz-dracut-uki \"$(basename \"$(dirname \"$f\")\")\"; done'\nNeedsTargets\n",
+      "mode": 420
     },
     "pacman_mirrorlist": {
       "path": "/etc/pacman.d/mirrorlist",
