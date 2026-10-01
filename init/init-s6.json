@@ -2,15 +2,16 @@
   "init_name": "s6",
 
   "services": {
-    "start": "s6-svc -u /run/service/{service_name}",
-    "stop": "s6-svc -d /run/service/{service_name}",
-    "restart": "s6-svc -r /run/service/{service_name}",
-    "enable": "s6-service add default {service_name}",
-    "disable": "s6-service delete default {service_name}",
-    "status": "s6-svstat /run/service/{service_name}",
-    "is_enabled": "s6-rc -a list | grep {service_name}",
-    "reload": "s6-svc -1 /run/service/{service_name}",
+    "start": "s6 live start {service_name}",
+    "stop": "s6 live stop {service_name}",
+    "restart": "s6 live restart {service_name}",
+    "enable": "s6 set enable -p {service_name} && s6 set commit && s6 live install -b",
+    "enable_offline": "s6 set enable -p {service_name} && s6 set commit",
+    "disable": "s6 set disable {service_name} && s6 set commit && s6 live install -b",
+    "status": "s6 live status {service_name}",
+    "is_enabled": "s6 set status {service_name} | grep -qE '/(active|always)$'",
+    "reload": "s6 live reload {service_name}",
     "daemon_reload": "",
-    "list_managed": "s6-rc -a list"
+    "list_managed": "s6 live status"
   }
 }
