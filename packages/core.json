@@ -5,6 +5,7 @@
     "packages": [
       "zfsutils-freedomnas",
       "dracut",
+      "binutils",
       "curl",
       "wget",
       "net-tools",
