@@ -9,8 +9,8 @@
     "set_user_password": "smbpasswd -a -s {username}",
     "password_stdin_format": "{password}\n{password}\n",
     "delete_user": "smbpasswd -x {username}",
-    "smb_service": "smbd",
-    "nmb_service": "nmbd",
+    "smb_service": "samba_server",
+    "nmb_service": "samba_server",
     "reload_config": "smbcontrol smbd reload-config",
     "usershare_path": "/var/db/samba4/usershares",
     "usershare_prepare": "install -d -m 1770 {path}"
@@ -20,8 +20,8 @@
     "export_add": "grep -qxF {path}' -'{options}' '{clients} /etc/exports || echo {path}' -'{options}' '{clients} >> /etc/exports",
     "export_remove": "P={path} awk 'index($0, ENVIRON[\"P\"] \" \") != 1' /etc/exports > /etc/exports.new && mv /etc/exports.new /etc/exports",
     "export_list": "showmount -e localhost",
-    "exportfs_reload": "exportfs -ra",
-    "exportfs_list": "exportfs -v",
-    "nfs_service": "nfs-server"
+    "exportfs_reload": "service mountd onereload",
+    "exportfs_list": "showmount -e localhost",
+    "nfs_service": "nfsd"
   }
 }

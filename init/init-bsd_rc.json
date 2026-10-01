@@ -2,13 +2,13 @@
   "init_name": "bsd_rc",
 
   "services": {
-    "start": "service {service_name} start",
+    "start": "service {service_name} status >/dev/null 2>&1 || service {service_name} start",
     "stop": "service {service_name} stop",
     "restart": "service {service_name} restart",
-    "enable": "sysrc {service_name}_enable=YES",
-    "disable": "sysrc {service_name}_enable=NO",
+    "enable": "service {service_name} enable",
+    "disable": "service {service_name} disable",
     "status": "service {service_name} status",
-    "is_enabled": "sysrc -n {service_name}_enable 2>/dev/null | grep -q YES",
+    "is_enabled": "service {service_name} enabled",
     "reload": "service {service_name} reload",
     "daemon_reload": "",
     "list_managed": "service -e"
