@@ -233,10 +233,10 @@
       "content": "@reboot root {install_root}/webui/bin/firstboot.sh >> /var/log/freedomnas-webui.log 2>&1\n",
       "mode": 420
     },
-    "apt_pin_zfs": {
-      "path": "/etc/apt/preferences.d/freedomnas-zfs",
+    "apt_pin_firmware": {
+      "path": "/etc/apt/preferences.d/freedomnas-firmware",
       "mode": 420,
-      "content": "# The pool is created by the installer host's ZFS, which is newer than\n# stable's. Everything built from zfs-linux comes from backports so the\n# installed system can import what it was given.\nPackage: src:zfs-linux\nPin: release n={suite}-backports\nPin-Priority: 990\n"
+      "content": "Package: src:firmware-nonfree src:firmware-free\nPin: release n={suite}-backports\nPin-Priority: 990\n"
     },
     "policy_rc": {
       "path": "/usr/sbin/policy-rc.d",

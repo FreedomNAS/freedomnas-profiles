@@ -3,8 +3,7 @@
   "description": "Essential NAS packages — required for all editions",
   "debian": {
     "packages": [
-      "zfsutils-linux",
-      "zfs-dracut",
+      "zfsutils-freedomnas",
       "dracut",
       "curl",
       "wget",
@@ -22,10 +21,9 @@
       "dosfstools",
       "efibootmgr",
       "systemd-boot-efi",
-      "linux-image-amd64",
+      "linux-image-freedomnas",
       "firmware-linux",
       "firmware-realtek",
-      "linux-headers-amd64",
       "python3",
       "python3-pip",
       "python3-yaml",
