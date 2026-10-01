@@ -95,8 +95,17 @@
   "python": {
     "site_dir": "python3 -c \"import sysconfig; print(sysconfig.get_path('purelib'))\""
   },
+  "bootstrap_files": {
+    "xbps_keys": {
+      "path": "xbps-keys.sh",
+      "content": "set -eu\nroot=\"$1\"\nkeys=/var/db/xbps/keys\nmkdir -p \"$root$keys\"\nif ls \"$keys\"/*.plist >/dev/null 2>&1; then\n    cp \"$keys\"/*.plist \"$root$keys\"/\n    exit 0\nfi\nstatic=\"$(echo \"$2\" | sed 's|/current/*$||')/static\"\ndir=\"$(dirname \"$0\")\"\ncurl -fsSL --retry 3 -o \"$dir/sha256sums.txt\" \"$static/sha256sums.txt\"\nname=\"$(sed -n 's/^[0-9a-f]*  \\(xbps-static-static-[0-9][^ ]*\\.{arch}-musl\\.tar\\.xz\\)$/\\1/p' \"$dir/sha256sums.txt\" | sort -V | tail -n1)\"\n[ -n \"$name\" ] || {{ echo \"xbps-keys: no xbps-static tarball listed at $static\" >&2; exit 1; }}\ncurl -fsSL --retry 3 -o \"$dir/$name\" \"$static/$name\"\n(cd \"$dir\" && grep \"  $name\\$\" sha256sums.txt | sha256sum -c --quiet -)\ntar -xJf \"$dir/$name\" -C \"$root\" --no-same-owner ./var/db/xbps/keys\n"
+    }
+  },
   "bootstrap": {
-    "xbps": "xbps-install -S -y -R {mirror} -r {root} base-system",
+    "xbps": [
+      "sh {bootstrap_dir}/xbps-keys.sh {root} {mirror}",
+      "xbps-install -S -y -R {mirror} -r {root} base-system"
+    ],
     "fetch_tarball": "curl -fL --retry 3 -o {output} {url}",
     "unpack_tarball": "tar -xpf {tarball} -C {root} --numeric-owner",
     "update_cache": "xbps-install -S",
