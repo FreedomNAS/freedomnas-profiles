@@ -13,7 +13,13 @@
     "nmb_service": "nmbd",
     "reload_config": "smbcontrol smbd reload-config",
     "usershare_path": "/var/lib/samba/usershares",
-    "usershare_prepare": "install -d -m 1770 {path}"
+    "usershare_prepare": "install -d -m 1770 {path}",
+    "by_init": {
+      "openrc": {
+        "smb_service": "smb",
+        "nmb_service": "smb"
+      }
+    }
   },
   "nfs": {
     "config_file": "/etc/exports",
@@ -22,6 +28,11 @@
     "export_list": "showmount -e localhost",
     "exportfs_reload": "exportfs -ra",
     "exportfs_list": "exportfs -v",
-    "nfs_service": "nfs-server"
+    "nfs_service": "nfs-server",
+    "by_init": {
+      "openrc": {
+        "nfs_service": "nfs"
+      }
+    }
   }
 }
