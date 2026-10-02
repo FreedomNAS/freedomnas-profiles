@@ -1,6 +1,6 @@
 {
   "zfs": {
-    "pool_create": "zpool create -o ashift={ashift} -O compression={compression} -O acltype=nfsv4acl {pool_name} {vdev_type} {devices}",
+    "pool_create": "zpool create -o ashift={ashift} -O compression={compression} -O acltype=nfsv4 {pool_name} {vdev_type} {devices}",
     "pool_import": "zpool import {pool_name}",
     "pool_export": "zpool export {pool_name}",
     "pool_destroy": "zpool destroy {pool_name}",
@@ -48,7 +48,7 @@
     "unmount_dataset": "zfs unmount {dataset}",
     "get_used": "zfs get -Hp used {dataset}",
     "get_available": "zfs get -Hp avail {dataset}",
-    "pool_create_encrypted": "zpool create -o ashift={ashift} -O compression={compression} -O acltype=nfsv4acl -O encryption=aes-256-gcm -O keyformat=raw -O keylocation=file://{keyfile_path} {pool_name} {vdev_type} {devices}",
+    "pool_create_encrypted": "zpool create -o ashift={ashift} -O compression={compression} -O acltype=nfsv4 -O encryption=aes-256-gcm -O keyformat=raw -O keylocation=file://{keyfile_path} {pool_name} {vdev_type} {devices}",
     "pool_keystatus": "zfs get -H -o value keystatus {pool_name}",
     "load_key_file": "zfs load-key -L file://{keyfile_path} {pool_name}",
     "unload_key": "zfs unload-key {pool_name}",
