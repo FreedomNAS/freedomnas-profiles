@@ -107,7 +107,7 @@
     },
     "loader_conf": {
       "path": "/boot/loader.conf",
-      "content": "zfs_load=\"YES\"\nvfs.root.mountfrom=\"zfs:{pool_name}/ROOT/{edition}\"\n"
+      "content": "zfs_load=\"YES\"\nvfs.root.mountfrom=\"zfs:{pool_name}/ROOT/{edition}\"\nkern.geom.label.disk_ident.enable=\"0\"\nkern.geom.label.gptid.enable=\"0\"\n"
     },
     "scheduled_jobs": {
       "path": "/etc/crontab",
