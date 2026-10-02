@@ -156,6 +156,8 @@
     "mount_all": "zfs mount -a",
     "cachefile_set": "zpool set cachefile={cachefile} {pool_name}",
     "cachefile_install": "install -D -m 644 {cachefile} {root}/etc/zfs/zpool.cache",
+    "hostid_ensure": "[ -s /etc/hostid ] || zgenhostid",
+    "hostid_install": "install -D -m 644 /etc/hostid {root}/etc/hostid",
     "mount_dataset": "zfs mount {dataset}",
     "unmount_all": "zfs umount -a",
     "unmount_target": "umount -R -l {root}",
