@@ -71,7 +71,7 @@
     "mount_ro": "mount -t msdosfs -o ro {device} {mountpoint}",
     "mount_rw": "mount -t msdosfs {device} {mountpoint}",
     "unmount": "umount {mountpoint}",
-    "list_devices": "sysctl -n kern.disks"
+    "list_devices": "zp=\" $(zpool status -P 2>/dev/null | awk '$1 ~ /^\\/dev\\// {{printf \"%s \", $1}}')\"; sw=\" $(swapctl -l 2>/dev/null | awk 'NR > 1 {{printf \"%s \", $1}}')\"; row() {{ printf 'NAME=\"%s\" PKNAME=\"%s\" SIZE=\"%s\" TYPE=\"%s\" FSTYPE=\"%s\" MOUNTPOINT=\"%s\" MODEL=\"%s\" PARTTYPE=\"\"\\n' \"$@\"; }}; size() {{ diskinfo \"$1\" 2>/dev/null | awk '{{print $3}}'; }}; mnt() {{ mount -p | awk -v d=\"$1\" '$1 == d {{print $2; exit}}'; }}; for d in $(sysctl -n kern.disks); do dev=/dev/$d; case $d in cd*) row \"$dev\" \"\" \"$(size $dev)\" rom \"\" \"\" \"$(geom disk list $d 2>/dev/null | sed -n 's/^ *descr: //p')\"; continue;; esac; fs=\"\"; case \"$zp\" in *\" $dev \"*) fs=zfs_member;; esac; [ -z \"$fs\" ] && zdb -l \"$dev\" >/dev/null 2>&1 && fs=zfs_member; row \"$dev\" \"\" \"$(size $dev)\" disk \"$fs\" \"$(mnt $dev)\" \"$(geom disk list $d 2>/dev/null | sed -n 's/^ *descr: //p')\"; gpart show -p \"$d\" 2>/dev/null | awk 'NR > 1 && $3 != \"-\" && NF >= 4 {{print $3, $4}}' | while read -r p type; do pdev=/dev/$p; pfs=$(fstyp \"$pdev\" 2>/dev/null); case \"$zp\" in *\" $pdev \"*) pfs=zfs_member;; esac; case \"$sw\" in *\" $pdev \"*) pfs=swap;; esac; [ -z \"$pfs\" ] && zdb -l \"$pdev\" >/dev/null 2>&1 && pfs=zfs_member; row \"$pdev\" \"$dev\" \"$(size $pdev)\" part \"${{pfs:-$type}}\" \"$(mnt $pdev)\" \"\"; done; done"
   },
   "directories": {
     "owner_get": "stat -f %Su {path}",
