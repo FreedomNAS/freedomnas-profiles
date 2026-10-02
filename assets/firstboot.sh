@@ -79,23 +79,49 @@ root_pool="${root_dataset%%/*}"
 search_order=$(printf '%s\n%s\n' "$root_pool" "$(zpool list -H -o name 2>/dev/null)" \
                | awk 'NF && !seen[$0]++')
 
+# Every image and install ships an empty .freedomnas on its root pool, so the
+# root pool comes first only when its dataset holds a configuration: after a
+# reinstall the configuration is on the data pool, and the fresh, empty one
+# must not hide it. An empty dataset is unmounted again and kept as the
+# wizard's place for a configuration if none turns up.
 found_dataset=""
 found_pool=""
+empty_dataset=""
+empty_pool=""
 for pool in $search_order; do
-    if zfs list -H -o name "$pool/.freedomnas" >/dev/null 2>&1; then
-        found_dataset="$pool/.freedomnas"
+    dataset="$pool/.freedomnas"
+    zfs list -H -o name "$dataset" >/dev/null 2>&1 || continue
+    # A pool made by another edition carries that edition's mountpoint
+    # (Linux mounts the dataset at /etc/freedomnas/state, FreeBSD under
+    # /usr/local/etc): bring it to this one's before mounting it.
+    [ "$(zfs get -H -o value mountpoint "$dataset" 2>/dev/null)" = "$STATE_DIR" ] || \
+        zfs set mountpoint="$STATE_DIR" "$dataset" 2>/dev/null || true
+    zfs mount "$dataset" 2>/dev/null || true
+    if [ "$(zfs get -H -o value mounted "$dataset" 2>/dev/null)" = yes ] && \
+       [ -f "$STATE_DIR/config.yaml" ]; then
+        found_dataset="$dataset"
         found_pool="$pool"
         [ -n "$root_pool" ] && [ "$pool" != "$root_pool" ] && \
             log "NOTE: the configuration comes from $pool, not from the root pool $root_pool"
-        # A pool made by another edition carries that edition's mountpoint
-        # (Linux mounts the dataset at /etc/freedomnas/state, FreeBSD under
-        # /usr/local/etc): bring it to this one's before mounting it.
-        [ "$(zfs get -H -o value mountpoint "$found_dataset" 2>/dev/null)" = "$STATE_DIR" ] || \
-            zfs set mountpoint="$STATE_DIR" "$found_dataset" 2>/dev/null || true
-        zfs mount "$found_dataset" 2>/dev/null || true
         break
     fi
+    zfs unmount "$dataset" 2>/dev/null || true
+    [ -n "$empty_dataset" ] || { empty_dataset="$dataset"; empty_pool="$pool"; }
 done
+
+if [ -z "$found_dataset" ] && [ -n "$empty_dataset" ]; then
+    # Nothing to restore: the first run's wizard writes into this one.
+    found_dataset="$empty_dataset"
+    found_pool="$empty_pool"
+    zfs mount "$found_dataset" 2>/dev/null || true
+elif [ -n "$found_dataset" ] && [ "$empty_pool" = "$root_pool" ] && [ -n "$root_pool" ]; then
+    # Two datasets mounting at the same place must never both exist: the
+    # configuration lives on $found_pool now, and the root pool's dataset
+    # was just seen empty.
+    log "destroying the empty $empty_dataset -- the configuration lives on $found_pool"
+    zfs destroy "$empty_dataset" 2>/dev/null || \
+        log "WARNING: could not destroy $empty_dataset"
+fi
 
 # Give back everything we imported and did not need. A NAS must not adopt the
 # pools of whatever disk happens to be attached -- least of all another
