@@ -60,7 +60,12 @@ was_already_imported() {
 # writes it into /etc/zfs/zpool.cache, and from the next boot onward the
 # system's own zfs-import/zfs-mount services adopt it and mount its datasets
 # over the running system's -- a foreign pool's /var/log shadowing this one's.
-zpool import -a -N -o cachefile=none 2>/dev/null || true
+#
+# -f because the data pool of a reinstalled NAS was last used by the old
+# system, under another hostid, and was never exported: the old disk died or
+# was wiped. Without -f exactly the pool to restore from stays out. -N, the
+# cachefile and the export below keep what -f lets in from staying.
+zpool import -a -N -f -o cachefile=none 2>/dev/null || true
 
 # Encrypted-pool unlock (zero-touch USB key, TTY passphrase fallback).
 # Delegates entirely to the Python engine/profile layer -- this script never
