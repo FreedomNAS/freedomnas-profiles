@@ -7,6 +7,8 @@
     "restart": "sv restart {service_name}",
     "enable": "ln -s /etc/sv/{service_name} /var/service/",
     "disable": "rm /var/service/{service_name}",
+    "enable_offline": "ln -sf /etc/sv/{service_name} /etc/runit/runsvdir/default/{service_name}",
+    "disable_offline": "rm -f /etc/runit/runsvdir/default/{service_name}",
     "status": "sv status {service_name}",
     "is_enabled": "test -L /var/service/{service_name}",
     "reload": "sv reload {service_name}",

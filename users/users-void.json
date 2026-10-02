@@ -11,7 +11,7 @@
     "add_to_group": "usermod -a -G {group} {username}",
     "remove_from_group": "gpasswd -d {username} {group}",
     "create_basic": "useradd -m -s /bin/bash {username}",
-    "set_password_stdin": "chpasswd",
+    "set_password_stdin": "chpasswd -c SHA512",
     "password_stdin_format": "{username}:{password}\n",
     "sudo_group": "wheel"
   }

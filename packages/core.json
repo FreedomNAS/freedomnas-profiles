@@ -202,16 +202,18 @@
       "sudo",
       "openssh",
       "dhcpcd",
+      "cronie",
       "parted",
       "e2fsprogs",
       "dosfstools",
       "dracut",
+      "binutils",
       "efibootmgr",
       "systemd-boot-efistub",
-      "linux",
+      "linux6.18",
+      "linux6.18-zfs",
       "linux-firmware",
       "linux-firmware-network",
-      "linux-headers",
       "python3",
       "python3-yaml",
       "python3-pam",
@@ -223,7 +225,9 @@
       "topgrade"
     ],
     "services": [
-      "dhcpcd"
+      "dhcpcd",
+      "cronie",
+      "zed"
     ]
   },
   "gentoo": {

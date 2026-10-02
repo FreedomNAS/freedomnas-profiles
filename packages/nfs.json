@@ -88,8 +88,9 @@
       "nfs-utils"
     ],
     "services": [
-      "nfsd",
-      "rpcbind"
+      "rpcbind",
+      "statd",
+      "nfs-server"
     ],
     "config_paths": [
       "/etc/exports",

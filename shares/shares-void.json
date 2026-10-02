@@ -22,6 +22,6 @@
     "export_list": "showmount -e localhost",
     "exportfs_reload": "exportfs -ra",
     "exportfs_list": "exportfs -v",
-    "nfs_service": "nfsd"
+    "nfs_service": "nfs-server"
   }
 }

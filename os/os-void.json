@@ -8,7 +8,7 @@
     "config_dir": "/etc/freedomnas"
   },
   "community_maintained": true,
-  "maintainer_note": "Community-maintained profile (exotic edition). xbps userland, runit init (Void's native /etc/sv + /var/service layout, matching init/init-runit.json directly) -- no systemd anywhere in this file. ZFS is not in Void's default repos; building against a community zfs xbps template (or void-packages' zfs srcpkg) is required before this edition is installable. Contributions welcome!",
+  "maintainer_note": "Community-maintained profile (exotic edition). xbps userland, runit init (Void's native /etc/sv + /var/service layout, matching init/init-runit.json directly) -- no systemd anywhere in this file. ZFS is Void's own zfs package for the userland, with the kernel modules prebuilt by freedomnas-void instead of DKMS (see installer-void.json's maintainer_note). Contributions welcome!",
   "packages": {
     "update_cache": "xbps-install -S",
     "list_updatable": "xbps-install -un",

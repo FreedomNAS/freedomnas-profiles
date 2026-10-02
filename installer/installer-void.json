@@ -1,7 +1,7 @@
 {
   "installer_meta": {
     "community_maintained": true,
-    "maintainer_note": "Community-maintained (exotic edition). Void ships no ZFS in its default repos: a zfs xbps package must be available to the target before this edition boots. The tarball method uses Void's own ROOTFS tarball, whose filename is date-stamped, so rootfs_tarball_url is left empty on purpose and the installer asks for it.",
+    "maintainer_note": "Community-maintained (exotic edition). Void's zfs package builds its module with DKMS on the machine; here it comes prebuilt instead, as linux6.18-zfs from freedomnas-void, the xbps repository FreedomNAS publishes on Codeberg (files.xbps_freedomnas, signed with the key in files.xbps_freedomnas_key). ignorepkg=dkms keeps zfs from pulling DKMS, gcc and the headers in; ignorepkg=linux lets repositories.core remove the linux meta package base-system brings, which would move to a kernel series with no module yet: packages/core.json names the series (linux6.18), and it has to change together with freedomnas-void's series file. Void runs /etc/kernel.d/post-install hooks, not /etc/kernel/postinst.d, so files.freedomnas_uki_hook calls zz-dracut-uki from there, and only once zfs.ko is in place: linux6.18-zfs runs the hooks again after installing it. The tarball method uses Void's own ROOTFS tarball, whose filename is date-stamped, so rootfs_tarball_url is left empty on purpose and the installer asks for it.",
     "arch": "x86_64",
     "suite": "current",
     "mirror": "https://repo-default.voidlinux.org/current",
@@ -115,6 +115,11 @@
       "package_list"
     ]
   },
+  "repositories": {
+    "core": [
+      "if xbps-query linux >/dev/null 2>&1; then xbps-remove -y linux; fi"
+    ]
+  },
   "files": {
     "hostname": {
       "path": "/etc/hostname",
@@ -126,7 +131,7 @@
     },
     "dracut_uki": {
       "path": "/etc/dracut.conf.d/uki.conf",
-      "content": "# The UKI is built inside a chroot, where dracut's idea of \"this host\" is\n# the installer's, not the machine being installed.\nhostonly=\"no\"\n"
+      "content": "# The UKI is built inside a chroot, where dracut's idea of \"this host\" is\n# the installer's, not the machine being installed.\nhostonly=\"no\"\n# base-system installs every linux-firmware package, so dracut's drm module\n# would carry ~150 MB of GPU firmware (NVIDIA's alone is 110 MB) into each\n# UKI and the ESP could not hold them. A NAS needs no GPU driver to boot:\n# the console stays on the firmware's framebuffer.\nomit_dracutmodules+=\" drm \"\n"
     },
     "fstab": {
       "path": "/etc/fstab",
@@ -151,6 +156,21 @@
       "inplace": true,
       "mode": 288,
       "content": "# FreedomNAS: the WebUI runs updates as the signed-in user,\n# and topgrade calls sudo itself for the steps that need root.\n%{sudo_group} ALL=(ALL) NOPASSWD: ALL\n"
+    },
+    "xbps_freedomnas": {
+      "path": "/etc/xbps.d/10-freedomnas.conf",
+      "inplace": true,
+      "content": "# FreedomNAS: OpenZFS modules built for Void's kernel by freedomnas-void,\n# so that zfs needs no DKMS here, and no linux meta package, which would\n# move to a kernel series before its module is published.\nrepository=https://codeberg.org/api/packages/FreedomNAS/generic/freedomnas-void/dev\nignorepkg=dkms\nignorepkg=linux\n"
+    },
+    "xbps_freedomnas_key": {
+      "path": "/var/db/xbps/keys/4a:f7:4a:19:fe:13:a8:47:4e:32:2e:e6:34:86:a0:37.plist",
+      "inplace": true,
+      "content": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>public-key</key>\n\t<data>LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQ0lqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FnOEFNSUlDQ2dLQ0FnRUF4YVo2bTVKeU0wZUJ1UUplWUpvcQphU3JTbEEzNlZ4TWRyN25GSmhwbGV3YytvemV3VUI1YWdEdnhWTVljNTdKeGkxdC94VUFzQzcvaXlNY2I1TWloCjdPV1B3LzIwUWhiSGJxKzQ0ZCtudlBxbm45WGhjZFU2T1N2OVQzWlNTdWxwTHl0SmhDdldTeTg3dS84TWRMVysKaVNReUhvTHhkdWY3UkphK2pBVlFHZ0VBTXRrUWluREtjS0NWOStpWW5jUkdTZWdhSHZCc0pLUmlwbUpoQkI4dApoWHJyWjlxdnpTczEwQ2pNWVh1eEpwSmNKWTJjd3VYdDlnc1hCUzh4VFdnL3dPb3lXa011VWVSSXRFMGJwbWg0Cmh1ckRUcm05L3RObEJRQlltd0N2VDZWNnlaeVpPbkZVVkJ3a0VCdWN6QkpZdEhMeHZjdTZLS3BXOWJKNEppZzAKTEhCcHNFMnJQdTduQTR6UExqUWNtdU02WVdIM29qMVRxam56MHROWTV3NFVvUisrM2FWcHJoRERWUEdYNXlBWQpIVGFVbm40NGRrKytOVmpHVUV3V3ZqQVJuVkRzTVdKR0RQSTRMSWR0bnFTdEtWT0tBYzNreDBGSlJNS1RmRlM1CmlLWmE1UGJoSkUycUswdkdlQWt0MFliRlY3amJ6S0JGZFQvaGM4MkpGZXFzM1lLNklpTHBQUklyVzNYOTRvY04KbUxZUUJVUDBCWVVNT1ExbTVzQytoVnU3WGJ2dTNneFpnKzRzTzkvZmZRYVhWWWRzYUpHdG4rVHpocUtueUJReQpCb0lZdVZMOGs2ak80M2NNTnAwSURDdWtlZTdXQm5UWFBMQWM2emdEZDJWSmdDNkl2dy9wamliV2ZsMUFFQ0lGCnRrdjJSZVpUbzdhWmtSYnVTanMrRURNQ0F3RUFBUT09Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=</data>\n\t<key>public-key-size</key>\n\t<integer>4096</integer>\n\t<key>signature-by</key>\n\t<string>FreedomNAS</string>\n</dict>\n</plist>\n"
+    },
+    "freedomnas_uki_hook": {
+      "path": "/etc/kernel.d/post-install/60-freedomnas-uki",
+      "content": "#!/bin/sh\n# Void runs /etc/kernel.d/post-install/* with the package name and the kernel\n# version, never /etc/kernel/postinst.d, so the UKI is rebuilt from here.\n# Without zfs.ko the UKI would not boot: until linux<series>-zfs has put it\n# in place, do nothing; that package runs these hooks again afterwards, so\n# the UKI is built, and rotated into the rollback slot, once per kernel.\n[ -x /etc/kernel/postinst.d/zz-dracut-uki ] || exit 0\n[ -f /usr/lib/modules/$2/extra/zfs.ko ] || exit 0\nexec /etc/kernel/postinst.d/zz-dracut-uki \"$2\"\n",
+      "mode": 493
     }
   }
 }
