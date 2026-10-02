@@ -18,6 +18,7 @@
   "nfs": {
     "config_file": "/etc/exports",
     "export_add": "grep -qxF {path}' '{clients}'('{options}')' /etc/exports || echo {path}' '{clients}'('{options}')' >> /etc/exports",
+    "owner_options": ",all_squash,anonuid={uid},anongid={gid}",
     "export_remove": "P={path} awk 'index($0, ENVIRON[\"P\"] \" \") != 1' /etc/exports > /etc/exports.new && mv /etc/exports.new /etc/exports",
     "export_list": "showmount -e localhost",
     "exportfs_reload": "exportfs -ra",

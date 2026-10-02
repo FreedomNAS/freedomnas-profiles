@@ -73,6 +73,11 @@
     "unmount": "umount {mountpoint}",
     "list_devices": "lsblk -pbP -o NAME,PKNAME,SIZE,TYPE,FSTYPE,MOUNTPOINT,MODEL,PARTTYPE"
   },
+  "directories": {
+    "owner_get": "stat -c %U {path}",
+    "owner_set": "chown {owner} {path}",
+    "mode_set": "chmod {mode} {path}"
+  },
   "zfs_properties": {
     "acltype": {
       "level": "advanced",

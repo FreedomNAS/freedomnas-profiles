@@ -73,6 +73,11 @@
     "unmount": "umount {mountpoint}",
     "list_devices": "sysctl -n kern.disks"
   },
+  "directories": {
+    "owner_get": "stat -f %Su {path}",
+    "owner_set": "chown {owner} {path}",
+    "mode_set": "chmod {mode} {path}"
+  },
   "zfs_properties": {
     "aclinherit": {
       "level": "advanced",
