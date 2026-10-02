@@ -15,7 +15,7 @@
       "runit": "runit elogind-runit"
     },
     "mirror": "https://mirror1.artixlinux.org/repos",
-    "esp_size": "512MiB",
+    "esp_size": "1GiB",
     "esp_mountpoint": "/boot/efi",
     "bootstrap_methods": [
       "basestrap",

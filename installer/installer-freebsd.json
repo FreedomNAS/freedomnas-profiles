@@ -4,7 +4,7 @@
     "arch": "amd64",
     "suite": "",
     "mirror": "https://download.freebsd.org/ftp/releases/{arch}/{suite}",
-    "esp_size": "512M",
+    "esp_size": "1G",
     "esp_mountpoint": "/boot/efi",
     "bootstrap_methods": [
       "tarball"

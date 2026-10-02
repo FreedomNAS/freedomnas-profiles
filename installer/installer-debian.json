@@ -3,7 +3,7 @@
     "arch": "amd64",
     "suite": "trixie",
     "mirror": "http://deb.debian.org/debian",
-    "esp_size": "512MiB",
+    "esp_size": "1GiB",
     "esp_mountpoint": "/boot/efi",
     "bootstrap_methods": [
       "debootstrap",

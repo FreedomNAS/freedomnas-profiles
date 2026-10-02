@@ -5,7 +5,7 @@
     "arch": "x86_64",
     "suite": "current",
     "mirror": "https://repo-default.voidlinux.org/current",
-    "esp_size": "512MiB",
+    "esp_size": "1GiB",
     "esp_mountpoint": "/boot/efi",
     "bootstrap_methods": [
       "xbps",
