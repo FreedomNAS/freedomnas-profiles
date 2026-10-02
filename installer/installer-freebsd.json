@@ -87,7 +87,7 @@
   "files": {
     "rc_conf": {
       "path": "/etc/rc.conf",
-      "content": "hostname=\"{fqdn}\"\nzfs_enable=\"YES\"\nsshd_enable=\"YES\"\nifconfig_DEFAULT=\"DHCP\"\n"
+      "content": "hostname=\"{fqdn}\"\nzfs_enable=\"YES\"\nsshd_enable=\"YES\"\nifconfig_DEFAULT=\"DHCP\"\nnfsv4_server_enable=\"YES\"\n"
     },
     "hosts": {
       "path": "/etc/hosts",
@@ -96,6 +96,10 @@
     "fstab": {
       "path": "/etc/fstab",
       "content": "# /etc/fstab - ZFS datasets are mounted by ZFS, not fstab\n/dev/gpt/efiboot\t/boot/efi\tmsdosfs\trw\t2\t2\n"
+    },
+    "nfs_exports": {
+      "path": "/etc/exports",
+      "content": "# NFSv4 clients see the exports below through this root; the exports\n# themselves are added by FreedomNAS, one line each (exports(5)).\nV4: /\n"
     },
     "localtime_link": {
       "path": "/etc/localtime",

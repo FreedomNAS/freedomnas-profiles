@@ -17,11 +17,12 @@
   },
   "nfs": {
     "config_file": "/etc/exports",
-    "export_add": "grep -qxF {path}' -'{options}' '{clients} /etc/exports || echo {path}' -'{options}' '{clients} >> /etc/exports",
-    "owner_options": " -mapall={owner}",
-    "export_remove": "P={path} awk 'index($0, ENVIRON[\"P\"] \" \") != 1' /etc/exports > /etc/exports.new && mv /etc/exports.new /etc/exports",
+    "export_add": "p={path}; o={options}; c={clients}; o=${{o#,}}; case $c in '*') c='';; */*) c=\"-network $c\";; esac; line=\"$p${{o:+ -$o}}${{c:+ $c}}\"; grep -qxF \"$line\" /etc/exports || echo \"$line\" >> /etc/exports",
+    "default_options": "",
+    "owner_options": ",mapall={owner}",
+    "export_remove": "P={path} awk '$1 != ENVIRON[\"P\"]' /etc/exports > /etc/exports.new && mv /etc/exports.new /etc/exports",
     "export_list": "showmount -e localhost",
-    "exportfs_reload": "service mountd onereload",
+    "exportfs_reload": "service mountd status >/dev/null 2>&1 && service mountd onereload || service mountd onestart",
     "exportfs_list": "showmount -e localhost",
     "nfs_service": "nfsd"
   }
