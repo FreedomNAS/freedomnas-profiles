@@ -28,6 +28,7 @@
   },
   "chroot": {
     "exec_prefix": "chroot {root}",
+    "clean_package_cache": "find /var/cache/xbps -mindepth 1 -delete",
     "mount": [
       "mount --rbind /dev {root}/dev",
       "mount --make-rslave {root}/dev",
@@ -83,6 +84,7 @@
     "unmount_all": "zfs umount -a",
     "unmount_target": "umount -R -l {root}",
     "export": "zpool export {pool_name}",
+    "trim": "zpool trim -w {pool_name}",
     "export_force": "zpool export -f {pool_name}",
     "export_all": "zpool export -a",
     "list_importable": "zpool import -d /dev/disk/by-id",
