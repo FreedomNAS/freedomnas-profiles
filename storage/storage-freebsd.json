@@ -9,6 +9,7 @@
     "pool_import_id": "zpool import -N {force} {pool_id} {pool_name}",
     "dataset_tree": "zfs get -rHp -t filesystem -o name,property,value,source mountpoint,canmount,encryption,encryptionroot,keyformat,keystatus,used {pool_name}",
     "load_key_prompt": "zfs load-key -L prompt {dataset}",
+    "pool_cachefile_default": "zpool set cachefile= {pool_name}",
     "mount_pool_auto": "zfs list -rH -t filesystem -o name,canmount,mountpoint,mounted {pool_name} | awk -F '\\t' '$2 == \"on\" && $3 != \"none\" && $3 != \"legacy\" && $4 == \"no\" {{ print $1 }}' | xargs -r -n1 zfs mount",
     "pool_status": "zpool status -p {pool_name}",
     "pool_list": "zpool list -Hp -o name,size,alloc,free,capacity,health",
@@ -75,6 +76,7 @@
   },
   "directories": {
     "owner_get": "stat -f %Su {path}",
+    "owner_uid_get": "stat -f %u {path}",
     "owner_set": "chown {owner} {path}",
     "mode_set": "chmod {mode} {path}"
   },
