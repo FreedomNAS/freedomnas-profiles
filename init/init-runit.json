@@ -2,9 +2,10 @@
   "init_name": "runit",
 
   "services": {
-    "start": "sv start {service_name}",
+    "_note": "runsvdir notices a newly linked service only on its next scan (every 5 s), and until its runsv is up sv fails ('unable to open supervise/control', or 'runsv not running' when an old supervise/ directory is left from before): start and restart wait up to 15 s for sv status to answer.",
+    "start": "i=0; while [ -L /var/service/{service_name} ] && ! sv status {service_name} >/dev/null 2>&1 && [ $i -lt 15 ]; do sleep 1; i=$((i+1)); done; sv start {service_name}",
     "stop": "sv stop {service_name}",
-    "restart": "sv restart {service_name}",
+    "restart": "i=0; while [ -L /var/service/{service_name} ] && ! sv status {service_name} >/dev/null 2>&1 && [ $i -lt 15 ]; do sleep 1; i=$((i+1)); done; sv restart {service_name}",
     "enable": "ln -s /etc/sv/{service_name} /var/service/",
     "disable": "rm /var/service/{service_name}",
     "enable_offline": "ln -sf /etc/sv/{service_name} /etc/runit/runsvdir/default/{service_name}",
