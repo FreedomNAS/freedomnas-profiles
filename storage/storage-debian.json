@@ -77,6 +77,10 @@
   "directories": {
     "owner_get": "stat -c %U {path}",
     "owner_uid_get": "stat -c %u {path}",
+    "owner_group": "{owner}",
+    "group_get": "stat -c %G {path}",
+    "group_set": "chgrp {group} {path}",
+    "group_set_recursive": "chgrp -R {group} {path}",
     "owner_set": "chown {owner} {path}",
     "mode_set": "chmod {mode} {path}"
   },
