@@ -87,7 +87,7 @@
   "files": {
     "rc_conf": {
       "path": "/etc/rc.conf",
-      "content": "hostname=\"{fqdn}\"\nzfs_enable=\"YES\"\nsshd_enable=\"YES\"\nifconfig_DEFAULT=\"DHCP\"\nnfsv4_server_enable=\"YES\"\n"
+      "content": "hostname=\"{fqdn}\"\nzfs_enable=\"YES\"\nsshd_enable=\"YES\"\nifconfig_DEFAULT=\"DHCP\"\nnfsv4_server_enable=\"YES\"\nntpd_enable=\"YES\"\nntpd_sync_on_start=\"YES\"\n"
     },
     "hosts": {
       "path": "/etc/hosts",
