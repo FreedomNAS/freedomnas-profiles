@@ -82,7 +82,8 @@
   },
   "void": {
     "packages": [
-      "samba"
+      "samba",
+      "freedomnas-samba-conf"
     ],
     "services": [
       "smbd",
