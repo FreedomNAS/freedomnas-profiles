@@ -9,9 +9,11 @@
     "enable_early": "rc-update add {service_name} sysinit",
     "disable": "rc-update del {service_name}",
     "status": "rc-service {service_name} status",
-    "is_enabled": "rc-update show | grep -w {service_name}",
+    "is_enabled": "rc-update show | grep -w {service_name} >/dev/null 2>&1 && echo yes",
     "reload": "rc-service {service_name} reload",
     "daemon_reload": "",
+    "list_all": "rc-service --list",
+    "is_running": "rc-service {service_name} status >/dev/null 2>&1 && echo yes",
     "list_managed": "rc-status -a"
   }
 }

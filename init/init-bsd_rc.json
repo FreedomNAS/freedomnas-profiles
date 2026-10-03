@@ -8,9 +8,11 @@
     "enable": "service {service_name} enable",
     "disable": "service {service_name} disable",
     "status": "service {service_name} status",
-    "is_enabled": "service {service_name} enabled",
+    "is_enabled": "service {service_name} enabled >/dev/null 2>&1 && echo yes",
     "reload": "service {service_name} reload",
     "daemon_reload": "",
+    "list_all": "service -l",
+    "is_running": "service {service_name} onestatus >/dev/null 2>&1 && echo yes",
     "list_managed": "service -e"
   }
 }

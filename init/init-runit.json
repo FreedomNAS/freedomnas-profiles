@@ -11,9 +11,11 @@
     "enable_offline": "ln -sfn /etc/sv/{service_name} /etc/runit/runsvdir/default/{service_name}",
     "disable_offline": "rm -f /etc/runit/runsvdir/default/{service_name}",
     "status": "sv status {service_name}",
-    "is_enabled": "test -L /var/service/{service_name}",
+    "is_enabled": "test -L /var/service/{service_name} >/dev/null 2>&1 && echo yes",
     "reload": "sv reload {service_name}",
     "daemon_reload": "",
+    "list_all": "find /etc/sv -mindepth 1 -maxdepth 1 -type d -printf '%f\\n'",
+    "is_running": "sv status {service_name} 2>/dev/null | grep -q '^run:' >/dev/null 2>&1 && echo yes",
     "list_managed": "ls /var/service/"
   }
 }

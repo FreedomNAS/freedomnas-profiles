@@ -9,9 +9,11 @@
     "enable_offline": "s6 set enable -p {service_name} && s6 set commit",
     "disable": "s6 set disable {service_name} && s6 set commit && s6 live install -b",
     "status": "s6 live status {service_name}",
-    "is_enabled": "s6 set status {service_name} | grep -qE '/(active|always)$'",
+    "is_enabled": "s6 set status {service_name} | grep -qE '/(active|always)$' >/dev/null 2>&1 && echo yes",
     "reload": "s6 live reload {service_name}",
     "daemon_reload": "",
+    "list_all": "find /etc/s6/sv -mindepth 1 -maxdepth 1 -type d -printf '%f\\n'",
+    "is_running": "s6 live status {service_name} | grep -q up >/dev/null 2>&1 && echo yes",
     "list_managed": "s6 live status"
   }
 }
