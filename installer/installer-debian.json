@@ -199,7 +199,7 @@
     },
     "dracut_uki": {
       "path": "/etc/dracut.conf.d/uki.conf",
-      "content": "# The UKI is built inside a chroot, where dracut's idea of \"this host\" is\n# the installer's, not the machine being installed.\nhostonly=\"no\"\n"
+      "content": "# The UKI is built inside a chroot, where dracut's idea of \"this host\" is\n# the installer's, not the machine being installed.\nhostonly=\"no\"\n# dracut 111 (Arch/Artix) installs nothing for its \"=drivers/<dir>\" module\n# lists, so an image booted from a USB stick has no usb-storage/uas to find\n# its root pool and no USB keyboard in the rescue shell. Name the modules of\n# those directories explicitly instead; dracut sets $kernel before reading\n# this file.\nadd_drivers+=\" $(find /lib/modules/\"$kernel\"/kernel/drivers/usb/storage /lib/modules/\"$kernel\"/kernel/drivers/usb/host /lib/modules/\"$kernel\"/kernel/drivers/hid /lib/modules/\"$kernel\"/kernel/drivers/input/keyboard /lib/modules/\"$kernel\"/kernel/drivers/input/serio /lib/modules/\"$kernel\"/kernel/drivers/mmc -name '*.ko*' -printf '%f\\n' 2>/dev/null | sed 's/\\.ko.*$//') \"\n"
     },
     "rescue_sulogin": {
       "path": "/etc/systemd/system/rescue.service.d/freedomnas.conf",
