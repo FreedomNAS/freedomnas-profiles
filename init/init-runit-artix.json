@@ -6,7 +6,7 @@
     "start": "i=0; while [ -L /run/runit/service/{service_name} ] && ! env SVDIR=/run/runit/service sv status {service_name} >/dev/null 2>&1 && [ $i -lt 15 ]; do sleep 1; i=$((i+1)); done; env SVDIR=/run/runit/service sv start {service_name}",
     "stop": "env SVDIR=/run/runit/service sv stop {service_name}",
     "restart": "i=0; while [ -L /run/runit/service/{service_name} ] && ! env SVDIR=/run/runit/service sv status {service_name} >/dev/null 2>&1 && [ $i -lt 15 ]; do sleep 1; i=$((i+1)); done; env SVDIR=/run/runit/service sv restart {service_name}",
-    "enable": "ln -sf /etc/runit/sv/{service_name} /etc/runit/runsvdir/default/{service_name}",
+    "enable": "ln -sfn /etc/runit/sv/{service_name} /etc/runit/runsvdir/default/{service_name}",
     "disable": "rm -f /etc/runit/runsvdir/default/{service_name}",
     "status": "env SVDIR=/run/runit/service sv status {service_name}",
     "is_enabled": "test -L /etc/runit/runsvdir/default/{service_name}",
