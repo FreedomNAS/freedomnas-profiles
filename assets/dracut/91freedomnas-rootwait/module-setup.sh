@@ -23,4 +23,18 @@ depends() {
 install() {
     # After the zfs module's parse-zfs.sh (cmdline 95).
     inst_hook cmdline 96 "$moddir/rootwait.sh"
+    # With systemd in the initramfs (Debian), dracut-initqueue.service runs
+    # only when /lib/dracut/need-initqueue exists — /lib is read-only by the
+    # time the cmdline hook runs, so it is made here — and the pool is
+    # imported by zfs-import-{cache,scan}.service, which must not try before
+    # the wait is over.
+    mkdir -p "$initdir/lib/dracut"
+    : > "$initdir/lib/dracut/need-initqueue"
+    if dracut_module_included "systemd"; then
+        for unit in zfs-import-cache.service zfs-import-scan.service; do
+            mkdir -p "$initdir$systemdsystemunitdir/$unit.d"
+            printf '[Unit]\nAfter=dracut-initqueue.service\n' \
+                > "$initdir$systemdsystemunitdir/$unit.d/freedomnas-rootwait.conf"
+        done
+    fi
 }
