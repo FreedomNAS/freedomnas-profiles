@@ -69,14 +69,18 @@
       "vdev_type",
       "force",
       "options"
-    ]
+    ],
+    "pool_member_devices": "zpool status -LP"
   },
   "media": {
     "list_removable": "lsblk -rno NAME,RM,TYPE",
     "mount_ro": "mount -o ro,noexec,nosuid,nodev {device} {mountpoint}",
     "mount_rw": "mount {device} {mountpoint}",
     "unmount": "umount {mountpoint}",
-    "list_devices": "lsblk -pbP -o NAME,PKNAME,SIZE,TYPE,FSTYPE,MOUNTPOINT,MODEL,PARTTYPE"
+    "list_devices": "lsblk -pbP -o NAME,PKNAME,SIZE,TYPE,FSTYPE,MOUNTPOINT,MODEL,PARTTYPE",
+    "smart_scan": "smartctl --scan -j",
+    "smart_info": "smartctl -a -j -n standby {device}",
+    "smart_test": "smartctl -t {test_type} {device}"
   },
   "directories": {
     "owner_get": "stat -c %U {path}",
