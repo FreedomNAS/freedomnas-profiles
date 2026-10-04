@@ -25,8 +25,10 @@
     "partition_offsets": "geom part list $(basename {disk}) | awk '$1 == \"offset:\" {{ print $2 }}'",
     "partition_grow": [
       "gpart recover {disk}",
-      "gpart resize -i {part_num} {disk}"
+      "gpart resize -i {part_num} {disk}",
+      "flags=$(sysctl -n kern.geom.debugflags); sysctl kern.geom.debugflags=16 >/dev/null; set -- $(geom part list $(basename {disk}) | awk -v i={part_num} '$2 == \"Name:\" {{ n = \"\"; o = \"\" }} $1 == \"length:\" {{ n = $2 }} $1 == \"offset:\" {{ o = $2 }} $1 == \"index:\" && $2 == i {{ print o, n; exit }}'); rc=1; [ -n \"$2\" ] && {{ dd if=/dev/zero of={disk} bs=512 count=2048 seek=$(( ($1 + ($2 / 262144 - 4) * 262144) / 512 )) status=none; rc=$?; }}; sysctl kern.geom.debugflags=$flags >/dev/null; exit $rc"
     ],
+    "_note": "partition_grow's last step zeroes the last MiB of the grown partition, where zpool online -e will write labels 2 and 3. On a stick that held an older, already grown image, that is where the old pool's labels still are, with a higher txg than the new pool's: ZFS then takes them as the vdev's and faults the root pool. The area lies past the pool's current end, so no data is touched. GEOM refuses writes to the partition ZFS holds open even with kern.geom.debugflags=16, so the step writes through the disk at the partition's offset, with the flag set for the dd alone and put back to what it was whatever dd returns.",
     "pool_expand": "zpool online -e {pool_name} {device}",
     "dataset_create": "zfs create -o mountpoint={mountpoint} {pool_name}/{dataset_name}",
     "dataset_create_with": "zfs create {options} {dataset}",
