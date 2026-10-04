@@ -63,13 +63,37 @@
     "pool_add_cache": "zpool add {pool_name} cache {devices}",
     "pool_add_log": "zpool add {pool_name} log {devices}",
     "pool_remove_device": "zpool remove {pool_name} {device}",
+    "pool_member_devices": "zpool status -LP",
+    "pool_status_json": "zpool status -j --json-int -P {pool_name}",
+    "pool_scrub_pause": "zpool scrub -p {pool_name}",
+    "pool_trim": "zpool trim {pool_name}",
+    "pool_trim_suspend": "zpool trim -s {pool_name}",
+    "pool_trim_cancel": "zpool trim -c {pool_name}",
+    "pool_initialize": "zpool initialize {pool_name}",
+    "pool_initialize_cancel": "zpool initialize -c {pool_name}",
+    "pool_clear": "zpool clear {pool_name}",
+    "pool_clear_device": "zpool clear {pool_name} {device}",
+    "pool_offline_temporary": "zpool offline -t {pool_name} {device}",
+    "pool_replace": "zpool replace {pool_name} {device} {new_device}",
+    "pool_replace_in_place": "zpool replace {pool_name} {device}",
+    "pool_attach": "zpool attach {pool_name} {device} {new_device}",
+    "pool_detach": "zpool detach {pool_name} {device}",
+    "pool_add_vdevs": "zpool add {pool_name} {devices}",
+    "pool_remove_cancel": "zpool remove -s {pool_name}",
+    "pool_upgrade": "zpool upgrade {pool_name}",
+    "pool_history": "zpool history -l {pool_name}",
+    "pool_history_internal": "zpool history -il {pool_name}",
+    "pool_get_all": "zpool get -Hp -o property,value,source all {pool_name}",
+    "pool_set": "zpool set {property}={value} {pool_name}",
+    "pool_checkpoint": "zpool checkpoint {pool_name}",
+    "pool_checkpoint_discard": "zpool checkpoint -d {pool_name}",
+    "pool_reguid": "zpool reguid {pool_name}",
     "multi_args": [
       "devices",
       "vdev_type",
       "force",
       "options"
-    ],
-    "pool_member_devices": "zpool status -LP"
+    ]
   },
   "media": {
     "_note": "Assumes FAT32-formatted USB sticks -- FreeBSD mount(8) does not autodetect filesystem type the way Linux mount does.",
@@ -425,6 +449,89 @@
       ],
       "help": "How a volume is exposed to the system.",
       "default": "default"
+    }
+  },
+  "zpool_properties": {
+    "autotrim": {
+      "level": "advanced",
+      "type": "enum",
+      "values": [
+        "on",
+        "off"
+      ],
+      "default": "off",
+      "help": "TRIM freed space automatically. Useful when the pool is on SSDs."
+    },
+    "autoexpand": {
+      "level": "advanced",
+      "type": "enum",
+      "values": [
+        "on",
+        "off"
+      ],
+      "default": "off",
+      "help": "Grow the pool by itself once every disk of a vdev has been replaced by a bigger one."
+    },
+    "autoreplace": {
+      "level": "advanced",
+      "type": "enum",
+      "values": [
+        "on",
+        "off"
+      ],
+      "default": "off",
+      "help": "A new disk put in the slot of a failed one replaces it without asking."
+    },
+    "comment": {
+      "level": "advanced",
+      "type": "text",
+      "help": "Free text stored in the pool, shown when it is imported elsewhere."
+    },
+    "failmode": {
+      "level": "expert",
+      "type": "enum",
+      "values": [
+        "wait",
+        "continue",
+        "panic"
+      ],
+      "default": "wait",
+      "help": "What happens when the pool loses too many devices to keep working."
+    },
+    "listsnapshots": {
+      "level": "expert",
+      "type": "enum",
+      "values": [
+        "on",
+        "off"
+      ],
+      "default": "off",
+      "help": "Show snapshots in a plain zfs list."
+    },
+    "delegation": {
+      "level": "expert",
+      "type": "enum",
+      "values": [
+        "on",
+        "off"
+      ],
+      "default": "on",
+      "help": "Allow ordinary users the permissions given with zfs allow."
+    },
+    "multihost": {
+      "level": "expert",
+      "type": "enum",
+      "values": [
+        "on",
+        "off"
+      ],
+      "default": "off",
+      "help": "Protect a pool on shared storage from being imported by two systems at once."
+    },
+    "compatibility": {
+      "level": "expert",
+      "type": "text",
+      "help": "Limit the features to a set that another system can read: off, legacy, or a file name such as openzfs-2.1-linux."
     }
   }
 }
