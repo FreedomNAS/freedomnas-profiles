@@ -105,11 +105,22 @@
     "dataset_promote": "zfs promote {dataset}",
     "userspace": "zfs userspace -Hp -o type,name,used,quota,objused,objquota {dataset}",
     "groupspace": "zfs groupspace -Hp -o type,name,used,quota,objused,objquota {dataset}",
+    "replicate": "echo $$ > {pid_file}; zfs send -vP {send_flags} {incremental} {snapshot} 2> {progress_file} | zfs receive {receive_flags} {target}",
+    "replicate_resume": "echo $$ > {pid_file}; zfs send -vP -t {token} 2> {progress_file} | zfs receive -s {receive_flags} {target}",
+    "send_to_file": "echo $$ > {pid_file}; set -C; zfs send -vP {send_flags} {incremental} {snapshot} 2> {progress_file} > {file}",
+    "receive_from_file": "echo $$ > {pid_file}; zfs receive {receive_flags} {target} < {file}",
+    "receive_abort": "zfs receive -A {target}",
+    "send_estimate": "zfs send -nvP {send_flags} {incremental} {snapshot}",
+    "replication_cancel": "pkill -INT -P {pid}",
+    "resume_tokens": "zfs get -Hp -t filesystem,volume -o name,value receive_resume_token",
     "multi_args": [
       "devices",
       "vdev_type",
       "force",
-      "options"
+      "options",
+      "send_flags",
+      "receive_flags",
+      "incremental"
     ]
   },
   "media": {
