@@ -258,7 +258,7 @@
     "core": [
       "install -d -m 755 /etc/apt/keyrings",
       "curl -fsSL -o /etc/apt/keyrings/freedomnas.asc https://codeberg.org/api/packages/FreedomNAS/debian/repository.key",
-      "printf 'deb [signed-by=/etc/apt/keyrings/freedomnas.asc] https://codeberg.org/api/packages/FreedomNAS/debian trixie main dev\\n' > /etc/apt/sources.list.d/freedomnas.list"
+      "printf 'deb [signed-by=/etc/apt/keyrings/freedomnas.asc] https://codeberg.org/api/packages/FreedomNAS/debian trixie {channel}\\n' > /etc/apt/sources.list.d/freedomnas.list"
     ],
     "containers": [
       "env DEBIAN_FRONTEND=noninteractive LC_ALL=C.UTF-8 LANG=C.UTF-8 apt-get install -y --no-install-recommends ca-certificates curl",
