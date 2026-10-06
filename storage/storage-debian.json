@@ -113,6 +113,13 @@
     "send_estimate": "zfs send -nvP {send_flags} {incremental} {snapshot}",
     "replication_cancel": "pkill -INT -P {pid}",
     "resume_tokens": "zfs get -Hp -t filesystem,volume -o name,value receive_resume_token",
+    "allow_show": "zfs allow {dataset}",
+    "allow": "zfs allow {allow_scope} {allow_who} {perms} {dataset}",
+    "unallow": "zfs unallow {allow_scope} {allow_who} {perms} {dataset}",
+    "events": "zpool events -H -v",
+    "events_clear": "zpool events -c",
+    "pool_iostat": "zpool iostat -Hpvy {pool_name} 1 1",
+    "arc_stats": "cat /proc/spl/kstat/zfs/arcstats",
     "multi_args": [
       "devices",
       "vdev_type",
@@ -120,7 +127,10 @@
       "options",
       "send_flags",
       "receive_flags",
-      "incremental"
+      "incremental",
+      "allow_scope",
+      "allow_who",
+      "perms"
     ]
   },
   "media": {
