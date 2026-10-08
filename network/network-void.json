@@ -40,6 +40,10 @@
     "connection_activate": "nmcli --wait 45 connection up fnas-{interface}",
     "checkpoint_create": "gdbus call --system --dest org.freedesktop.NetworkManager --object-path /org/freedesktop/NetworkManager --method org.freedesktop.NetworkManager.CheckpointCreate '[]' {rollback_seconds} 3 | sed -n \"s/.*'\\(.*\\)'.*/\\1/p\"",
     "checkpoint_destroy": "gdbus call --system --dest org.freedesktop.NetworkManager --object-path /org/freedesktop/NetworkManager --method org.freedesktop.NetworkManager.CheckpointDestroy {checkpoint}",
-    "checkpoint_rollback": "gdbus call --system --dest org.freedesktop.NetworkManager --object-path /org/freedesktop/NetworkManager --method org.freedesktop.NetworkManager.CheckpointRollback {checkpoint}"
+    "checkpoint_rollback": "gdbus call --system --dest org.freedesktop.NetworkManager --object-path /org/freedesktop/NetworkManager --method org.freedesktop.NetworkManager.CheckpointRollback {checkpoint}",
+    "list_physical": "for d in /sys/class/net/*/device; do n=${{d%/device}}; n=${{n##*/}}; echo \"$n $(cat /sys/class/net/$n/address) $n\"; done",
+    "names_clear": "rm -f /etc/udev/rules.d/70-freedomnas-net.rules && mkdir -p /etc/udev/rules.d",
+    "name_persist": "printf 'SUBSYSTEM==\"net\", ACTION==\"add\", ATTR{{address}}==\"%s\", NAME=\"%s\"\\n' {mac} {new_name} >> /etc/udev/rules.d/70-freedomnas-net.rules",
+    "connection_rename": "nmcli -g connection.id connection show fnas-{old_name} >/dev/null 2>&1 && nmcli connection modify fnas-{old_name} connection.id fnas-{new_name} connection.interface-name {new_name}; true"
   }
 }
