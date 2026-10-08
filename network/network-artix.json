@@ -59,6 +59,10 @@
     "port_activate": "nmcli --wait 30 connection up fnas-{port}",
     "virtual_activate": "nmcli --wait 45 connection up fnas-{interface}",
     "virtual_delete": "nmcli connection delete fnas-{interface}",
-    "port_release": "nmcli connection delete fnas-{port} || true"
+    "port_release": "nmcli connection delete fnas-{port} || true",
+    "routes_set": "nmcli connection modify fnas-{interface} ipv4.routes '' ipv6.routes '' && for spec in {routes}; do case $spec in *:*) f=ipv6;; *) f=ipv4;; esac; nmcli connection modify fnas-{interface} +$f.routes \"${{spec%%=*}} ${{spec#*=}}\" || exit 1; done",
+    "multi_args": [
+      "routes"
+    ]
   }
 }

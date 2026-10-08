@@ -61,12 +61,16 @@
     "bridge_stp_off": "true",
     "bond_mode_lacp": "ifconfig {interface} laggproto lacp && sysrc ifconfig_{interface}+=\"laggproto lacp\"",
     "bond_mode_failover": "ifconfig {interface} laggproto failover && sysrc ifconfig_{interface}+=\"laggproto failover\"",
-    "bridge_port_add": "for a in $(ifconfig {port} inet | awk '/inet / {{print $2}}'); do ifconfig {port} inet $a -alias; done; ifconfig {port} up && ifconfig {interface} addm {port} && sysrc ifconfig_{port}=up ifconfig_{interface}+=\"addm {port}\" && (sysrc -x ifconfig_{port}_ipv6 2>/dev/null; true)",
-    "bond_port_add": "for a in $(ifconfig {port} inet | awk '/inet / {{print $2}}'); do ifconfig {port} inet $a -alias; done; ifconfig {port} up && ifconfig {interface} laggport {port} && sysrc ifconfig_{port}=up ifconfig_{interface}+=\"laggport {port}\" && (sysrc -x ifconfig_{port}_ipv6 2>/dev/null; true)",
+    "bridge_port_add": "for a in $(ifconfig {port} inet | awk '/inet / {{print $2}}'); do ifconfig {port} inet $a -alias; done; ifconfig {port} up && (ifconfig {interface} | grep -q 'member: {port} ' || ifconfig {interface} addm {port}) && sysrc ifconfig_{port}=up ifconfig_{interface}+=\"addm {port}\" && (sysrc -x ifconfig_{port}_ipv6 2>/dev/null; true)",
+    "bond_port_add": "for a in $(ifconfig {port} inet | awk '/inet / {{print $2}}'); do ifconfig {port} inet $a -alias; done; ifconfig {port} up && (ifconfig {interface} | grep -q 'laggport: {port} ' || ifconfig {interface} laggport {port}) && sysrc ifconfig_{port}=up ifconfig_{interface}+=\"laggport {port}\" && (sysrc -x ifconfig_{port}_ipv6 2>/dev/null; true)",
     "mac_set": "sysrc -f /boot/loader.conf if_bridge_load=YES >/dev/null && sysctl net.link.bridge.inherit_mac=1 >/dev/null && (grep -q '^net.link.bridge.inherit_mac=1' /etc/sysctl.conf 2>/dev/null || echo net.link.bridge.inherit_mac=1 >> /etc/sysctl.conf) && (ifconfig {interface} ether {mac} 2>/dev/null; true)",
     "port_activate": "ifconfig {port} up",
     "virtual_activate": "a=$(sysrc -n ifconfig_{interface}); case \"$a\" in *DHCP*) ifconfig {interface} up && dhclient {interface};; *) ifconfig {interface} $(echo \"$a\" | sed -E 's/(laggproto|laggport|addm) [^ ]+//g') up;; esac; service routing restart; resolvconf -u",
     "virtual_delete": "c=$(sysrc -a | awk -F': ' '$2 == \"'{interface}'\" && $1 ~ /^ifconfig_.*_name$/ {{sub(/^ifconfig_/, \"\", $1); sub(/_name$/, \"\", $1); print $1}}'); ifconfig {interface} destroy; if [ -n \"$c\" ]; then sysrc cloned_interfaces-=$c; sysrc -x ifconfig_${{c}}_name; fi; for v in $(sysrc -a -N | grep '^vlans_'); do sysrc $v-={interface}; done; sysrc -x ifconfig_{interface} ifconfig_{interface}_ipv6 create_args_{interface} 2>/dev/null; true",
-    "port_release": "sysrc -x ifconfig_{port} || true"
+    "port_release": "sysrc -x ifconfig_{port} || true",
+    "routes_set": "for r in $(sysrc -n static_routes 2>/dev/null) $(sysrc -n ipv6_static_routes 2>/dev/null); do case $r in rt_{interface}_*) sysrc static_routes-=$r ipv6_static_routes-=$r >/dev/null; sysrc -x route_$r ipv6_route_$r 2>/dev/null;; esac; done; n=0; for spec in {routes}; do n=$((n+1)); case $spec in *:*) sysrc ipv6_static_routes+=rt_{interface}_$n ipv6_route_rt_{interface}_$n=\"${{spec%%=*}} ${{spec#*=}}\";; *) sysrc static_routes+=rt_{interface}_$n route_rt_{interface}_$n=\"-net ${{spec%%=*}} ${{spec#*=}}\";; esac || exit 1; done; true",
+    "multi_args": [
+      "routes"
+    ]
   }
 }
