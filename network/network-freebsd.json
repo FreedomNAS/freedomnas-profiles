@@ -23,6 +23,36 @@
     "bring_down_interface": "ifconfig {interface} down",
     "hostname_set": "hostname {hostname} && sysrc hostname={hostname}",
     "hostname_get": "hostname",
-    "persistent_rename": "ifconfig_{old_name}_name=\"{logical_name}\""
+    "persistent_rename": "ifconfig_{old_name}_name=\"{logical_name}\"",
+    "connection_ensure": "true",
+    "connection_exists": "sysrc -n ifconfig_{interface} >/dev/null 2>&1 && echo yes",
+    "ipv4_dhcp": [
+      "sysrc ifconfig_{interface}=DHCP",
+      "sysrc -x defaultrouter || true"
+    ],
+    "ipv4_static": [
+      "sysrc ifconfig_{interface}=\"inet {ip}/{cidr}\"",
+      "if [ -n {gateway} ]; then sysrc defaultrouter={gateway}; else sysrc -x defaultrouter || true; fi"
+    ],
+    "ipv6_auto": [
+      "sysrc ifconfig_{interface}_ipv6=\"inet6 accept_rtadv\"",
+      "sysrc -x ipv6_defaultrouter || true"
+    ],
+    "ipv6_static": [
+      "sysrc ifconfig_{interface}_ipv6=\"inet6 {ipv6}/{ipv6_prefix}\"",
+      "if [ -n {ipv6_gateway} ]; then sysrc ipv6_defaultrouter={ipv6_gateway}; else sysrc -x ipv6_defaultrouter || true; fi"
+    ],
+    "ipv6_disabled": [
+      "sysrc ifconfig_{interface}_ipv6=\"inet6 ifdisabled\"",
+      "sysrc -x ipv6_defaultrouter || true"
+    ],
+    "dns_set": "sysrc -f /etc/resolvconf.conf name_servers={dns}' '{dns6} search_domains={dns_search}",
+    "dns_auto": "sysrc -f /etc/resolvconf.conf -x name_servers search_domains || true",
+    "mtu_set": "sysrc ifconfig_{interface}+=\"mtu {mtu}\"",
+    "mtu_auto": "true",
+    "connection_activate": "service netif restart {interface} && service routing restart; resolvconf -u",
+    "checkpoint_create": "d=/var/db/freedomnas/net-checkpoint-$$; mkdir -p $d && cp /etc/rc.conf $d/rc.conf && (cp /etc/resolvconf.conf $d/resolvconf.conf 2>/dev/null || true) && daemon -f sh -c \"sleep {rollback_seconds}; d=$d; [ -d $d ] && {{ cp $d/rc.conf /etc/rc.conf && if [ -f $d/resolvconf.conf ]; then cp $d/resolvconf.conf /etc/resolvconf.conf; else rm -f /etc/resolvconf.conf; fi && rm -rf $d && service netif restart && service routing restart; resolvconf -u; }}\" && echo $d",
+    "checkpoint_destroy": "rm -rf {checkpoint}",
+    "checkpoint_rollback": "d={checkpoint}; [ -d $d ] && {{ cp $d/rc.conf /etc/rc.conf && if [ -f $d/resolvconf.conf ]; then cp $d/resolvconf.conf /etc/resolvconf.conf; else rm -f /etc/resolvconf.conf; fi && rm -rf $d && service netif restart && service routing restart; resolvconf -u; }}"
   }
 }

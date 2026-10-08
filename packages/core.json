@@ -17,6 +17,7 @@
       "systemd",
       "systemd-resolved",
       "network-manager",
+      "libglib2.0-bin",
       "parted",
       "smartmontools",
       "e2fsprogs",

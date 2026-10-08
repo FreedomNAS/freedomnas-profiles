@@ -25,6 +25,21 @@
     "bring_down_interface": "ip link set {interface} down",
     "hostname_set": "hostnamectl set-hostname {hostname}",
     "hostname_get": "hostnamectl --static",
-    "udev_persistent_rule": "SUBSYSTEM==\"net\", ACTION==\"add\", ATTR{{address}}==\"{mac}\", NAME=\"{logical_name}\""
+    "udev_persistent_rule": "SUBSYSTEM==\"net\", ACTION==\"add\", ATTR{{address}}==\"{mac}\", NAME=\"{logical_name}\"",
+    "connection_ensure": "nmcli -g connection.id connection show fnas-{interface} >/dev/null 2>&1 || nmcli connection add type ethernet ifname {interface} con-name fnas-{interface} connection.autoconnect-priority 100",
+    "connection_exists": "nmcli -g connection.id connection show fnas-{interface} >/dev/null 2>&1 && echo yes",
+    "ipv4_dhcp": "nmcli connection modify fnas-{interface} ipv4.method auto ipv4.addresses '' ipv4.gateway ''",
+    "ipv4_static": "nmcli connection modify fnas-{interface} ipv4.method manual ipv4.addresses {ip}/{cidr} ipv4.gateway {gateway}",
+    "ipv6_auto": "nmcli connection modify fnas-{interface} ipv6.method auto ipv6.addresses '' ipv6.gateway ''",
+    "ipv6_static": "nmcli connection modify fnas-{interface} ipv6.method manual ipv6.addresses {ipv6}/{ipv6_prefix} ipv6.gateway {ipv6_gateway}",
+    "ipv6_disabled": "nmcli connection modify fnas-{interface} ipv6.dns '' ipv6.ignore-auto-dns no ipv6.addresses '' ipv6.gateway '' ipv6.method disabled",
+    "dns_set": "nmcli connection modify fnas-{interface} ipv4.ignore-auto-dns yes ipv4.dns {dns} ipv4.dns-search {dns_search} ipv6.ignore-auto-dns yes ipv6.dns {dns6}",
+    "dns_auto": "nmcli connection modify fnas-{interface} ipv4.ignore-auto-dns no ipv4.dns '' ipv4.dns-search '' ipv6.ignore-auto-dns no ipv6.dns ''",
+    "mtu_set": "nmcli connection modify fnas-{interface} 802-3-ethernet.mtu {mtu}",
+    "mtu_auto": "nmcli connection modify fnas-{interface} 802-3-ethernet.mtu 0",
+    "connection_activate": "nmcli --wait 45 connection up fnas-{interface}",
+    "checkpoint_create": "gdbus call --system --dest org.freedesktop.NetworkManager --object-path /org/freedesktop/NetworkManager --method org.freedesktop.NetworkManager.CheckpointCreate '[]' {rollback_seconds} 3 | sed -n \"s/.*'\\(.*\\)'.*/\\1/p\"",
+    "checkpoint_destroy": "gdbus call --system --dest org.freedesktop.NetworkManager --object-path /org/freedesktop/NetworkManager --method org.freedesktop.NetworkManager.CheckpointDestroy {checkpoint}",
+    "checkpoint_rollback": "gdbus call --system --dest org.freedesktop.NetworkManager --object-path /org/freedesktop/NetworkManager --method org.freedesktop.NetworkManager.CheckpointRollback {checkpoint}"
   }
 }
