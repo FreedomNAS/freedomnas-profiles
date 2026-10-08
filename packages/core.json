@@ -86,7 +86,7 @@
       "openssh",
       "cronie",
       "chrony",
-      "dhcpcd",
+      "networkmanager",
       "systemd",
       "parted",
       "smartmontools",
@@ -107,7 +107,7 @@
     ],
     "services": [
       "systemd-resolved",
-      "dhcpcd",
+      "NetworkManager",
       "cronie",
       "chronyd",
       "zfs-import-cache",
@@ -133,7 +133,7 @@
       "cronie",
       "chrony",
       "openresolv",
-      "dhcpcd",
+      "networkmanager",
       "parted",
       "smartmontools",
       "e2fsprogs",
@@ -156,7 +156,7 @@
       "openrc": {
         "packages": [
           "openssh-openrc",
-          "dhcpcd-openrc",
+          "networkmanager-openrc",
           "cronie-openrc",
           "chrony-openrc",
           "zfs-openrc"
@@ -166,7 +166,7 @@
           "zfs-mount"
         ],
         "services": [
-          "dhcpcd",
+          "NetworkManager",
           "cronie",
           "chrony",
           "zfs-zed"
@@ -175,7 +175,7 @@
       "dinit": {
         "packages": [
           "openssh-dinit",
-          "dhcpcd-dinit",
+          "networkmanager-dinit",
           "cronie-dinit",
           "chrony-dinit",
           "zfs-dinit"
@@ -184,7 +184,7 @@
           "zfs-mount"
         ],
         "services": [
-          "dhcpcd",
+          "NetworkManager",
           "cronie",
           "chronyd",
           "zed"
@@ -193,13 +193,14 @@
       "runit": {
         "packages": [
           "openssh-runit",
-          "dhcpcd-runit",
+          "networkmanager-runit",
           "cronie-runit",
           "chrony-runit",
           "zfs-runit"
         ],
         "services": [
-          "dhcpcd",
+          "dbus",
+          "NetworkManager",
           "cronie",
           "chrony",
           "zed"
@@ -217,7 +218,7 @@
       "vim",
       "sudo",
       "openssh",
-      "dhcpcd",
+      "NetworkManager",
       "cronie",
       "chrony",
       "parted",
@@ -243,7 +244,8 @@
       "topgrade"
     ],
     "services": [
-      "dhcpcd",
+      "dbus",
+      "NetworkManager",
       "cronie",
       "chronyd",
       "zed"
@@ -265,7 +267,7 @@
       "net-misc/curl",
       "net-misc/wget",
       "net-misc/openssh",
-      "net-misc/dhcpcd",
+      "net-misc/networkmanager",
       "sys-apps/net-tools",
       "sys-process/htop",
       "sys-process/cronie",
@@ -289,7 +291,7 @@
     "services": [
       "cronie",
       "chronyd",
-      "dhcpcd",
+      "NetworkManager",
       "zfs-zed"
     ]
   }

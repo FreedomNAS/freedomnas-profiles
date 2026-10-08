@@ -8,20 +8,18 @@
       "ip link set {new_name} up"
     ],
     "bridge_create": [
-      "ip link add {bridge_name} type bridge",
-      "ip link set {bridge_name} up"
+      "nmcli connection add type bridge ifname {bridge_name}",
+      "nmcli connection modify {bridge_name} bridge.stp no",
+      "nmcli connection modify {bridge_name} bridge.forward-delay 0"
     ],
-    "bridge_add_port": "ip link set {interface} master {bridge_name}",
+    "bridge_add_port": "nmcli connection add type bridge-slave ifname {interface} master {bridge_name}",
     "set_static_ip": [
-      "awk -v i={interface} '$0 == \"# freedomnas begin \" i {{s = 1}} !s {{print}} $0 == \"# freedomnas end \" i {{s = 0}}' /etc/dhcpcd.conf > /etc/dhcpcd.conf.new",
-      "printf '# freedomnas begin %s\\ninterface %s\\nstatic ip_address=%s/%s\\nstatic routers=%s\\nstatic domain_name_servers=%s\\n# freedomnas end %s\\n' {interface} {interface} {ip} {cidr} {gateway} {dns} {interface} >> /etc/dhcpcd.conf.new",
-      "mv /etc/dhcpcd.conf.new /etc/dhcpcd.conf",
-      "dhcpcd -n {interface}"
+      "nmcli connection delete fnas-{interface} || true",
+      "nmcli connection add type ethernet ifname {interface} con-name fnas-{interface} connection.autoconnect-priority 100 ipv4.method manual ipv4.addresses {ip}/{cidr} ipv4.gateway {gateway} ipv4.dns {dns}",
+      "nmcli connection up fnas-{interface}"
     ],
     "set_dynamic_ip": [
-      "awk -v i={interface} '$0 == \"# freedomnas begin \" i {{s = 1}} !s {{print}} $0 == \"# freedomnas end \" i {{s = 0}}' /etc/dhcpcd.conf > /etc/dhcpcd.conf.new",
-      "mv /etc/dhcpcd.conf.new /etc/dhcpcd.conf",
-      "dhcpcd -n {interface}"
+      "nmcli connection delete fnas-{interface} || true"
     ],
     "bring_up_interface": "ip link set {interface} up",
     "bring_down_interface": "ip link set {interface} down",
