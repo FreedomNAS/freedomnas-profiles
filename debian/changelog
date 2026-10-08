@@ -1,3 +1,13 @@
+freedomnas-profiles (0.9.11-1) unstable; urgency=medium
+
+  * NetworkManager on every Linux edition, with the commands for
+    checkpoints, interface names, bridges, bonds, VLANs, routes and
+    WireGuard
+  * Gentoo: zfs compiled against the installed kernel, cpio installed
+    before the kernel, no distribution initramfs
+
+ -- FreedomNAS Team <dev@freedomnas.io>  Thu, 08 Oct 2026 16:41:30 +0000
+
 freedomnas-profiles (0.9.10-1) unstable; urgency=medium
 
   * The installer reads one package component, its channel: main for
