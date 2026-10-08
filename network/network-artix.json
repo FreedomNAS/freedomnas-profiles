@@ -37,7 +37,7 @@
     "checkpoint_create": "gdbus call --system --dest org.freedesktop.NetworkManager --object-path /org/freedesktop/NetworkManager --method org.freedesktop.NetworkManager.CheckpointCreate '[]' {rollback_seconds} 3 | sed -n \"s/.*'\\(.*\\)'.*/\\1/p\"",
     "checkpoint_destroy": "gdbus call --system --dest org.freedesktop.NetworkManager --object-path /org/freedesktop/NetworkManager --method org.freedesktop.NetworkManager.CheckpointDestroy {checkpoint}",
     "checkpoint_rollback": "gdbus call --system --dest org.freedesktop.NetworkManager --object-path /org/freedesktop/NetworkManager --method org.freedesktop.NetworkManager.CheckpointRollback {checkpoint}",
-    "list_physical": "for d in /sys/class/net/*/device; do n=${{d%/device}}; n=${{n##*/}}; echo \"$n $(cat /sys/class/net/$n/address) $n\"; done",
+    "list_physical": "for d in /sys/class/net/*/device; do n=${{d%/device}}; n=${{n##*/}}; m=$(cat /sys/class/net/$n/bonding_slave/perm_hwaddr 2>/dev/null || cat /sys/class/net/$n/address); echo \"$n $m $n\"; done",
     "names_clear": "rm -f /etc/udev/rules.d/70-freedomnas-net.rules && mkdir -p /etc/udev/rules.d",
     "name_persist": "printf 'SUBSYSTEM==\"net\", ACTION==\"add\", ATTR{{address}}==\"%s\", NAME=\"%s\"\\n' {mac} {new_name} >> /etc/udev/rules.d/70-freedomnas-net.rules",
     "connection_rename": "nmcli -g connection.id connection show fnas-{old_name} >/dev/null 2>&1 && nmcli connection modify fnas-{old_name} connection.id fnas-{new_name} connection.interface-name {new_name}; true",
@@ -63,6 +63,20 @@
     "routes_set": "nmcli connection modify fnas-{interface} ipv4.routes '' ipv6.routes '' && for spec in {routes}; do case $spec in *:*) f=ipv6;; *) f=ipv4;; esac; nmcli connection modify fnas-{interface} +$f.routes \"${{spec%%=*}} ${{spec#*=}}\" || exit 1; done",
     "multi_args": [
       "routes"
-    ]
+    ],
+    "wg_write": "sh -c 'install -d -m 700 /etc/freedomnas/wireguard && umask 077 && cat > /etc/freedomnas/wireguard/$1.conf' wg_write {interface}",
+    "wg_apply": [
+      "nmcli connection delete fnas-{interface} >/dev/null 2>&1 || true",
+      "nmcli connection import type wireguard file /etc/freedomnas/wireguard/{interface}.conf",
+      "nmcli connection modify {interface} connection.id fnas-{interface} connection.autoconnect yes",
+      "nmcli --wait 30 connection up fnas-{interface}"
+    ],
+    "wg_exists": "nmcli -g connection.id connection show fnas-{interface} >/dev/null 2>&1 && echo yes",
+    "wg_remove": [
+      "nmcli connection delete fnas-{interface} >/dev/null 2>&1 || true",
+      "rm -f /etc/freedomnas/wireguard/{interface}.conf"
+    ],
+    "wg_dump": "wg show {interface} dump",
+    "qr_svg": "qrencode -t SVG -o -"
   }
 }

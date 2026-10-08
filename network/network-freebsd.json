@@ -51,7 +51,7 @@
     "checkpoint_create": "d=/var/db/freedomnas/net-checkpoint-$$; mkdir -p $d && cp /etc/rc.conf $d/rc.conf && (cp /etc/resolvconf.conf $d/resolvconf.conf 2>/dev/null || true) && daemon -f sh -c \"sleep {rollback_seconds}; d=$d; [ -d $d ] && {{ cp $d/rc.conf /etc/rc.conf && if [ -f $d/resolvconf.conf ]; then cp $d/resolvconf.conf /etc/resolvconf.conf; else rm -f /etc/resolvconf.conf; fi && rm -rf $d && service netif restart && service routing restart; resolvconf -u; }}\" && echo $d",
     "checkpoint_destroy": "rm -rf {checkpoint}",
     "checkpoint_rollback": "d={checkpoint}; [ -d $d ] && {{ cp $d/rc.conf /etc/rc.conf && if [ -f $d/resolvconf.conf ]; then cp $d/resolvconf.conf /etc/resolvconf.conf; else rm -f /etc/resolvconf.conf; fi && rm -rf $d && service netif restart && service routing restart; resolvconf -u; }}",
-    "list_physical": "c=\" $(ifconfig -C) \"; for n in $(ifconfig -l ether); do d=$(ifconfig -v $n | awk '/drivername:/ {{print $2}}'); case \"$c\" in *\" ${{d%%[0-9]*}} \"*) continue;; esac; echo \"$n $(ifconfig $n ether | awk '/ether/ {{print $2}}') $d\"; done",
+    "list_physical": "c=\" $(ifconfig -C) \"; for n in $(ifconfig -l ether); do d=$(ifconfig -v $n | awk '/drivername:/ {{print $2}}'); case \"$c\" in *\" ${{d%%[0-9]*}} \"*) continue;; esac; echo \"$n $(ifconfig $n | awk '/hwaddr/ {{h = $2}} /ether/ {{e = $2}} END {{print (h ? h : e)}}') $d\"; done",
     "names_clear": "sysrc -a | awk -F': ' '$1 ~ /^ifconfig_.*_name$/ && $2 ~ /^fnas_lan/ {{print $1}}' | while read v; do sysrc -x $v; done; true",
     "name_persist": "sysrc ifconfig_{driver}_name={new_name}",
     "connection_rename": "for s in '' _ipv6; do v=$(sysrc -n ifconfig_{old_name}$s 2>/dev/null) && sysrc ifconfig_{new_name}$s=\"$v\" && sysrc -x ifconfig_{old_name}$s; done; true",
@@ -71,6 +71,20 @@
     "routes_set": "for r in $(sysrc -n static_routes 2>/dev/null) $(sysrc -n ipv6_static_routes 2>/dev/null); do case $r in rt_{interface}_*) sysrc static_routes-=$r ipv6_static_routes-=$r >/dev/null; sysrc -x route_$r ipv6_route_$r 2>/dev/null;; esac; done; n=0; for spec in {routes}; do n=$((n+1)); case $spec in *:*) sysrc ipv6_static_routes+=rt_{interface}_$n ipv6_route_rt_{interface}_$n=\"${{spec%%=*}} ${{spec#*=}}\";; *) sysrc static_routes+=rt_{interface}_$n route_rt_{interface}_$n=\"-net ${{spec%%=*}} ${{spec#*=}}\";; esac || exit 1; done; true",
     "multi_args": [
       "routes"
-    ]
+    ],
+    "wg_write": "sh -c 'install -d -m 700 /usr/local/etc/wireguard && umask 077 && cat > /usr/local/etc/wireguard/$1.conf' wg_write {interface}",
+    "wg_apply": [
+      "sysrc wireguard_enable=YES wireguard_interfaces+={interface}",
+      "wg-quick down {interface} >/dev/null 2>&1; true",
+      "wg-quick up {interface} >/var/log/freedomnas-wireguard.log 2>&1 || {{ cat /var/log/freedomnas-wireguard.log; exit 1; }}"
+    ],
+    "wg_exists": "sysrc -n wireguard_interfaces 2>/dev/null | grep -qw {interface} && test -f /usr/local/etc/wireguard/{interface}.conf && echo yes",
+    "wg_remove": [
+      "wg-quick down {interface} >/dev/null 2>&1; true",
+      "sysrc wireguard_interfaces-={interface}",
+      "rm -f /usr/local/etc/wireguard/{interface}.conf"
+    ],
+    "wg_dump": "wg show {interface} dump",
+    "qr_svg": "qrencode -t SVG -o -"
   }
 }
