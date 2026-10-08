@@ -77,6 +77,7 @@
       "rm -f /etc/freedomnas/wireguard/{interface}.conf"
     ],
     "wg_dump": "wg show {interface} dump",
-    "qr_svg": "qrencode -t SVG -o -"
+    "qr_svg": "qrencode -t SVG -o -",
+    "connection_forget": "nmcli connection delete fnas-{interface} >/dev/null 2>&1; true"
   }
 }

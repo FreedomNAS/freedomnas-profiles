@@ -85,6 +85,7 @@
       "rm -f /usr/local/etc/wireguard/{interface}.conf"
     ],
     "wg_dump": "wg show {interface} dump",
-    "qr_svg": "qrencode -t SVG -o -"
+    "qr_svg": "qrencode -t SVG -o -",
+    "connection_forget": "sysrc -x ifconfig_{interface} ifconfig_{interface}_ipv6 2>/dev/null; true"
   }
 }
