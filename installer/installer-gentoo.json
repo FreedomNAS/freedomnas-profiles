@@ -182,7 +182,7 @@
     },
     "make_conf": {
       "path": "/etc/portage/make.conf",
-      "content": "# Written by the FreedomNAS installer.\nCOMMON_FLAGS=\"-O2 -pipe\"\nCFLAGS=\"${{COMMON_FLAGS}}\"\nCXXFLAGS=\"${{COMMON_FLAGS}}\"\nFCFLAGS=\"${{COMMON_FLAGS}}\"\nFFLAGS=\"${{COMMON_FLAGS}}\"\n\nMAKEOPTS=\"-j4\"\nACCEPT_LICENSE=\"* -@EULA @BINARY-REDISTRIBUTABLE\"\nUSE=\"-X -wayland\"\n\n# Official binary host: an install becomes minutes instead of hours of\n# compiling. Signature checking needs sec-keys/openpgp-keys-gentoo-release,\n# which every stage3 already ships.\nFEATURES=\"getbinpkg binpkg-request-signature\"\nEMERGE_DEFAULT_OPTS=\"--quiet-build=y --with-bdeps=y\"\n\nGENTOO_MIRRORS=\"{mirror}\"\nL10N=\"en\"\n"
+      "content": "# Written by the FreedomNAS installer.\nCOMMON_FLAGS=\"-O2 -pipe\"\nCFLAGS=\"${{COMMON_FLAGS}}\"\nCXXFLAGS=\"${{COMMON_FLAGS}}\"\nFCFLAGS=\"${{COMMON_FLAGS}}\"\nFFLAGS=\"${{COMMON_FLAGS}}\"\n\nMAKEOPTS=\"-j4\"\nACCEPT_LICENSE=\"* -@EULA @BINARY-REDISTRIBUTABLE\"\nUSE=\"-X -wayland\"\n\n# Official binary host: an install becomes minutes instead of hours of\n# compiling. Signature checking needs sec-keys/openpgp-keys-gentoo-release,\n# which every stage3 already ships.\nFEATURES=\"getbinpkg binpkg-request-signature\"\nEMERGE_DEFAULT_OPTS=\"--quiet-build=y --with-bdeps=y --usepkg-exclude sys-fs/zfs\"\n\nGENTOO_MIRRORS=\"{mirror}\"\nL10N=\"en\"\n"
     },
     "binrepos_conf": {
       "path": "/etc/portage/binrepos.conf/gentoobinhost.conf",
