@@ -1,7 +1,7 @@
 {
   "installer_meta": {
     "community_maintained": true,
-    "maintainer_note": "Community-maintained (exotic edition). Void's zfs package builds its module with DKMS on the machine; here it comes prebuilt instead, as linux6.18-zfs from freedomnas-void, the xbps repository FreedomNAS publishes on Codeberg (files.xbps_freedomnas, signed with the key in files.xbps_freedomnas_key). ignorepkg=dkms keeps zfs from pulling DKMS, gcc and the headers in; ignorepkg=linux lets repositories.core remove the linux meta package base-system brings, which would move to a kernel series with no module yet: packages/core.json names the series (linux6.18), and it has to change together with freedomnas-void's series file. Void runs /etc/kernel.d/post-install hooks, not /etc/kernel/postinst.d, so files.freedomnas_uki_hook calls zz-dracut-uki from there, and only once zfs.ko is in place: linux6.18-zfs runs the hooks again after installing it. The tarball method uses Void's own ROOTFS tarball, whose filename is date-stamped, so rootfs_tarball_url is left empty on purpose and the installer asks for it.",
+    "maintainer_note": "Community-maintained (exotic edition). Void's zfs package builds its module with DKMS on the machine; here it comes prebuilt instead, as linux6.18-zfs from freedomnas-void, the xbps repository FreedomNAS publishes on Codeberg, which also holds the FreedomNAS packages themselves (installer_meta.core_packages), in the group of the installer's channel (files.xbps_freedomnas, signed with the key in files.xbps_freedomnas_key). ignorepkg=dkms keeps zfs from pulling DKMS, gcc and the headers in; ignorepkg=linux lets repositories.core remove the linux meta package base-system brings, which would move to a kernel series with no module yet: packages/core.json names the series (linux6.18), and it has to change together with freedomnas-void's series file. Void runs /etc/kernel.d/post-install hooks, not /etc/kernel/postinst.d, so files.freedomnas_uki_hook calls zz-dracut-uki from there, and only once zfs.ko is in place: linux6.18-zfs runs the hooks again after installing it. The tarball method uses Void's own ROOTFS tarball, whose filename is date-stamped, so rootfs_tarball_url is left empty on purpose and the installer asks for it.",
     "arch": "x86_64",
     "suite": "current",
     "mirror": "https://repo-default.voidlinux.org/current",
@@ -24,6 +24,12 @@
       "/proc",
       "/sys",
       "/run"
+    ],
+    "core_packages": [
+      "freedomnas-core",
+      "freedomnas-profiles",
+      "freedomnas-docs",
+      "freedomnas-webui"
     ]
   },
   "chroot": {
@@ -164,7 +170,7 @@
     "xbps_freedomnas": {
       "path": "/etc/xbps.d/10-freedomnas.conf",
       "inplace": true,
-      "content": "# FreedomNAS: OpenZFS modules built for Void's kernel by freedomnas-void,\n# so that zfs needs no DKMS here, and no linux meta package, which would\n# move to a kernel series before its module is published.\nrepository=https://codeberg.org/api/packages/FreedomNAS/generic/freedomnas-void/dev\nignorepkg=dkms\nignorepkg=linux\n"
+      "content": "# FreedomNAS: its own packages, and OpenZFS modules built for Void's kernel,\n# from freedomnas-void, so that zfs needs no DKMS here, and no linux meta\n# package, which would move to a kernel series before its module is published.\nrepository=https://codeberg.org/api/packages/FreedomNAS/generic/freedomnas-void/{channel}\nignorepkg=dkms\nignorepkg=linux\n"
     },
     "xbps_freedomnas_key": {
       "path": "/var/db/xbps/keys/4a:f7:4a:19:fe:13:a8:47:4e:32:2e:e6:34:86:a0:37.plist",
