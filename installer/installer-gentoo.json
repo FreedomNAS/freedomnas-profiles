@@ -143,7 +143,7 @@
     "fetch_tarball": "curl -fL --retry 3 -o {output} {url}",
     "unpack_tarball": "tar -xpf {tarball} -C {root} --xattrs-include=*.* --numeric-owner",
     "update_cache": "emerge-webrsync --quiet",
-    "install_base": "emerge --quiet --update --newuse {package_list}",
+    "install_base": "emerge --quiet --oneshot --noreplace app-arch/cpio && emerge --quiet --update --newuse {package_list}",
     "locale_gen": "locale-gen",
     "multi_args": [
       "package_list"
