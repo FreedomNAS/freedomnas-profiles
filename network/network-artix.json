@@ -7,11 +7,7 @@
       "ip link set {old_name} name {new_name}",
       "ip link set {new_name} up"
     ],
-    "bridge_create": [
-      "nmcli connection add type bridge ifname {bridge_name}",
-      "nmcli connection modify {bridge_name} bridge.stp no",
-      "nmcli connection modify {bridge_name} bridge.forward-delay 0"
-    ],
+    "bridge_create": "nmcli connection add type bridge ifname {interface} con-name fnas-{interface} connection.autoconnect-priority 100",
     "bridge_add_port": "nmcli connection add type bridge-slave ifname {interface} master {bridge_name}",
     "set_static_ip": [
       "nmcli connection delete fnas-{interface} || true",
@@ -44,6 +40,25 @@
     "list_physical": "for d in /sys/class/net/*/device; do n=${{d%/device}}; n=${{n##*/}}; echo \"$n $(cat /sys/class/net/$n/address) $n\"; done",
     "names_clear": "rm -f /etc/udev/rules.d/70-freedomnas-net.rules && mkdir -p /etc/udev/rules.d",
     "name_persist": "printf 'SUBSYSTEM==\"net\", ACTION==\"add\", ATTR{{address}}==\"%s\", NAME=\"%s\"\\n' {mac} {new_name} >> /etc/udev/rules.d/70-freedomnas-net.rules",
-    "connection_rename": "nmcli -g connection.id connection show fnas-{old_name} >/dev/null 2>&1 && nmcli connection modify fnas-{old_name} connection.id fnas-{new_name} connection.interface-name {new_name}; true"
+    "connection_rename": "nmcli -g connection.id connection show fnas-{old_name} >/dev/null 2>&1 && nmcli connection modify fnas-{old_name} connection.id fnas-{new_name} connection.interface-name {new_name}; true",
+    "bond_create": "nmcli connection add type bond ifname {interface} con-name fnas-{interface} connection.autoconnect-priority 100",
+    "vlan_create": "nmcli connection add type vlan ifname {interface} con-name fnas-{interface} connection.autoconnect-priority 100 dev {parent} id {vlan_id}",
+    "bridge_stp_on": "nmcli connection modify fnas-{interface} bridge.stp yes",
+    "bridge_stp_off": "nmcli connection modify fnas-{interface} bridge.stp no",
+    "bond_mode_lacp": "nmcli connection modify fnas-{interface} bond.options mode=802.3ad,miimon=100",
+    "bond_mode_failover": "nmcli connection modify fnas-{interface} bond.options mode=active-backup,miimon=100",
+    "bridge_port_add": [
+      "nmcli connection delete fnas-{port} || true",
+      "nmcli connection add type ethernet ifname {port} con-name fnas-{port} connection.autoconnect-priority 100 master {interface} slave-type bridge"
+    ],
+    "bond_port_add": [
+      "nmcli connection delete fnas-{port} || true",
+      "nmcli connection add type ethernet ifname {port} con-name fnas-{port} connection.autoconnect-priority 100 master {interface} slave-type bond"
+    ],
+    "mac_set": "nmcli connection modify fnas-{interface} ethernet.cloned-mac-address {mac}",
+    "port_activate": "nmcli --wait 30 connection up fnas-{port}",
+    "virtual_activate": "nmcli --wait 45 connection up fnas-{interface}",
+    "virtual_delete": "nmcli connection delete fnas-{interface}",
+    "port_release": "nmcli connection delete fnas-{port} || true"
   }
 }

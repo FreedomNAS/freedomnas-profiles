@@ -190,7 +190,7 @@
     },
     "package_use": {
       "path": "/etc/portage/package.use/freedomnas",
-      "content": "sys-fs/zfs dist-kernel rootfs\nsys-apps/systemd-utils boot kernel-install\nsys-kernel/installkernel dracut\n"
+      "content": "sys-fs/zfs dist-kernel rootfs -initramfs\nsys-apps/systemd-utils boot kernel-install\nsys-kernel/gentoo-kernel-bin -initramfs\n"
     },
     "package_accept_keywords": {
       "path": "/etc/portage/package.accept_keywords/freedomnas",
