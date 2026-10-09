@@ -1,7 +1,8 @@
 {
   "installer_meta": {
     "community_maintained": true,
-    "maintainer_note": "Gentoo's canonical install is exactly the tarball method: unpack a stage3 into the mounted root, chroot, emerge. The openrc stage3 filename is date-stamped, so rootfs_tarball_url is left empty on purpose and the installer asks for it — take it from https://distfiles.gentoo.org/releases/amd64/autobuilds/current-stage3-amd64-openrc/. The official binary host is enabled in make.conf, which turns an install from hours of compiling into minutes.",
+    "maintainer_note": "Gentoo's canonical install is exactly the tarball method: unpack a stage3 into the mounted root, chroot, emerge. The openrc stage3 filename is date-stamped, so rootfs_tarball_url is left empty on purpose and the installer asks for it — take it from https://distfiles.gentoo.org/releases/amd64/autobuilds/current-stage3-amd64-openrc/. The official binary host is enabled in make.conf, which turns an install from hours of compiling into minutes. files.locale_gen lists the locales to build: a stage3's /etc/locale.gen lists none, and locale-gen then compiles every locale glibc knows (about 500, 220 MiB), which on a modest NAS CPU outlasts the installer's 300 s limit for that step. files.package_use enables dnsmasq's script USE because libvirt[virt-network] (the virtualization feature) requires it; without it emerge stops on that change and reports a misleading dev-lang/go slot conflict. bootstrap.install_base sets DONT_MOUNT_BOOT=1: on a UEFI-booted live system mount-boot.eclass (linux-firmware, the kernel) finds /boot/efi in the target's fstab and dies because the installer mounts the ESP only later, for the bootloader step; the installed system keeps the check.",
+    "install_notice": "Gentoo builds part of the system from source on this machine.\n\nOpenZFS is always compiled (Gentoo's binary package is built for a different kernel), and so is any package the binary host has no build of for the features you pick: Virtualization (libvirt, QEMU) and Containers add several.\n\nOn a modest CPU the installation can take one hour or more. While compiler output or a 'still running' line keeps appearing, it is working, not stuck.",
     "arch": "amd64",
     "suite": "openrc",
     "mirror": "https://distfiles.gentoo.org",
@@ -112,7 +113,6 @@
       "zfs create -o canmount=off -o mountpoint=/var {pool_name}/var",
       "zfs create -o atime=on {pool_name}/var/log"
     ],
-    "create_state_dataset": "zfs create -o canmount=noauto -o mountpoint=/etc/freedomnas/state {pool_name}/.freedomnas",
     "set_bootfs": "zpool set bootfs={pool_name}/ROOT/{edition} {pool_name}",
     "mount_root": "zfs mount {pool_name}/ROOT/{edition}",
     "mount_all": "zfs mount -a",
@@ -128,6 +128,8 @@
     "export_force": "zpool export -f {pool_name}",
     "export_all": "zpool export -a",
     "list_importable": "zpool import -d /dev/disk/by-id",
+    "probe_import": "zpool import -d /dev/disk/by-id -N -f -o readonly=on -o cachefile=none -R {altroot} {pool_id} {temp_name}",
+    "dataset_mountpoint": "zfs get -H -o value mountpoint {dataset}",
     "list_pools": "zpool list -H -o name",
     "imported_devices": "zpool status -LP",
     "detect_root_dataset": "zfs list -H -o name /",
@@ -143,7 +145,7 @@
     "fetch_tarball": "curl -fL --retry 3 -o {output} {url}",
     "unpack_tarball": "tar -xpf {tarball} -C {root} --xattrs-include=*.* --numeric-owner",
     "update_cache": "emerge-webrsync --quiet",
-    "install_base": "emerge --quiet --oneshot --noreplace app-arch/cpio && emerge --quiet --update --newuse {package_list}",
+    "install_base": "DONT_MOUNT_BOOT=1 emerge --quiet --oneshot --noreplace app-arch/cpio && DONT_MOUNT_BOOT=1 emerge --quiet --update --newuse {package_list}",
     "locale_gen": "locale-gen",
     "multi_args": [
       "package_list"
@@ -180,6 +182,14 @@
       "path": "/etc/localtime",
       "symlink_to": "/usr/share/zoneinfo/{timezone}"
     },
+    "locale_gen": {
+      "path": "/etc/locale.gen",
+      "content": "en_US.UTF-8 UTF-8\nC.UTF-8 UTF-8\n"
+    },
+    "locale_env": {
+      "path": "/etc/env.d/02locale",
+      "content": "LANG=\"en_US.UTF-8\"\n"
+    },
     "make_conf": {
       "path": "/etc/portage/make.conf",
       "content": "# Written by the FreedomNAS installer.\nCOMMON_FLAGS=\"-O2 -pipe\"\nCFLAGS=\"${{COMMON_FLAGS}}\"\nCXXFLAGS=\"${{COMMON_FLAGS}}\"\nFCFLAGS=\"${{COMMON_FLAGS}}\"\nFFLAGS=\"${{COMMON_FLAGS}}\"\n\nMAKEOPTS=\"-j4\"\nACCEPT_LICENSE=\"* -@EULA @BINARY-REDISTRIBUTABLE\"\nUSE=\"-X -wayland\"\n\n# Official binary host: an install becomes minutes instead of hours of\n# compiling. Signature checking needs sec-keys/openpgp-keys-gentoo-release,\n# which every stage3 already ships.\nFEATURES=\"getbinpkg binpkg-request-signature\"\nEMERGE_DEFAULT_OPTS=\"--quiet-build=y --with-bdeps=y --usepkg-exclude sys-fs/zfs\"\n\nGENTOO_MIRRORS=\"{mirror}\"\nL10N=\"en\"\n"
@@ -190,7 +200,7 @@
     },
     "package_use": {
       "path": "/etc/portage/package.use/freedomnas",
-      "content": "sys-fs/zfs dist-kernel rootfs\nsys-apps/systemd-utils boot kernel-install\nsys-kernel/gentoo-kernel-bin -initramfs\n"
+      "content": "sys-fs/zfs dist-kernel rootfs\nsys-apps/systemd-utils boot kernel-install\nsys-kernel/gentoo-kernel-bin -initramfs\nnet-dns/dnsmasq script\n"
     },
     "package_accept_keywords": {
       "path": "/etc/portage/package.accept_keywords/freedomnas",
@@ -226,5 +236,14 @@
       "path": "/etc/kernel/preinst.d/zz-dracut-uki",
       "symlink_to": "{install_root}/profiles/assets/zz-dracut-uki"
     }
+  },
+  "diagnostics": {
+    "processes": "ps -N --ppid 2 -p 2 -o pid,ppid,stat,etime,args --forest",
+    "target_processes": "[ {root} = / ] || for p in /proc/[0-9]*; do r=$(readlink \"$p/root\" 2>/dev/null) || continue; case \"$r\" in {root}|{root}/*) echo \"${{p#/proc/}} $(tr '\\0' ' ' < \"$p/cmdline\")\";; esac; done",
+    "mounts": "cat /proc/self/mounts",
+    "pools": "zpool status -v",
+    "pool_list": "zpool list -v",
+    "kernel_log": "dmesg | tail -n 80",
+    "disk_space": "df -h"
   }
 }

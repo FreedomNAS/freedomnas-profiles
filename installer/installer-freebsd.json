@@ -53,7 +53,6 @@
       "zfs create -o canmount=off -o mountpoint=/var {pool_name}/var",
       "zfs create -o atime=on {pool_name}/var/log"
     ],
-    "create_state_dataset": "zfs create -o canmount=noauto -o mountpoint=/usr/local/etc/freedomnas/state {pool_name}/.freedomnas",
     "set_bootfs": "zpool set bootfs={pool_name}/ROOT/{edition} {pool_name}",
     "mount_root": "zfs mount {pool_name}/ROOT/{edition}",
     "mount_all": "zfs mount -a",
@@ -63,6 +62,8 @@
     "export_force": "zpool export -f {pool_name}",
     "export_all": "zpool export -a",
     "list_importable": "zpool import",
+    "probe_import": "zpool import -N -f -o readonly=on -o cachefile=none -R {altroot} {pool_id} {temp_name}",
+    "dataset_mountpoint": "zfs get -H -o value mountpoint {dataset}",
     "list_pools": "zpool list -H -o name",
     "detect_root_dataset": "zfs list -H -o name /",
     "dataset_exists": "zfs list -H -o name {dataset}",
@@ -130,5 +131,14 @@
       "mode": 288,
       "content": "# FreedomNAS: the WebUI runs updates as the signed-in user,\n# and topgrade calls sudo itself for the steps that need root.\n%{sudo_group} ALL=(ALL) NOPASSWD: ALL\n"
     }
+  },
+  "diagnostics": {
+    "processes": "ps -axwwd -o pid,ppid,stat,etime,args",
+    "target_processes": "[ {root} = / ] || fstat -f {root}",
+    "mounts": "mount -p",
+    "pools": "zpool status -v",
+    "pool_list": "zpool list -v",
+    "kernel_log": "dmesg | tail -n 80",
+    "disk_space": "df -h"
   }
 }

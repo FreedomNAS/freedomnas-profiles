@@ -84,7 +84,8 @@ root_pool="${root_dataset%%/*}"
 search_order=$(printf '%s\n%s\n' "$root_pool" "$(zpool list -H -o name 2>/dev/null)" \
                | awk 'NF && !seen[$0]++')
 
-# Every image and install ships an empty .freedomnas on its root pool, so the
+# Images and installs made before the setup wizard took over creating it ship
+# an empty .freedomnas on their root pool, so the
 # root pool comes first only when its dataset holds a configuration: after a
 # reinstall the configuration is on the data pool, and the fresh, empty one
 # must not hide it. An empty dataset is unmounted again and kept as the
