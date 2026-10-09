@@ -97,6 +97,10 @@
       "path": "/etc/fstab",
       "content": "# /etc/fstab - ZFS datasets are mounted by ZFS, not fstab\n/dev/gpt/efiboot\t/boot/efi\tmsdosfs\trw\t2\t2\n"
     },
+    "samba_conf": {
+      "path": "/usr/local/etc/smb4.conf",
+      "content": "# Written by the FreedomNAS installer. Shares are created as usershares\n# (net usershare) by the WebUI, so only the global settings live here.\n[global]\n   workgroup = WORKGROUP\n   server string = FreedomNAS\n   server role = standalone server\n   security = user\n   log file = /var/log/samba4/%m.log\n   max log size = 1000\n   usershare path = /var/db/samba4/usershares\n   usershare max shares = 100\n   usershare allow guests = no\n"
+    },
     "nfs_exports": {
       "path": "/etc/exports",
       "content": "# NFSv4 clients see the exports below through this root; the exports\n# themselves are added by FreedomNAS, one line each (exports(5)).\nV4: /\n"
