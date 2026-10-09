@@ -178,6 +178,10 @@
       "content": "# pacman never runs /etc/kernel/postinst.d, so the UKI is rebuilt here\n# whenever a kernel is installed or upgraded.\n[Trigger]\nType = Path\nOperation = Install\nOperation = Upgrade\nTarget = usr/lib/modules/*/vmlinuz\n\n[Action]\nDescription = Rebuilding the FreedomNAS UKI...\nWhen = PostTransaction\nExec = /bin/sh -c '[ -x /etc/kernel/postinst.d/zz-dracut-uki ] || exit 0; while read -r f; do /etc/kernel/postinst.d/zz-dracut-uki \"$(basename \"$(dirname \"$f\")\")\"; done'\nNeedsTargets\n",
       "mode": 420
     },
+    "freedomnas_uki_backup_hook": {
+      "path": "/etc/pacman.d/hooks/89-freedomnas-uki-backup.hook",
+      "content": "# Before a kernel is installed or upgraded, the running UKI goes to the\n# rollback slot (zz-dracut-uki --backup).\n[Trigger]\nType = Path\nOperation = Install\nOperation = Upgrade\nTarget = usr/lib/modules/*/vmlinuz\n\n[Action]\nDescription = Backing up the FreedomNAS UKI...\nWhen = PreTransaction\nExec = /bin/sh -c '[ -x /etc/kernel/postinst.d/zz-dracut-uki ] || exit 0; /etc/kernel/postinst.d/zz-dracut-uki --backup'\n"
+    },
     "pacman_mirrorlist": {
       "path": "/etc/pacman.d/mirrorlist",
       "content": "Server = {mirror}/$repo/os/$arch\nServer = https://fastly.mirror.pkgbuild.com/$repo/os/$arch\nServer = https://ftp.fau.de/archlinux/$repo/os/$arch\n"

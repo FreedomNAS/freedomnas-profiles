@@ -181,6 +181,11 @@
       "path": "/etc/kernel.d/post-install/60-freedomnas-uki",
       "content": "#!/bin/sh\n# Void runs /etc/kernel.d/post-install/* with the package name and the kernel\n# version, never /etc/kernel/postinst.d, so the UKI is rebuilt from here.\n# Without zfs.ko the UKI would not boot: until linux<series>-zfs has put it\n# in place, do nothing; that package runs these hooks again afterwards, so\n# the UKI is built, and rotated into the rollback slot, once per kernel.\n[ -x /etc/kernel/postinst.d/zz-dracut-uki ] || exit 0\n[ -f /usr/lib/modules/$2/extra/zfs.ko ] || exit 0\nexec /etc/kernel/postinst.d/zz-dracut-uki \"$2\"\n",
       "mode": 493
+    },
+    "freedomnas_uki_backup_hook": {
+      "path": "/etc/kernel.d/pre-install/10-freedomnas-uki-backup",
+      "mode": 493,
+      "content": "#!/bin/sh\n# Before a kernel is installed, the running UKI goes to the rollback slot.\n[ -x /etc/kernel/postinst.d/zz-dracut-uki ] || exit 0\nexec /etc/kernel/postinst.d/zz-dracut-uki --backup\n"
     }
   }
 }
