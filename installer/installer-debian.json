@@ -275,7 +275,7 @@
   },
   "diagnostics": {
     "processes": "ps -N --ppid 2 -p 2 -o pid,ppid,stat,etime,args --forest",
-    "target_processes": "[ {root} = / ] || for p in /proc/[0-9]*; do r=$(readlink \"$p/root\" 2>/dev/null) || continue; case \"$r\" in {root}|{root}/*) echo \"${{p#/proc/}} $(tr '\\0' ' ' < \"$p/cmdline\")\";; esac; done",
+    "target_processes": "[ {root} = / ] || for p in /proc/[0-9]*; do [ \"$p/root\" -ef /proc/1/root ] && continue; echo \"${{p#/proc/}} root=$(readlink \"$p/root\" 2>/dev/null) $(tr '\\0' ' ' < \"$p/cmdline\" 2>/dev/null)\"; done",
     "mounts": "cat /proc/self/mounts",
     "pools": "zpool status -v",
     "pool_list": "zpool list -v",

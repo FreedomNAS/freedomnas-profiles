@@ -1,7 +1,7 @@
 {
   "installer_meta": {
     "community_maintained": true,
-    "maintainer_note": "Gentoo's canonical install is exactly the tarball method: unpack a stage3 into the mounted root, chroot, emerge. The openrc stage3 filename is date-stamped, so rootfs_tarball_url is left empty on purpose and the installer asks for it — take it from https://distfiles.gentoo.org/releases/amd64/autobuilds/current-stage3-amd64-openrc/. The official binary host is enabled in make.conf, which turns an install from hours of compiling into minutes. files.locale_gen lists the locales to build: a stage3's /etc/locale.gen lists none, and locale-gen then compiles every locale glibc knows (about 500, 220 MiB), which on a modest NAS CPU outlasts the installer's 300 s limit for that step. files.package_use enables dnsmasq's script USE because libvirt[virt-network] (the virtualization feature) requires it; without it emerge stops on that change and reports a misleading dev-lang/go slot conflict. bootstrap.install_base sets DONT_MOUNT_BOOT=1: on a UEFI-booted live system mount-boot.eclass (linux-firmware, the kernel) finds /boot/efi in the target's fstab and dies because the installer mounts the ESP only later, for the bootloader step; the installed system keeps the check.",
+    "maintainer_note": "Gentoo's canonical install is exactly the tarball method: unpack a stage3 into the mounted root, chroot, emerge. The openrc stage3 filename is date-stamped, so rootfs_tarball_url is left empty on purpose and the installer asks for it — take it from https://distfiles.gentoo.org/releases/amd64/autobuilds/current-stage3-amd64-openrc/. The official binary host is enabled in make.conf, which turns an install from hours of compiling into minutes. files.locale_gen lists the locales to build: a stage3's /etc/locale.gen lists none, and locale-gen then compiles every locale glibc knows (about 500, 220 MiB), which on a modest NAS CPU outlasts the installer's 300 s limit for that step. files.package_use enables dnsmasq's script USE because libvirt[virt-network] (the virtualization feature) requires it; without it emerge stops on that change and reports a misleading dev-lang/go slot conflict. bootstrap.install_base sets DONT_MOUNT_BOOT=1: on a UEFI-booted live system mount-boot.eclass (linux-firmware, the kernel) finds /boot/efi in the target's fstab and dies because the installer mounts the ESP only later, for the bootloader step; the installed system keeps the check. chroot.mount gives the target an empty tmpfs /run instead of the host's: net-misc/openssh's pkg_postinst restarts sshd whenever /run/openrc exists, and with the host's /run that restarted the live system's sshd from the target's binary, which then kept the root pool busy and the export failed.",
     "install_notice": "Gentoo builds part of the system from source on this machine.\n\nOpenZFS is always compiled (Gentoo's binary package is built for a different kernel), and so is any package the binary host has no build of for the features you pick: Virtualization (libvirt, QEMU) and Containers add several.\n\nOn a modest CPU the installation can take one hour or more. While compiler output or a 'still running' line keeps appearing, it is working, not stuck.",
     "arch": "amd64",
     "suite": "openrc",
@@ -76,8 +76,7 @@
       "mount -t proc proc {root}/proc",
       "mount --rbind /sys {root}/sys",
       "mount --make-rslave {root}/sys",
-      "mount --rbind /run {root}/run",
-      "mount --make-rslave {root}/run"
+      "mount -t tmpfs -o nosuid,nodev,mode=0755 run {root}/run"
     ],
     "unmount": [
       "umount -l {root}/run",
@@ -239,7 +238,7 @@
   },
   "diagnostics": {
     "processes": "ps -N --ppid 2 -p 2 -o pid,ppid,stat,etime,args --forest",
-    "target_processes": "[ {root} = / ] || for p in /proc/[0-9]*; do r=$(readlink \"$p/root\" 2>/dev/null) || continue; case \"$r\" in {root}|{root}/*) echo \"${{p#/proc/}} $(tr '\\0' ' ' < \"$p/cmdline\")\";; esac; done",
+    "target_processes": "[ {root} = / ] || for p in /proc/[0-9]*; do [ \"$p/root\" -ef /proc/1/root ] && continue; echo \"${{p#/proc/}} root=$(readlink \"$p/root\" 2>/dev/null) $(tr '\\0' ' ' < \"$p/cmdline\" 2>/dev/null)\"; done",
     "mounts": "cat /proc/self/mounts",
     "pools": "zpool status -v",
     "pool_list": "zpool list -v",
