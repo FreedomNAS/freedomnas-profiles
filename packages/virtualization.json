@@ -37,8 +37,7 @@
       "qemu-full",
       "libvirt",
       "virt-manager",
-      "bridge-utils",
-      "ovmf",
+      "edk2-ovmf",
       "dnsmasq"
     ],
     "services": [
@@ -54,8 +53,7 @@
       "qemu-full",
       "libvirt",
       "virt-manager",
-      "bridge-utils",
-      "ovmf",
+      "edk2-ovmf",
       "dnsmasq"
     ],
     "init": {
@@ -95,7 +93,7 @@
       "libvirt",
       "virt-manager",
       "bridge-utils",
-      "ovmf",
+      "edk2-ovmf",
       "dnsmasq"
     ],
     "services": [
