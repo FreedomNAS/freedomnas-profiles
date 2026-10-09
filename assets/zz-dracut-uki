@@ -7,12 +7,18 @@
 #
 #   zz-dracut-uki <kernel-version>        build the UKI for that kernel
 #   zz-dracut-uki --backup [<snapshot>]   copy the running UKI to the slot
+#   zz-dracut-uki --boot-ok [yes|no]      the system is up; automatic rollback on/off
+#   zz-dracut-uki --autorollback yes|no   automatic rollback on/off
+#   zz-dracut-uki --state                 print boot.state
+#   zz-dracut-uki --forget-rollback       clear the record of a rollback
 #
 # The package managers' pre-install hooks and the WebUI's update call
 # --backup before anything is installed; a call through
 # /etc/kernel/preinst.d is a backup too. A build never replaces the UKI
 # with one that has no zfs.ko, and rotates only when nothing backed the
-# running UKI up first.
+# running UKI up first. A build that changes the kernel puts boot.state in
+# "trial": the initramfs module 92freedomnas-fallback restores the rollback
+# UKI if the new kernel does not boot.
 #
 # Must never abort a kernel install over a UKI or ZFS problem: log and
 # continue. The pool name, the edition and the UKI filenames are decided
@@ -25,6 +31,10 @@ mode=build
 snapshot=""
 case "${1:-}" in
     --backup) mode=backup; snapshot="${2:-}" ;;
+    --boot-ok) mode=boot-ok; setting="${2:-}" ;;
+    --autorollback) mode=autorollback; setting="${2:-}" ;;
+    --state) mode=state ;;
+    --forget-rollback) mode=forget ;;
     *) case "$0" in */preinst.d/*) mode=backup ;; esac
        version="${1:-$(uname -r)}" ;;
 esac
@@ -36,6 +46,23 @@ boot_state_dir="/boot/efi/EFI/FreedomNAS"
 boot_state="$boot_state_dir/boot.state"
 
 log() { echo "zz-dracut-uki: $*"; }
+
+state_get() {
+    sed -n "s/^$1: //p" "$boot_state" 2>/dev/null | head -n 1
+}
+
+state_set() {
+    mkdir -p "$boot_state_dir" || return 1
+    if grep -q "^$1:" "$boot_state" 2>/dev/null; then
+        sed -i "s|^$1: .*|$1: $2|" "$boot_state"
+    else
+        echo "$1: $2" >> "$boot_state"
+    fi
+}
+
+state_drop() {
+    [ -f "$boot_state" ] && sed -i "/^$1:/d" "$boot_state"
+}
 
 ROOT_DATASET=""
 UKI_NAME=""
@@ -57,6 +84,39 @@ previous_snap="${previous%.efi}.snapshot"
 recovery="$esp_linux_dir/$UKI_RECOVERY_NAME"
 
 [ -d "$esp_linux_dir" ] || { log "no $esp_linux_dir, skipping (ESP not mounted?)"; exit 0; }
+
+case "$mode" in
+    state)
+        cat "$boot_state" 2>/dev/null
+        exit 0
+        ;;
+    autorollback|boot-ok)
+        case "$setting" in
+            yes|no) state_set autorollback "$setting" ;;
+            "") [ "$mode" = boot-ok ] || { log "--autorollback takes yes or no"; exit 1; } ;;
+            *) log "autorollback must be yes or no, not $setting"; exit 1 ;;
+        esac
+        if [ "$mode" = boot-ok ]; then
+            case "$(state_get state)" in
+                trial|fallback-requested|rolled-back)
+                    state_set state ok
+                    state_drop tries-left
+                    log "boot confirmed on kernel $(uname -r)"
+                    ;;
+            esac
+        fi
+        exit 0
+        ;;
+esac
+
+if [ "$mode" = forget ]; then
+    for key in failed-kernel restored-kernel reason date snapshot fs-rollback failed-dataset; do
+        state_drop "$key"
+    done
+    rm -f "$esp_linux_dir/${UKI_NAME%.efi}-failed.efi" "$esp_linux_dir/${UKI_NAME%.efi}-failed.kernel"
+    log "rollback record cleared"
+    exit 0
+fi
 
 kernel_of() { [ -r "$1" ] && cat "$1"; }
 
@@ -122,6 +182,11 @@ if [ "$mode" = backup ]; then
     exit 0
 fi
 
+if [ "$(state_get failed-kernel)" = "$version" ]; then
+    log "kernel $version failed to boot on $(state_get date) and was rolled back: not activated again until that rollback is cleared in the WebUI"
+    exit 0
+fi
+
 if ! modinfo -k "$version" zfs >/dev/null 2>&1; then
     log "no zfs module for $version yet: $current and $efi_fallback left untouched"
     exit 0
@@ -139,8 +204,10 @@ if ! uki_has_zfs "$new"; then
     exit 0
 fi
 
+trial=no
 if [ -f "$current" ]; then
     cur_kernel=$(kernel_of "$current_kernel" || true)
+    [ "$cur_kernel" != "$version" ] && trial=yes
     if [ "$cur_kernel" = "$version" ]; then
         log "$current already runs $version: rebuilt in place, $previous unchanged"
     elif [ -n "$cur_kernel" ] && [ "$(kernel_of "$previous_kernel" || true)" = "$cur_kernel" ] \
@@ -164,7 +231,7 @@ fi
 
 if [ -n "$UKI_RECOVERY_NAME" ]; then
     if dracut --force --uefi \
-            --kernel-cmdline "root=ZFS=${root_dataset} ro single rd.shell SYSTEMD_SULOGIN_FORCE=1" "$recovery.new" "$version" \
+            --kernel-cmdline "root=ZFS=${root_dataset} ro single rd.shell SYSTEMD_SULOGIN_FORCE=1 freedomnas.autorollback=0" "$recovery.new" "$version" \
             && uki_has_zfs "$recovery.new"; then
         mv -f "$recovery.new" "$recovery"
         log "recovery UKI rebuilt: $recovery"
@@ -174,8 +241,11 @@ if [ -n "$UKI_RECOVERY_NAME" ]; then
     fi
 fi
 
-if [ -d "$boot_state_dir" ]; then
-    echo "tries-left: 3" > "$boot_state"
+if [ "$trial" = yes ] && [ -f "$previous" ]; then
+    state_set state trial
+    state_set trial-kernel "$version"
+    state_set tries-left 3
+    log "kernel $version is on trial: if it does not boot, the UKI of $(kernel_of "$previous_kernel" || echo the previous kernel) comes back by itself"
 fi
 
 exit 0

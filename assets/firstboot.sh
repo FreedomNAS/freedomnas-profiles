@@ -150,4 +150,8 @@ fi
 # changed at every boot would train the admin to click through the warning.
 python3 -m freedomnas ensure-tls || log "WARNING: no TLS certificate — the WebUI will serve plain HTTP"
 
+# The system came this far: a new kernel's trial is over, and the automatic
+# rollback setting in config.yaml reaches the ESP.
+python3 -m freedomnas boot-ok || log "WARNING: could not confirm the boot"
+
 exec "$INSTALL_ROOT/webui/bin/supervisor.sh"

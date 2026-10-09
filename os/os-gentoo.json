@@ -25,6 +25,10 @@
   },
   "bootloader": {
     "uki_backup": "/usr/lib/freedomnas/profiles/assets/zz-dracut-uki --backup {snapshot}",
+    "boot_ok": "/usr/lib/freedomnas/profiles/assets/zz-dracut-uki --boot-ok {autorollback}",
+    "autorollback_set": "/usr/lib/freedomnas/profiles/assets/zz-dracut-uki --autorollback {autorollback}",
+    "boot_state": "/usr/lib/freedomnas/profiles/assets/zz-dracut-uki --state",
+    "rollback_forget": "/usr/lib/freedomnas/profiles/assets/zz-dracut-uki --forget-rollback",
     "firmware_mode": "test -d /sys/firmware/efi && echo UEFI || echo BIOS",
     "build_uki": "dracut --force --uefi --kernel-cmdline \"root=ZFS=\"{dataset}\" rw\" {output_path} {kernel_version}",
     "build_uki_recovery": "dracut --force --uefi --kernel-cmdline \"root=ZFS=\"{dataset}\" ro single rd.shell SYSTEMD_SULOGIN_FORCE=1\" {output_path} {kernel_version}",

@@ -1,0 +1,14 @@
+[Unit]
+Description=FreedomNAS automatic rollback check
+DefaultDependencies=no
+ConditionPathExists=/usr/lib/initrd-release
+After=dracut-initqueue.service
+Before=zfs-import-cache.service zfs-import-scan.service zfs-import.target sysroot.mount
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh /lib/freedomnas-fallback-pre-mount.sh
+StandardOutput=journal+console
+
+[Install]
+WantedBy=initrd.target
