@@ -8,3 +8,5 @@ override_dh_install:
 	mkdir -p debian/freedomnas-profiles/usr/lib/freedomnas/profiles
 	cp -r os init installer storage network shares users packages assets \
 		debian/freedomnas-profiles/usr/lib/freedomnas/profiles/
+	install -D -m 0440 debian/sudoers-debconf \
+		debian/freedomnas-profiles/etc/sudoers.d/freedomnas-debconf

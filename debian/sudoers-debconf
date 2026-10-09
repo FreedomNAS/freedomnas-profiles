@@ -1,0 +1,3 @@
+# Installed by freedomnas-profiles: WebUI updates run without a terminal,
+# so apt's debconf keeps DEBIAN_FRONTEND=noninteractive through sudo.
+Defaults env_keep += "DEBIAN_FRONTEND"
