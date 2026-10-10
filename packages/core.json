@@ -113,7 +113,11 @@
       "python-fastapi",
       "uvicorn",
       "python-websockets",
-      "topgrade-bin"
+      "topgrade-bin",
+      "freedomnas-core",
+      "freedomnas-profiles",
+      "freedomnas-docs",
+      "freedomnas-webui"
     ],
     "services": [
       "systemd-resolved",
@@ -164,7 +168,11 @@
       "python-fastapi",
       "uvicorn",
       "python-websockets",
-      "topgrade-bin"
+      "topgrade-bin",
+      "freedomnas-core",
+      "freedomnas-profiles",
+      "freedomnas-docs",
+      "freedomnas-webui"
     ],
     "init": {
       "openrc": {
