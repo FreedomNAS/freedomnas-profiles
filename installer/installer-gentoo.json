@@ -65,6 +65,12 @@
         "label": "Japan (IIJ)",
         "url": "https://ftp.iij.ad.jp/pub/linux/gentoo"
       }
+    ],
+    "core_packages": [
+      "app-nas/freedomnas-core",
+      "app-nas/freedomnas-profiles",
+      "app-nas/freedomnas-docs",
+      "app-nas/freedomnas-webui"
     ]
   },
   "chroot": {
@@ -153,7 +159,8 @@
   "repositories": {
     "core": [
       "emerge --quiet --noreplace dev-vcs/git",
-      "emaint sync --repo freedomnas"
+      "emaint sync --repo freedomnas",
+      "case {channel} in main) kw='~{arch}' ;; *) kw='**' ;; esac; printf 'app-nas/*::freedomnas %s\\n*/*::freedomnas ~{arch}\\n' \"$kw\" > /etc/portage/package.accept_keywords/freedomnas-channel"
     ]
   },
   "files": {
