@@ -73,7 +73,11 @@
       "py312-fastapi",
       "py312-uvicorn",
       "py312-websockets",
-      "topgrade"
+      "topgrade",
+      "freedomnas-core",
+      "freedomnas-profiles",
+      "freedomnas-docs",
+      "freedomnas-webui"
     ],
     "services": [
       "ntpd"

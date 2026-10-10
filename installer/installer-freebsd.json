@@ -18,6 +18,12 @@
     ],
     "chroot_dirs": [
       "/dev"
+    ],
+    "core_packages": [
+      "freedomnas-core",
+      "freedomnas-profiles",
+      "freedomnas-docs",
+      "freedomnas-webui"
     ]
   },
   "chroot": {
@@ -130,6 +136,16 @@
       "inplace": true,
       "mode": 288,
       "content": "# FreedomNAS: the WebUI runs updates as the signed-in user,\n# and topgrade calls sudo itself for the steps that need root.\n%{sudo_group} ALL=(ALL) NOPASSWD: ALL\n"
+    },
+    "pkg_repo_key": {
+      "path": "/usr/local/etc/ssl/freedomnas.pub",
+      "inplace": true,
+      "content": "-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAxHFsAszq6DBHjiW+tGvq\nwlLfk9zTnMfLqxLWNmkvwRWmD2Mkdu2b5HKNpAOrmutdS1VlbbTnQvi03AEA4m+l\n/Fpi5Oa9He1yY1kEIzy22H1FfrsLE0zAfUXnhQBK+sKZEsSzk9dtO5c4gtnOgTgW\ndJJOM/OPkQKowJQCIGsHniI5uLuUCksMLj3oMoKbRgSQQso07+wHfdK1v1NLflNf\nWF0u3TASjVNMP2wTPJvWBToF7lgNWcHifSQ8SVHnq1pLi8DAEQmb4EFHiA6RUD7T\naIyNS4WQa7m+hM6NAcj546SG5fR2vCJJRHKQDcnhiHX7tejQn0Wg1B+Y8w9SIGhO\nYS7wgiRmh/SHLOMy5D0gsgQJTSsZQGOZBWipcjgfeh8f5zZkys2W/2NvdBmqB36/\nWZeCCJs+H3atUyXcv5muzQmujLXpo30s6dV2DZ11SPdqRat5nXHncr1NG9kDxwAD\nc2/crt+tNcSfSe0NaIR9rc7IRmXVoy8bXWuxPHTR0ZRLvDwCzfqYZKZjeWhf2qoY\nrvKT1B5BWpKZfcEDFW8ga68xI1NISt2D/IcElHUizyzvukokgWyfc03OK8QsWrx1\nuEvr/bVfxEZwbujOtm/kQ3o9OAi/c/8J96pYQGBjcKandBEIQEtznmp87TcpYsDG\nGwdQ8OXutV7oA5q+NMAJHwMCAwEAAQ==\n-----END PUBLIC KEY-----\n"
+    },
+    "pkg_repo_conf": {
+      "path": "/usr/local/etc/pkg/repos/FreedomNAS.conf",
+      "inplace": true,
+      "content": "FreedomNAS: {{\n  url: \"https://codeberg.org/api/packages/FreedomNAS/generic/freedomnas-freebsd/${{VERSION_MAJOR}}-{channel}\",\n  signature_type: \"pubkey\",\n  pubkey: \"/usr/local/etc/ssl/freedomnas.pub\",\n  enabled: yes\n}}\n"
     }
   },
   "diagnostics": {
