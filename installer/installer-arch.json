@@ -80,7 +80,6 @@
       "zfs create -o setuid=off {pool_name}/home",
       "zfs create -o canmount=off -o mountpoint=/var {pool_name}/var",
       "zfs create -o atime=on {pool_name}/var/log",
-      "zfs create {pool_name}/var/cache",
       "zfs create -o setuid=off {pool_name}/var/tmp",
       "chmod 1777 \"$(zfs get -H -o value mountpoint {pool_name}/var/tmp)\"",
       "zfs create {pool_name}/var/spool"
