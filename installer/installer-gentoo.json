@@ -82,7 +82,8 @@
       "mount -t proc proc {root}/proc",
       "mount --rbind /sys {root}/sys",
       "mount --make-rslave {root}/sys",
-      "mount -t tmpfs -o nosuid,nodev,mode=0755 run {root}/run"
+      "mount -t tmpfs -o nosuid,nodev,mode=0755 run {root}/run",
+      "install -d -m 1777 {root}/run/lock"
     ],
     "unmount": [
       "umount -l {root}/run",
