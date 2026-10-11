@@ -1,3 +1,20 @@
+freedomnas-profiles (0.9.12-1) unstable; urgency=medium
+
+  * UKI backed up before kernel updates, paired with the pre-update
+    snapshot, and never activated without zfs.ko
+  * Automatic rollback of a kernel update that does not boot
+    (92freedomnas-fallback)
+  * Every edition installs FreedomNAS from its own repository: Arch and
+    Artix from freedomnas-arch, Gentoo from the overlay, FreeBSD from the
+    freedomnas-freebsd pkg repository
+  * var/tmp, var/spool and FreeBSD's var/crash in datasets of their own
+  * Installer diagnostics, read-only pool probing and Gentoo install fixes
+  * FreeBSD writes smb4.conf; Debian updates without debconf warnings
+  * Virtualization package names on Arch, Artix and Void; diffutils in the
+    core packages; multipath left out of the UKI
+
+ -- FreedomNAS Team <dev@freedomnas.io>  Sun, 11 Oct 2026 00:18:58 +0000
+
 freedomnas-profiles (0.9.11-1) unstable; urgency=medium
 
   * NetworkManager on every Linux edition, with the commands for
