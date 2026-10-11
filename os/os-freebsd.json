@@ -17,13 +17,17 @@
     "search": "pkg search {package_name}",
     "show": "pkg info {package_name}",
     "upgrade": "pkg upgrade -y",
+    "module_search": "pkg rquery -g '%n\\t%v\\t%c' 'freedomnas-module-*'",
+    "module_installed": "pkg query -g '%n\\t%v\\t%c' 'freedomnas-module-*'",
+    "module_remove": "pkg delete -y {package_name}",
+    "_note_modules": "module_search / module_installed: community modules are the packages named freedomnas-module-<id>; one line per package: name<TAB>version<TAB>description. module_search reads the local package index (update_cache refreshes it).",
     "multi_args": [
       "package_name"
     ]
   },
   "bootloader": {
     "firmware_mode": "sysctl -n machdep.bootmethod",
-  "kernel_installed": "freebsd-version -k",
+    "kernel_installed": "freebsd-version -k",
     "_note": "FreeBSD boots ZFS-on-root natively -- no UKI/Clover needed. gptzfsboot (BIOS) and loader.efi (UEFI) both understand the same GPT+ZFS layout directly, so one image is bootable both ways without a third-party shim.",
     "install_gptzfsboot": "gpart bootcode -b /boot/pmbr -p /boot/gptzfsboot -i 3 {disk}",
     "install_efi_loader": "cp /boot/loader.efi {esp_mount}/EFI/BOOT/BOOTX64.efi",

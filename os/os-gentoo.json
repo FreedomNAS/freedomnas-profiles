@@ -19,6 +19,10 @@
     "search": "emerge --search {package_name}",
     "show": "emerge --pretend --verbose {package_name}",
     "upgrade": "emerge --update --deep --newuse --quiet @world",
+    "module_search": "emerge --search --color=n --nospinner '%^freedomnas-module-' | awk '/^\\*  / {{n = $2}} /Latest version available:/ {{v = $NF}} /Description:/ {{sub(/^ *Description: */, \"\"); print n \"\\t\" v \"\\t\" $0}}'",
+    "module_installed": "emerge --search --color=n --nospinner '%^freedomnas-module-' | awk '/^\\*  / {{n = $2}} /Latest version installed:/ {{v = $NF}} /Description:/ && v != \"]\" {{sub(/^ *Description: */, \"\"); print n \"\\t\" v \"\\t\" $0}}'",
+    "module_remove": "emerge --unmerge --quiet {package_name}",
+    "_note_modules": "module_search / module_installed: community modules are the packages named freedomnas-module-<id>; one line per package: name<TAB>version<TAB>description. module_search reads the local package index (update_cache refreshes it).",
     "multi_args": [
       "package_name"
     ]

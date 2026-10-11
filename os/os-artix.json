@@ -19,6 +19,10 @@
     "search": "pacman -Ss {package_name}",
     "show": "pacman -Si {package_name}",
     "upgrade": "pacman -Syu --noconfirm",
+    "module_search": "pacman -Ss '^freedomnas-module-' | awk '/^[^ ]/ {{split($1, a, \"/\"); n = a[2]; v = $2; next}} {{sub(/^ +/, \"\"); print n \"\\t\" v \"\\t\" $0}}'",
+    "module_installed": "pacman -Qs '^freedomnas-module-' | awk '/^[^ ]/ {{split($1, a, \"/\"); n = a[2]; v = $2; next}} {{sub(/^ +/, \"\"); print n \"\\t\" v \"\\t\" $0}}'",
+    "module_remove": "pacman -R --noconfirm {package_name}",
+    "_note_modules": "module_search / module_installed: community modules are the packages named freedomnas-module-<id>; one line per package: name<TAB>version<TAB>description. module_search reads the local package index (update_cache refreshes it).",
     "multi_args": [
       "package_name"
     ]

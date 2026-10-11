@@ -17,6 +17,10 @@
     "search": "apt search {package_name}",
     "show": "apt show {package_name}",
     "upgrade": "apt full-upgrade -y",
+    "module_search": "apt-cache pkgnames freedomnas-module- | sort | while read -r p; do apt-cache --no-all-versions show \"$p\"; done | awk '/^Package: / {{n = $2}} /^Version: / {{v = $2}} /^Description(-en)?: / {{sub(/^[^:]*: /, \"\"); print n \"\\t\" v \"\\t\" $0}}'",
+    "module_installed": "dpkg-query -W -f='${{db:Status-Abbrev}}\\t${{Package}}\\t${{Version}}\\t${{binary:Summary}}\\n' 'freedomnas-module-*' 2>/dev/null | awk -F'\\t' '$1 ~ /^ii/ {{print $2 \"\\t\" $3 \"\\t\" $4}}'",
+    "module_remove": "apt remove -y {package_name}",
+    "_note_modules": "module_search / module_installed: community modules are the packages named freedomnas-module-<id>; one line per package: name<TAB>version<TAB>description. module_search reads the local package index (update_cache refreshes it).",
     "multi_args": [
       "package_name"
     ]

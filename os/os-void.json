@@ -19,6 +19,10 @@
     "search": "xbps-query -Rs {package_name}",
     "show": "xbps-query -R {package_name}",
     "upgrade": "xbps-install -Suy",
+    "module_search": "xbps-query -Rs freedomnas-module- | awk '{{n = $2; sub(/-[^-]*$/, \"\", n); v = substr($2, length(n) + 2); $1 = \"\"; $2 = \"\"; sub(/^ +/, \"\"); print n \"\\t\" v \"\\t\" $0}}'",
+    "module_installed": "xbps-query -s freedomnas-module- | awk '{{n = $2; sub(/-[^-]*$/, \"\", n); v = substr($2, length(n) + 2); $1 = \"\"; $2 = \"\"; sub(/^ +/, \"\"); print n \"\\t\" v \"\\t\" $0}}'",
+    "module_remove": "xbps-remove -y {package_name}",
+    "_note_modules": "module_search / module_installed: community modules are the packages named freedomnas-module-<id>; one line per package: name<TAB>version<TAB>description. module_search reads the local package index (update_cache refreshes it).",
     "multi_args": [
       "package_name"
     ]
