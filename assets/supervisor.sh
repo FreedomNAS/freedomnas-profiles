@@ -1,5 +1,8 @@
 #!/bin/sh
 # FreedomNAS WebUI supervisor -- init-agnostic, circuit breaker after 5 failures.
+# A restart the WebUI asks for itself (System -> Restart WebUI, or the notice
+# after an update) leaves the marker <config>/webui-restart before it exits:
+# that exit is not a failure, and the WebUI starts again at once.
 FAILURES=0
 MAX_FAILURES=5
 # <install_root>/profiles/assets/supervisor.sh, or a copy in
@@ -18,6 +21,8 @@ WEBUI_CMD="python3 -m uvicorn api.main:app --host 0.0.0.0 --port 8080"
 # the certificate existed keeps working over plain HTTP rather than refusing
 # to start.
 TLS_DIR=$(python3 -m freedomnas path tls)
+RESTART_MARKER="$(python3 -m freedomnas path config)/webui-restart"
+rm -f "$RESTART_MARKER"
 TLS_CERT="$TLS_DIR/cert.pem"
 TLS_KEY="$TLS_DIR/key.pem"
 if [ -r "$TLS_CERT" ] && [ -r "$TLS_KEY" ]; then
@@ -32,7 +37,11 @@ cd "$WEBUI_DIR" || exit 1
 while true; do
     $WEBUI_CMD
     EXIT=$?
-    if [ $EXIT -ne 0 ]; then
+    if [ -e "$RESTART_MARKER" ]; then
+        rm -f "$RESTART_MARKER"
+        FAILURES=0
+        echo "[$(date)] WebUI restarted on request (exit code $EXIT)"
+    elif [ $EXIT -ne 0 ]; then
         FAILURES=$((FAILURES + 1))
         echo "[$(date)] WebUI exited with code $EXIT (failure $FAILURES/$MAX_FAILURES)"
         if [ $FAILURES -ge $MAX_FAILURES ]; then

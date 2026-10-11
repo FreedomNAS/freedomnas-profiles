@@ -9,7 +9,7 @@
 #   zz-dracut-uki --backup [<snapshot>]   copy the running UKI to the slot
 #   zz-dracut-uki --boot-ok [yes|no]      the system is up; automatic rollback on/off
 #   zz-dracut-uki --autorollback yes|no   automatic rollback on/off
-#   zz-dracut-uki --state                 print boot.state
+#   zz-dracut-uki --state                 print boot.state and the active UKI's kernel
 #   zz-dracut-uki --forget-rollback       clear the record of a rollback
 #
 # The package managers' pre-install hooks and the WebUI's update call
@@ -88,6 +88,7 @@ recovery="$esp_linux_dir/$UKI_RECOVERY_NAME"
 case "$mode" in
     state)
         cat "$boot_state" 2>/dev/null
+        [ -r "$current_kernel" ] && echo "active-kernel: $(cat "$current_kernel")"
         exit 0
         ;;
     autorollback|boot-ok)
