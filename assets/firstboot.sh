@@ -4,18 +4,22 @@
 # supervisor.sh — this script now does the ADR-002 boot-time decision
 # and then hands off to supervisor.sh itself).
 #
-# ADR-002 (IMAGE-BASED-INSTALLATION.md): on every boot, decide between
-# disaster-recovery reconciliation and the normal first-run wizard by
-# checking whether a `.freedomnas` dataset already exists on any
-# importable pool:
+# ADR-002 (IMAGE-BASED-INSTALLATION.md), with the internal/external split:
+# on every boot `freedomnas state-boot` mounts the root pool's `.freedomnas`
+# (this install's own configuration, created on the first boot) and looks
+# at the `.freedomnas` of every other importable pool:
 #
-#   - present -> mount it, run `freedomnas reconcile --mode
-#                declarative`: the system is made to match the
-#                config.yaml on disk exactly (hostname, users, shares,
-#                ...), removals included
-#   - absent  -> do nothing extra; the WebUI's existing first-run guard
-#                (config.is_initialized() == False) redirects to /setup/
-#                exactly as it does today
+#   - local    -> the internal configuration is initialized: it is used;
+#   - merged   -> a data pool holds a newer copy written by another install:
+#                 only its shares, policies, modules, pools and users are
+#                 taken over, never what belongs to this install;
+#   - restored -> nothing initialized here (a reinstall): the newest copy
+#                 on a data pool is restored;
+#   - none     -> nothing anywhere: the WebUI's first-run guard redirects
+#                 to /setup/.
+#
+# Except for none, `freedomnas reconcile --mode declarative` then makes the
+# system match config.yaml (hostname, users, shares, ...).
 #
 # Must never block boot indefinitely and must never abort the chain even
 # if reconciliation fails -- the WebUI should still come up so the admin
@@ -38,9 +42,6 @@ INSTALL_ROOT=$(dirname "$(dirname "$(dirname "$(realpath "$0")")")")
 # `python3 -m freedomnas` working whatever the distribution and version.
 PYTHONPATH="$INSTALL_ROOT/core${PYTHONPATH:+:$PYTHONPATH}"
 export PYTHONPATH
-
-# Where this edition keeps the configuration comes from its OS profile.
-STATE_DIR=$(python3 -m freedomnas path state)
 
 log() { echo "firstboot: $*"; }
 
@@ -75,77 +76,36 @@ zpool import -a -N -f -o cachefile=none 2>/dev/null || true
 python3 -m freedomnas unlock-pools --tty /dev/console || \
     log "WARNING: one or more encrypted pools remain locked"
 
-# The pool this system booted from comes first. A NAS can have several pools
-# carrying a .freedomnas dataset -- an older install, another machine's disk --
-# and restoring a foreign configuration would create that machine's users and
-# start that machine's services here.
+state=$(python3 -m freedomnas state-boot) || \
+    log "WARNING: could not put the configuration in place"
+action=$(printf '%s\n' "$state" | awk '$1 == "action" { print $2 }')
+source_pool=$(printf '%s\n' "$state" | awk '$1 == "source" { print $2 }')
+keep=$(printf '%s\n' "$state" | awk '$1 == "keep" { print $2 }')
 root_dataset=$(zfs list -H -o name / 2>/dev/null)
 root_pool="${root_dataset%%/*}"
-search_order=$(printf '%s\n%s\n' "$root_pool" "$(zpool list -H -o name 2>/dev/null)" \
-               | awk 'NF && !seen[$0]++')
-
-# Images and installs made before the setup wizard took over creating it ship
-# an empty .freedomnas on their root pool, so the
-# root pool comes first only when its dataset holds a configuration: after a
-# reinstall the configuration is on the data pool, and the fresh, empty one
-# must not hide it. An empty dataset is unmounted again and kept as the
-# wizard's place for a configuration if none turns up.
-found_dataset=""
-found_pool=""
-empty_dataset=""
-empty_pool=""
-for pool in $search_order; do
-    dataset="$pool/.freedomnas"
-    zfs list -H -o name "$dataset" >/dev/null 2>&1 || continue
-    # A pool made by another edition carries that edition's mountpoint
-    # (Linux mounts the dataset at /etc/freedomnas/state, FreeBSD under
-    # /usr/local/etc): bring it to this one's before mounting it.
-    [ "$(zfs get -H -o value mountpoint "$dataset" 2>/dev/null)" = "$STATE_DIR" ] || \
-        zfs set mountpoint="$STATE_DIR" "$dataset" 2>/dev/null || true
-    zfs mount "$dataset" 2>/dev/null || true
-    if [ "$(zfs get -H -o value mounted "$dataset" 2>/dev/null)" = yes ] && \
-       [ -f "$STATE_DIR/config.yaml" ]; then
-        found_dataset="$dataset"
-        found_pool="$pool"
-        [ -n "$root_pool" ] && [ "$pool" != "$root_pool" ] && \
-            log "NOTE: the configuration comes from $pool, not from the root pool $root_pool"
-        break
-    fi
-    zfs unmount "$dataset" 2>/dev/null || true
-    [ -n "$empty_dataset" ] || { empty_dataset="$dataset"; empty_pool="$pool"; }
-done
-
-if [ -z "$found_dataset" ] && [ -n "$empty_dataset" ]; then
-    # Nothing to restore: the first run's wizard writes into this one.
-    found_dataset="$empty_dataset"
-    found_pool="$empty_pool"
-    zfs mount "$found_dataset" 2>/dev/null || true
-elif [ -n "$found_dataset" ] && [ "$empty_pool" = "$root_pool" ] && [ -n "$root_pool" ]; then
-    # Two datasets mounting at the same place must never both exist: the
-    # configuration lives on $found_pool now, and the root pool's dataset
-    # was just seen empty.
-    log "destroying the empty $empty_dataset -- the configuration lives on $found_pool"
-    zfs destroy "$empty_dataset" 2>/dev/null || \
-        log "WARNING: could not destroy $empty_dataset"
-fi
 
 # Give back everything we imported and did not need. A NAS must not adopt the
 # pools of whatever disk happens to be attached -- least of all another
 # operating system's root pool.
 for pool in $(zpool list -H -o name 2>/dev/null); do
     was_already_imported "$pool" && continue
-    [ "$pool" = "$found_pool" ] && continue
+    [ "$pool" = "$root_pool" ] && continue
+    printf '%s\n' "$keep" | grep -qx "$pool" && continue
     log "releasing $pool -- imported while looking for the FreedomNAS dataset"
     zpool export "$pool" 2>/dev/null || true
 done
 
-if [ -n "$found_dataset" ] && [ -f "$STATE_DIR/config.yaml" ]; then
-    log "found existing config on $found_dataset -- reconciling (declarative)"
-    python3 -m freedomnas reconcile --mode declarative || \
-        log "WARNING: reconcile failed, continuing to boot the WebUI anyway"
-else
-    log "no existing FreedomNAS config found -- first-run wizard will handle setup"
-fi
+case "$action" in
+    local|merged|restored)
+        [ -n "$source_pool" ] && log "configuration $action from $source_pool"
+        log "reconciling the configuration (declarative)"
+        python3 -m freedomnas reconcile --mode declarative || \
+            log "WARNING: reconcile failed, continuing to boot the WebUI anyway"
+        ;;
+    *)
+        log "no existing FreedomNAS config found -- first-run wizard will handle setup"
+        ;;
+esac
 
 # The WebUI's certificate: created once, then left alone. A certificate that
 # changed at every boot would train the admin to click through the warning.
