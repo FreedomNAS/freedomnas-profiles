@@ -1,6 +1,6 @@
 {
   "category": "containers",
-  "description": "Container runtime — Docker/Podman for containerized applications",
+  "description": "Container runtime — Docker on Linux, AppJail on FreeBSD",
   "debian": {
     "packages": [
       "docker-ce",
@@ -22,14 +22,18 @@
   },
   "freebsd": {
     "packages": [
-      "podman"
+      "appjail",
+      "py312-director"
     ],
     "admin_groups": [],
     "services": [
-      "podman"
+      "appjail-natnet",
+      "appjail-health",
+      "appjail"
     ],
     "config_paths": [
-      "/usr/local/etc/containers/containers.conf"
+      "/usr/local/etc/appjail/appjail.conf",
+      "/usr/local/etc/containers/storage.conf"
     ]
   },
   "arch": {
