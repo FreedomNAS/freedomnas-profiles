@@ -1,0 +1,61 @@
+#!/bin/sh
+
+action=$1
+service=$2
+wait_for=${FREEDOMNAS_RC_WAIT:-15}
+
+check() {
+	case "$service" in
+	samba_server) pgrep -qx smbd ;;
+	*) service "$service" onestatus >/dev/null 2>&1 ;;
+	esac
+}
+
+oneshot() {
+	case "$service" in
+	appjail-natnet|appjail-health) return 0 ;;
+	esac
+	return 1
+}
+
+if [ -z "$service" ]; then
+	echo "usage: $0 start|restart|running service" >&2
+	exit 2
+fi
+
+case "$action" in
+running)
+	check && echo yes
+	exit 0
+	;;
+start)
+	check && exit 0
+	;;
+restart)
+	;;
+*)
+	echo "usage: $0 start|restart|running service" >&2
+	exit 2
+	;;
+esac
+
+log=$(mktemp -t freedomnas-rc) || exit 1
+service "$service" "$action" </dev/null >"$log" 2>&1
+rc=$?
+if [ "$rc" -eq 0 ] && ! oneshot; then
+	tries=0
+	until check; do
+		tries=$((tries + 1))
+		if [ "$tries" -ge "$wait_for" ]; then
+			echo "$service is not running ${wait_for}s after $action" >>"$log"
+			rc=1
+			break
+		fi
+		sleep 1
+	done
+fi
+if [ "$rc" -ne 0 ]; then
+	cat "$log" >&2
+fi
+rm -f "$log"
+exit "$rc"
