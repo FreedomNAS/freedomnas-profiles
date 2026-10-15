@@ -23,7 +23,8 @@
   "freebsd": {
     "packages": [
       "appjail",
-      "py312-director"
+      "py312-director",
+      "dnsmasq"
     ],
     "admin_groups": [],
     "services": [
