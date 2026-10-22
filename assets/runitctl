@@ -1,9 +1,9 @@
 #!/bin/sh
 # runitctl - experimental service-management wrapper for runit
-# 0.3.0 - POSIX sh
+# 0.3.1 - POSIX sh
 set -eu
 
-VERSION=0.3.0
+VERSION=0.3.1
 PROG=${0##*/}
 DEFAULT_SVROOT=/etc/sv:/etc/runit/sv:/usr/share/runit/sv.current
 
@@ -36,6 +36,9 @@ target, or / while another init is still PID 1): the service directory is read f
 inside DIR. start, stop, restart, status and is-running need a live system.
 
 is-enabled and is-running print nothing: exit status 0 means yes, 1 means no.
+status prints whether the service is enabled and what sv reports; without root
+sv cannot read the service's supervise directory, so status says root is
+needed and exits 4.
 list-enabled prints one enabled service name per line.
 start, stop and restart wait for runsv, then for the service to reach the
 requested state, and fail if it does not get there within RUNITCTL_WAIT seconds.
@@ -435,7 +438,18 @@ case "$cmd" in
     if [ -L "$link" ]; then
       say "enabled: $name -> $(service_link_target "$link")"
       if command -v "$SV" >/dev/null 2>&1; then
-        "$SV" status "$link" || exit $?
+        rc=0
+        out=$("$SV" status "$link" 2>&1) || rc=$?
+        case "$out" in
+          *"access denied"*)
+            if [ "$(id -u)" -ne 0 ]; then
+              say "runtime status needs root; try: sudo $PROG status $name"
+              exit 4
+            fi
+            ;;
+        esac
+        say "$out"
+        exit "$rc"
       else
         warn "'sv' not found; enablement checked, runtime status unavailable"
         exit 3

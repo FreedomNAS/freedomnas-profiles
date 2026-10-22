@@ -122,6 +122,9 @@ as_nobody() {
 if as_nobody true >/dev/null 2>&1; then
   check_fails "enable as non-root refused" as_nobody "sh $RC enable fnastest"
   check "list-enabled works as non-root" as_nobody "sh $RC list-enabled >/dev/null"
+  sh "$RC" enable fnastest >/dev/null 2>&1 && sh "$RC" start fnastest >/dev/null 2>&1
+  check_out "status as non-root says root is needed" "needs root" as_nobody "sh $RC status fnastest"
+  sh "$RC" disable fnastest >/dev/null 2>&1
 fi
 
 printf '== %d passed, %d failed\n' "$PASS" "$FAIL"
