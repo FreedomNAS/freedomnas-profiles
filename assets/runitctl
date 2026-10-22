@@ -1,0 +1,500 @@
+#!/bin/sh
+# runitctl - experimental service-management wrapper for runit
+# 0.3.0 - POSIX sh
+set -eu
+
+VERSION=0.3.0
+PROG=${0##*/}
+DEFAULT_SVROOT=/etc/sv:/etc/runit/sv:/usr/share/runit/sv.current
+
+say() { printf '%s\n' "$*"; }
+err() { printf '%s: error: %s\n' "$PROG" "$*" >&2; exit 1; }
+warn() { printf '%s: warning: %s\n' "$PROG" "$*" >&2; }
+usage() {
+  cat <<USAGE
+$PROG $VERSION - experimental runit service wrapper
+
+Usage:
+  $PROG [--root DIR] enable NAME [SERVICE_DIR]
+  $PROG [--root DIR] disable NAME
+  $PROG [--root DIR] is-enabled NAME
+  $PROG [--root DIR] list
+  $PROG [--root DIR] list-enabled
+  $PROG [--root DIR] list-available
+  $PROG [--root DIR] detect
+  $PROG status NAME
+  $PROG is-running NAME
+  $PROG start NAME
+  $PROG stop NAME
+  $PROG restart NAME
+  $PROG reload NAME
+  $PROG --version
+  $PROG --help
+
+--root DIR works on a system where runit is not running (a chroot, a mounted
+target, or / while another init is still PID 1): the service directory is read from DIR/etc/runit/2 and resolved
+inside DIR. start, stop, restart, status and is-running need a live system.
+
+is-enabled and is-running print nothing: exit status 0 means yes, 1 means no.
+list-enabled prints one enabled service name per line.
+start, stop and restart wait for runsv, then for the service to reach the
+requested state, and fail if it does not get there within RUNITCTL_WAIT seconds.
+
+Environment overrides:
+  RUNITCTL_SVDIR   directory monitored by runsvdir (service symlinks live here);
+                   with --root it is a path inside DIR
+  RUNITCTL_SVROOT  colon-separated service-source directories to search
+                   (default: $DEFAULT_SVROOT)
+  RUNITCTL_SV      path to the 'sv' command (default: found through PATH)
+  RUNITCTL_WAIT    seconds to wait for runsv to pick up a service (default: 15)
+  RUNITCTL_SETTLE  seconds a started service must keep its pid (default: 2)
+
+Run enable/disable as root. This beta does not modify service source directories.
+USAGE
+}
+
+need_root() {
+  [ "$(id -u)" -eq 0 ] || err "this operation needs root; try sudo $PROG $*"
+}
+
+need_live() {
+  [ "$OFFLINE" -eq 0 ] || err "'$1' needs a running system; it cannot be used with --root"
+}
+
+valid_name() {
+  case "$1" in
+    ''|.*|*/*|*[!A-Za-z0-9_.@+-]*) err "invalid service name: $1" ;;
+  esac
+}
+
+# Print the directory argument of a runsvdir command line given one word per
+# line: runsvdir [-P] dir [log]. The log argument is never the directory.
+svdir_from_args() {
+  awk 'NR == 1 { next } /^-/ { next } { print; exit }'
+}
+
+# The system runsvdir is started by stage 2, so its parent is PID 1 (or it is
+# PID 1 itself, as in some containers). Per-user runsvdirs are ignored.
+detect_from_process() {
+  for stat in /proc/[0-9]*/stat; do
+    [ -r "$stat" ] || continue
+    line=$(cat "$stat" 2>/dev/null) || continue
+    case "$line" in
+      *' (runsvdir) '*) ;;
+      *) continue ;;
+    esac
+    pid=${line%% *}
+    rest=${line##*) }
+    set -- $rest
+    ppid=$2
+    [ "$ppid" = 1 ] || [ "$pid" = 1 ] || continue
+    dir=$(tr '\0' '\n' < "/proc/$pid/cmdline" 2>/dev/null | svdir_from_args)
+    case "$dir" in
+      /*) [ -d "$dir" ] && { printf '%s\n' "$dir"; return 0; } ;;
+    esac
+  done
+  return 1
+}
+
+# Offline: runsvdir's directory as written in the target's stage 2 script.
+detect_from_stage2() {
+  stage2=$ROOT/etc/runit/2
+  [ -r "$stage2" ] || return 1
+  sed -n 's/^[[:space:]]*\(exec[[:space:]].*\)\{0,1\}\(runsvdir[[:space:]].*\)$/\2/p' "$stage2" \
+    | head -n 1 | tr -s ' \t' '\n\n' | tr -d "'\"" | svdir_from_args | {
+      read -r dir || exit 1
+      case "$dir" in
+        '$'*)
+          # A variable set in the same script (Debian: SVDIR=/etc/service).
+          var=${dir#\$}; var=${var#\{}; var=${var%\}}
+          sed -n "s/^[[:space:]]*\(export[[:space:]]\{1,\}\)\{0,1\}$var=//p" "$stage2" \
+            | tail -n 1 | tr -d "'\""
+          ;;
+        *) printf '%s\n' "$dir" ;;
+      esac
+    }
+}
+
+# Target of a symlink that stage 2 creates at boot (ln -s TARGET LINK), for
+# paths under /run that do not exist while the system is not running.
+stage2_link_target() {
+  [ -r "$ROOT/etc/runit/2" ] || return 1
+  awk -v want="$1" '
+    $1 == "ln" {
+      n = 0
+      for (i = 2; i <= NF; i++) if ($i !~ /^-/) a[++n] = $i
+      if (n == 2 && a[2] == want) { print a[1]; exit }
+    }' "$ROOT/etc/runit/2"
+}
+
+# Resolve PATH (absolute, inside ROOT) by hand, so that absolute symlinks do
+# not escape ROOT. Prints the resolved path inside ROOT.
+resolve_in_root() {
+  path=$1
+  i=0
+  while [ "$i" -lt 20 ]; do
+    i=$((i + 1))
+    if [ -L "$ROOT$path" ]; then
+      t=$(readlink "$ROOT$path")
+      case "$t" in
+        /*) path=$t ;;
+        *) path=${path%/*}/$t ;;
+      esac
+    elif [ -d "$ROOT$path" ]; then
+      printf '%s\n' "$path"
+      return 0
+    else
+      t=$(stage2_link_target "$path" || true)
+      if [ -z "$t" ]; then
+        # runsvchdir creates runsvdir/current at boot; it points to default.
+        case "$path" in
+          */runsvdir/current) t=${path%/current}/default ;;
+          *) return 1 ;;
+        esac
+      fi
+      path=$t
+    fi
+  done
+  return 1
+}
+
+detect_svdir() {
+  if [ -n "${RUNITCTL_SVDIR:-}" ]; then
+    [ -d "$ROOT$RUNITCTL_SVDIR" ] || err "RUNITCTL_SVDIR is not a directory: $ROOT$RUNITCTL_SVDIR"
+    printf '%s\n' "${RUNITCTL_SVDIR%/}"
+    return
+  fi
+
+  if [ "$OFFLINE" -eq 1 ]; then
+    dir=$(detect_from_stage2 || true)
+    [ -n "$dir" ] || err "cannot find the runsvdir command in $ROOT/etc/runit/2. Set RUNITCTL_SVDIR."
+    resolved=$(resolve_in_root "$dir") || err "cannot resolve '$dir' inside $ROOT. Set RUNITCTL_SVDIR."
+    printf '%s\n' "$resolved"
+    return
+  fi
+
+  found=$(detect_from_process || true)
+  if [ -n "$found" ]; then
+    printf '%s\n' "${found%/}"
+    return
+  fi
+
+  # Fallback only when exactly one conventional candidate exists.
+  candidates=
+  for d in /var/service /run/runit/service /etc/service /etc/runit/runsvdir/current; do
+    [ -d "$d" ] || continue
+    candidates="${candidates}${d}
+"
+  done
+  count=$(printf '%s' "$candidates" | awk 'NF {n++} END {print n+0}')
+  [ "$count" -eq 1 ] || {
+    err "runsvdir is not running and its service directory cannot be guessed. Set RUNITCTL_SVDIR (for example: RUNITCTL_SVDIR=/var/service) or use --root."
+  }
+  printf '%s' "$candidates" | awk 'NF {print; exit}'
+}
+
+svroots() {
+  printf '%s\n' "${RUNITCTL_SVROOT:-$DEFAULT_SVROOT}"
+}
+
+# Prints the source directory as seen from inside ROOT.
+find_source() {
+  name=$1
+  explicit=${2:-}
+  if [ -n "$explicit" ]; then
+    [ -d "$ROOT$explicit" ] || err "service source is not a directory: $ROOT$explicit"
+    printf '%s\n' "${explicit%/}"
+    return
+  fi
+
+  oldifs=$IFS
+  IFS=:
+  set -f
+  matches=
+  for root in $(svroots); do
+    [ -n "$root" ] || continue
+    if [ -d "$ROOT$root/$name" ]; then
+      matches="${matches}${root%/}/$name
+"
+    fi
+  done
+  set +f
+  IFS=$oldifs
+
+  count=$(printf '%s' "$matches" | awk 'NF {n++} END {print n+0}')
+  [ "$count" -gt 0 ] || err "cannot find source directory for '$name'; pass SERVICE_DIR explicitly or set RUNITCTL_SVROOT"
+  [ "$count" -eq 1 ] || {
+    err "multiple source directories found for '$name'; pass SERVICE_DIR explicitly or set RUNITCTL_SVROOT"
+  }
+  printf '%s' "$matches" | awk 'NF {print; exit}'
+}
+
+service_link_target() {
+  command -v readlink >/dev/null 2>&1 || err "readlink is required"
+  readlink "$1"
+}
+
+# Where a link points, judged inside ROOT. A relative target is resolved
+# from the physical directory holding the link, as the kernel does
+# (/run/runit/service is itself a link to /etc/runit/runsvdir/current).
+link_target_path() {
+  t=$(service_link_target "$1")
+  case "$t" in
+    /*) printf '%s\n' "$ROOT$t" ;;
+    *) printf '%s/%s\n' "$(cd -P "${1%/*}" && pwd)" "$t" ;;
+  esac
+}
+
+# A link's target exists, judged inside ROOT.
+link_target_exists() {
+  [ -e "$(link_target_path "$1")" ]
+}
+
+# Physical directory a service link points to, judged inside ROOT.
+link_physical() {
+  p=$(link_target_path "$1")
+  [ -d "$p" ] && (cd "$p" && pwd -P)
+}
+
+# runsvdir notices a new link only on its next scan (every 5 s); until its
+# runsv is up, sv fails with 'unable to open supervise/control'.
+wait_supervised() {
+  link=$1
+  limit=${RUNITCTL_WAIT:-15}
+  i=0
+  while ! "$SV" status "$link" >/dev/null 2>&1; do
+    [ "$i" -lt "$limit" ] || return 0
+    sleep 1
+    i=$((i + 1))
+  done
+}
+
+# runit reports uptime in whole seconds, so sv restart within a second of a
+# start can answer ok before the old process is gone: compare pids instead.
+running_pid() {
+  "$SV" status "$1" 2>/dev/null | sed -n 's/^run: [^(]*(pid \([0-9]*\)).*/\1/p'
+}
+
+# A service that exits at once is seen as "run" for an instant and then
+# restarted by runsv with a new pid: require the same pid a moment later.
+stays_up() {
+  first=$(running_pid "$1")
+  sleep "${RUNITCTL_SETTLE:-2}"
+  [ -n "$first" ] && [ "$(running_pid "$1")" = "$first" ] \
+    || err "${1##*/} does not stay up: $("$SV" status "$1" 2>&1)"
+}
+
+ROOT=
+OFFLINE=0
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --root)
+      [ "$#" -ge 2 ] || { usage >&2; exit 2; }
+      [ -d "$2" ] || err "--root is not a directory: $2"
+      ROOT=${2%/}
+      OFFLINE=1
+      shift 2
+      ;;
+    --root=*)
+      [ -d "${1#--root=}" ] || err "--root is not a directory: ${1#--root=}"
+      ROOT=${1#--root=}
+      ROOT=${ROOT%/}
+      OFFLINE=1
+      shift
+      ;;
+    *) break ;;
+  esac
+done
+
+[ "$#" -gt 0 ] || { usage; exit 2; }
+cmd=$1
+shift
+
+case "$cmd" in
+  --help|-h|help) usage; exit 0 ;;
+  --version|-V) say "$PROG $VERSION"; exit 0 ;;
+  detect)
+    SVDIR=$(detect_svdir)
+    [ "$OFFLINE" -eq 0 ] || say "root: ${ROOT:-/}"
+    say "service directory: $SVDIR"
+    say "service source roots: $(svroots)"
+    if [ "$OFFLINE" -eq 0 ]; then
+      command -v "${RUNITCTL_SV:-sv}" >/dev/null 2>&1 && say "sv command: $(command -v "${RUNITCTL_SV:-sv}")" || warn "sv command not found in PATH"
+    fi
+    exit 0
+    ;;
+  list-available)
+    [ "$#" -eq 0 ] || { usage >&2; exit 2; }
+    roots=$(svroots)
+    while [ -n "$roots" ]; do
+      root=${roots%%:*}
+      case "$roots" in *:*) roots=${roots#*:} ;; *) roots= ;; esac
+      [ -n "$root" ] || continue
+      for d in "$ROOT$root"/*; do
+        [ -f "$d/run" ] && printf '%s\n' "${d##*/}"
+      done
+    done | sort -u
+    exit 0
+    ;;
+esac
+
+case "$cmd" in
+  start|stop|restart|reload|status|is-running) need_live "$cmd" ;;
+esac
+
+SVDIR=$(detect_svdir)
+SV=${RUNITCTL_SV:-sv}
+LINKDIR=$ROOT$SVDIR
+
+case "$cmd" in
+  enable)
+    [ "$#" -ge 1 ] && [ "$#" -le 2 ] || { usage >&2; exit 2; }
+    need_root enable
+    name=$1; valid_name "$name"
+    source=$(find_source "$name" "${2:-}")
+    link=$LINKDIR/$name
+    if [ -e "$link" ] || [ -L "$link" ]; then
+      [ -L "$link" ] || err "$link exists and is not a symbolic link; refusing to replace it"
+      current=$(service_link_target "$link")
+      case "$current" in
+        /*) ;;
+        *) current="$SVDIR/$current" ;;
+      esac
+      if [ "$current" = "$source" ] || [ "$current" = "${source%/}/" ] \
+        || [ "$(link_physical "$link")" = "$(cd "$ROOT$source" && pwd -P)" ]; then
+        say "already enabled: $name"
+        exit 0
+      fi
+      if link_target_exists "$link"; then
+        err "$link already points to '$current', not '$source'; refusing to overwrite it"
+      fi
+      rm "$link" || err "could not remove stale service link: $link"
+      say "replaced stale link: $name -> $current (target does not exist)"
+    fi
+    real=$(cd "$ROOT$source" && pwd -P)
+    for other in "$LINKDIR"/*; do
+      [ -L "$other" ] || continue
+      if [ "$(link_physical "$other")" = "$real" ]; then
+        say "already enabled as ${other##*/}: $name"
+        exit 0
+      fi
+    done
+    ln -s "$source" "$link" || err "could not create service link: $link"
+    say "enabled: $name -> $source"
+    [ "$OFFLINE" -eq 1 ] || say "runit may take a few seconds to notice the new service"
+    ;;
+  disable)
+    [ "$#" -eq 1 ] || { usage >&2; exit 2; }
+    need_root disable
+    name=$1; valid_name "$name"
+    link=$LINKDIR/$name
+    if [ ! -L "$link" ]; then
+      [ -e "$link" ] && err "$link exists but is not a symbolic link; refusing to remove it"
+      say "already disabled: $name"
+      exit 0
+    fi
+    target=$(service_link_target "$link")
+    physical=$(link_physical "$link" || true)
+    rm "$link" || err "could not remove service link: $link"
+    say "disabled: $name (removed link to $target; source files were not changed)"
+    if [ "$OFFLINE" -eq 0 ] && [ -n "$physical" ]; then
+      i=0
+      while "$SV" status "$physical" >/dev/null 2>&1; do
+        if [ "$i" -ge "${RUNITCTL_WAIT:-15}" ]; then
+          warn "runsv for $name is still running $i s after the link went away: $("$SV" status "$physical" 2>&1)"
+          warn "a process outside the service still holds its log pipe open; enabling $name again will not start it until that runsv exits"
+          break
+        fi
+        sleep 1
+        i=$((i + 1))
+      done
+    fi
+    ;;
+  is-enabled)
+    [ "$#" -eq 1 ] || { usage >&2; exit 2; }
+    name=$1; valid_name "$name"
+    [ -L "$LINKDIR/$name" ] || exit 1
+    ;;
+  is-running)
+    [ "$#" -eq 1 ] || { usage >&2; exit 2; }
+    need_live is-running
+    name=$1; valid_name "$name"
+    link=$SVDIR/$name
+    [ -L "$link" ] || exit 1
+    out=$("$SV" status "$link" 2>/dev/null) || exit 1
+    case "$out" in
+      run:*) exit 0 ;;
+      *) exit 1 ;;
+    esac
+    ;;
+  status)
+    [ "$#" -eq 1 ] || { usage >&2; exit 2; }
+    need_live status
+    name=$1; valid_name "$name"
+    link=$SVDIR/$name
+    if [ -L "$link" ]; then
+      say "enabled: $name -> $(service_link_target "$link")"
+      if command -v "$SV" >/dev/null 2>&1; then
+        "$SV" status "$link" || exit $?
+      else
+        warn "'sv' not found; enablement checked, runtime status unavailable"
+        exit 3
+      fi
+    elif [ -e "$link" ]; then
+      say "present but not a symbolic link: $link"
+      exit 3
+    else
+      say "disabled: $name"
+      exit 1
+    fi
+    ;;
+  start|stop|restart|reload)
+    [ "$#" -eq 1 ] || { usage >&2; exit 2; }
+    need_live "$cmd"
+    name=$1; valid_name "$name"
+    command -v "$SV" >/dev/null 2>&1 || err "'sv' command not found; set RUNITCTL_SV if needed"
+    link=$SVDIR/$name
+    [ -L "$link" ] || err "service '$name' is not enabled in $SVDIR; enable it first"
+    wait_supervised "$link"
+    case "$cmd" in
+      start)
+        "$SV" -w "${RUNITCTL_WAIT:-15}" start "$link" || exit $?
+        stays_up "$link"
+        ;;
+      stop) exec "$SV" -w "${RUNITCTL_WAIT:-15}" stop "$link" ;;
+      restart)
+        old=$(running_pid "$link")
+        "$SV" -w "${RUNITCTL_WAIT:-15}" restart "$link" || exit $?
+        [ -n "$old" ] || exit 0
+        i=0
+        while [ "$(running_pid "$link")" = "$old" ] || [ -z "$(running_pid "$link")" ]; do
+          [ "$i" -lt "${RUNITCTL_WAIT:-15}" ] || err "$name did not come back after the restart"
+          sleep 1
+          i=$((i + 1))
+        done
+        stays_up "$link"
+        ;;
+      reload) exec "$SV" reload "$link" ;;
+    esac
+    ;;
+  list)
+    [ "$#" -eq 0 ] || { usage >&2; exit 2; }
+    # Print only symlinks; do not treat source directories as enabled services.
+    found=0
+    for link in "$LINKDIR"/* "$LINKDIR"/.[!.]*; do
+      [ -L "$link" ] || continue
+      found=1
+      name=${link##*/}
+      printf '%s -> %s\n' "$name" "$(service_link_target "$link")"
+    done
+    [ "$found" -eq 1 ] || say "no enabled service links found in $LINKDIR"
+    ;;
+  list-enabled)
+    [ "$#" -eq 0 ] || { usage >&2; exit 2; }
+    for link in "$LINKDIR"/*; do
+      [ -L "$link" ] && printf '%s\n' "${link##*/}"
+    done
+    exit 0
+    ;;
+  *) usage >&2; exit 2 ;;
+esac

@@ -2,20 +2,20 @@
   "init_name": "runit",
 
   "services": {
-    "_note": "runsvdir notices a newly linked service only on its next scan (every 5 s), and until its runsv is up sv fails ('unable to open supervise/control', or 'runsv not running' when an old supervise/ directory is left from before): start and restart wait up to 15 s for sv status to answer.",
-    "start": "i=0; while [ -L /var/service/{service_name} ] && ! sv status {service_name} >/dev/null 2>&1 && [ $i -lt 15 ]; do sleep 1; i=$((i+1)); done; sv start {service_name}",
-    "stop": "sv stop {service_name}",
-    "restart": "i=0; while [ -L /var/service/{service_name} ] && ! sv status {service_name} >/dev/null 2>&1 && [ $i -lt 15 ]; do sleep 1; i=$((i+1)); done; sv restart {service_name}",
-    "enable": "ln -sfn /etc/sv/{service_name} /var/service/{service_name}",
-    "disable": "rm /var/service/{service_name}",
-    "enable_offline": "ln -sfn /etc/sv/{service_name} /etc/runit/runsvdir/default/{service_name}",
+    "_note": "One profile for every runit distribution: assets/runitctl finds at run time the directory the system runsvdir watches (from /proc), the persistent directory behind it and the service sources (/etc/sv, /etc/runit/sv, /usr/share/runit/sv.current), so Void (/etc/sv, /var/service) and Artix (/etc/runit/sv, /run/runit/service) need no profile of their own. start, stop and restart wait up to 15 s for runsv to pick up a newly linked service and for the service to reach the state. enable_offline and disable_offline run in the installer's chroot, before FreedomNAS (and runitctl) is installed there and while no runsvdir runs: they link into /etc/runit/runsvdir/default, which both Void and Artix boot from.",
+    "start": "/usr/lib/freedomnas/profiles/assets/runitctl start {service_name}",
+    "stop": "/usr/lib/freedomnas/profiles/assets/runitctl stop {service_name}",
+    "restart": "/usr/lib/freedomnas/profiles/assets/runitctl restart {service_name}",
+    "enable": "/usr/lib/freedomnas/profiles/assets/runitctl enable {service_name}",
+    "disable": "/usr/lib/freedomnas/profiles/assets/runitctl disable {service_name}",
+    "enable_offline": "for d in /etc/sv /etc/runit/sv; do if [ -d $d/{service_name} ]; then ln -sfn $d/{service_name} /etc/runit/runsvdir/default/{service_name}; exit 0; fi; done; echo \"no runit service {service_name}\" >&2; exit 1",
     "disable_offline": "rm -f /etc/runit/runsvdir/default/{service_name}",
-    "status": "sv status {service_name}",
-    "is_enabled": "test -L /var/service/{service_name} >/dev/null 2>&1 && echo yes",
-    "reload": "sv reload {service_name}",
+    "status": "/usr/lib/freedomnas/profiles/assets/runitctl status {service_name}",
+    "is_enabled": "/usr/lib/freedomnas/profiles/assets/runitctl is-enabled {service_name} && echo yes",
+    "reload": "/usr/lib/freedomnas/profiles/assets/runitctl reload {service_name}",
     "daemon_reload": "",
-    "list_all": "find /etc/sv -mindepth 1 -maxdepth 1 -type d -printf '%f\\n'",
-    "is_running": "sv status {service_name} 2>/dev/null | grep -q '^run:' >/dev/null 2>&1 && echo yes",
-    "list_managed": "ls /var/service/"
+    "list_all": "/usr/lib/freedomnas/profiles/assets/runitctl list-available",
+    "is_running": "/usr/lib/freedomnas/profiles/assets/runitctl is-running {service_name} && echo yes",
+    "list_managed": "/usr/lib/freedomnas/profiles/assets/runitctl list-enabled"
   }
 }

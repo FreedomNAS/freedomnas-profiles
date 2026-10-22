@@ -57,7 +57,10 @@ freedomnas-profiles/
 │   ├── clover/                freedomnas-installer and freedomnas-image-builder
 │   ├── zz-dracut-uki           (moved here from freedomnas-installer/assets/)
 │   ├── firstboot.sh            ADR-002 boot-time decision point
+│   ├── runitctl                runit service wrapper used by init-runit.json
 │   └── supervisor.sh           WebUI supervisor (circuit breaker)
+├── tests/runitctl/          ← runitctl + init-runit.json in Void, Artix, Debian
+│                              and Devuan containers: `sh tests/runitctl/run.sh`
 └── packages/                ← Optional packages, by category — NOT the same thing as
     ├── MANIFEST.json          the module profiles above. These describe distro package
     ├── SCHEMA.md              *groups* (samba-cifs, nfs, containers...) the installer/
