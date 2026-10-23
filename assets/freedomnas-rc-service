@@ -13,7 +13,7 @@ check() {
 
 oneshot() {
 	case "$service" in
-	appjail-natnet|appjail-health) return 0 ;;
+	appjail|appjail-natnet|appjail-health) return 0 ;;
 	esac
 	return 1
 }

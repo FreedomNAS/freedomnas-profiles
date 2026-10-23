@@ -1,6 +1,6 @@
 {
   "init_name": "bsd_rc",
-  "_note": "start and restart go through assets/freedomnas-rc-service: the rc script's output goes to a file, not to the engine (a service started through daemon(8) would keep the engine's pipe open until its timeout), then the service must be running within 15 s (service onestatus; samba_server: smbd, since its status also counts winbindd, which a standalone server does not run), else the command fails with the rc script's output. appjail-natnet and appjail-health end once their work is done: only their exit code counts. is_running uses the same check.",
+  "_note": "start and restart go through assets/freedomnas-rc-service: the rc script's output goes to a file, not to the engine (a service started through daemon(8) would keep the engine's pipe open until its timeout), then the service must be running within 15 s (service onestatus; samba_server: smbd, since its status also counts winbindd, which a standalone server does not run), else the command fails with the rc script's output. appjail (it starts the jails marked for boot), appjail-natnet and appjail-health end once their work is done: only their exit code counts. is_running uses the same check.",
 
   "services": {
     "start": "/usr/local/lib/freedomnas/profiles/assets/freedomnas-rc-service start {service_name}",
