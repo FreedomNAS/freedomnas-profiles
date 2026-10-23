@@ -95,6 +95,11 @@ for pool in $(zpool list -H -o name 2>/dev/null); do
     zpool export "$pool" 2>/dev/null || true
 done
 
+# FreedomNAS's own CA, made once, and the server certificate it signs for this
+# host's names and addresses, issued again when they change. Before the
+# reconcile, so apps that serve HTTPS with it get the current one.
+python3 -m freedomnas ensure-tls || log "WARNING: could not check the TLS certificate"
+
 case "$action" in
     local|merged|restored)
         [ -n "$source_pool" ] && log "configuration $action from $source_pool"
@@ -107,9 +112,10 @@ case "$action" in
         ;;
 esac
 
-# The WebUI's certificate: created once, then left alone. A certificate that
-# changed at every boot would train the admin to click through the warning.
-python3 -m freedomnas ensure-tls || log "WARNING: no TLS certificate — the WebUI will serve plain HTTP"
+# A restore can change the hostname: the certificate is checked again, for
+# names only. Addresses the reconcile brought up (the jails' bridge) wait for
+# the next boot, so the WebUI and the apps keep presenting the same one.
+python3 -m freedomnas ensure-tls --names-only || log "WARNING: no TLS certificate — the WebUI will serve plain HTTP"
 
 # The system came this far: a new kernel's trial is over, and the automatic
 # rollback setting in config.yaml reaches the ESP.
