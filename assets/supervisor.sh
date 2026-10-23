@@ -25,17 +25,22 @@ RESTART_MARKER="$(python3 -m freedomnas path config)/webui-restart"
 rm -f "$RESTART_MARKER"
 TLS_CERT="$TLS_DIR/cert.pem"
 TLS_KEY="$TLS_DIR/key.pem"
-if [ -r "$TLS_CERT" ] && [ -r "$TLS_KEY" ]; then
-    WEBUI_CMD="$WEBUI_CMD --ssl-certfile $TLS_CERT --ssl-keyfile $TLS_KEY"
-fi
 
 # The app mounts its static files and templates by relative path, so it has
 # to run from its own directory. `python3 -m` then puts that directory on
 # sys.path as well, which is what makes `api.main` importable.
 cd "$WEBUI_DIR" || exit 1
 
+# Checked before every start, not only at boot: an update installed without
+# a reboot (or a restart from the WebUI after it) gets FreedomNAS's CA and a
+# certificate for this host's names and addresses at once.
 while true; do
-    $WEBUI_CMD
+    python3 -m freedomnas ensure-tls >/dev/null || echo "[$(date)] WARNING: could not check the TLS certificate"
+    if [ -r "$TLS_CERT" ] && [ -r "$TLS_KEY" ]; then
+        $WEBUI_CMD --ssl-certfile "$TLS_CERT" --ssl-keyfile "$TLS_KEY"
+    else
+        $WEBUI_CMD
+    fi
     EXIT=$?
     if [ -e "$RESTART_MARKER" ]; then
         rm -f "$RESTART_MARKER"
