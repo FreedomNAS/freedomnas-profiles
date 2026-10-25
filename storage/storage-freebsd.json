@@ -151,7 +151,18 @@
     "group_set": "chgrp {group} {path}",
     "group_set_recursive": "chgrp -R {group} {path}",
     "owner_set": "chown {owner} {path}",
-    "mode_set": "chmod {mode} {path}"
+    "mode_set": "chmod {mode} {path}",
+    "group_share_mode": "2770",
+    "group_share_properties": {
+      "aclmode": "passthrough",
+      "aclinherit": "passthrough"
+    },
+    "acl_group_set": "setfacl -R -m g:{group}:full_set:fd:allow {path}",
+    "acl_group_remove": "setfacl -R -x g:{group}:full_set:fd:allow {path}",
+    "acl_user_read": "setfacl -R -m u:{user}:rxaRcs:fd:allow {path}",
+    "acl_user_write": "setfacl -R -m u:{user}:full_set:fd:allow {path}",
+    "acl_user_read_remove": "setfacl -R -x u:{user}:rxaRcs:fd:allow {path}",
+    "acl_user_write_remove": "setfacl -R -x u:{user}:full_set:fd:allow {path}"
   },
   "zfs_properties": {
     "aclinherit": {

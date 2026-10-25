@@ -13,7 +13,8 @@
     "nmb_service": "samba_server",
     "reload_config": "smbcontrol smbd reload-config",
     "usershare_path": "/var/db/samba4/usershares",
-    "usershare_prepare": "install -d -m 1770 {path}"
+    "usershare_prepare": "install -d -m 1770 {path}",
+    "group_share_settings": []
   },
   "nfs": {
     "config_file": "/etc/exports",

@@ -8,7 +8,8 @@
       "samba-dsdb-modules",
       "winbind",
       "libpam-winbind",
-      "libnss-winbind"
+      "libnss-winbind",
+      "acl"
     ],
     "services": [
       "smbd",
@@ -83,7 +84,8 @@
   "void": {
     "packages": [
       "samba",
-      "freedomnas-samba-conf"
+      "freedomnas-samba-conf",
+      "acl-progs"
     ],
     "services": [
       "smbd",
@@ -95,7 +97,8 @@
   },
   "gentoo": {
     "packages": [
-      "net-fs/samba"
+      "net-fs/samba",
+      "sys-apps/acl"
     ],
     "services": [
       "samba"

@@ -19,7 +19,11 @@
         "smb_service": "smb",
         "nmb_service": "smb"
       }
-    }
+    },
+    "group_share_settings": [
+      "create mask = 0770",
+      "directory mask = 0770"
+    ]
   },
   "nfs": {
     "config_file": "/etc/exports",

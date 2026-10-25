@@ -14,6 +14,8 @@
     "set_password_stdin": "pw usermod {username} -h 0",
     "password_stdin_format": "{password}\n",
     "sudo_group": "wheel",
-    "lock_root": "pw lock root"
+    "lock_root": "pw lock root",
+    "group_create": "pw groupadd {group}",
+    "group_delete": "pw groupdel {group}"
   }
 }

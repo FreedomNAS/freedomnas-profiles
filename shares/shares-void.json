@@ -13,7 +13,11 @@
     "nmb_service": "nmbd",
     "reload_config": "smbcontrol smbd reload-config",
     "usershare_path": "/var/lib/samba/usershares",
-    "usershare_prepare": "install -d -m 1770 {path}"
+    "usershare_prepare": "install -d -m 1770 {path}",
+    "group_share_settings": [
+      "create mask = 0770",
+      "directory mask = 0770"
+    ]
   },
   "nfs": {
     "config_file": "/etc/exports",

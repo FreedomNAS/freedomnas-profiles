@@ -13,6 +13,8 @@
     "create_basic": "useradd -m -s /bin/bash {username}",
     "set_password_stdin": "chpasswd -c SHA512",
     "password_stdin_format": "{username}:{password}\n",
-    "sudo_group": "wheel"
+    "sudo_group": "wheel",
+    "group_create": "groupadd {group}",
+    "group_delete": "groupdel {group}"
   }
 }
