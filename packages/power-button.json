@@ -1,0 +1,63 @@
+{
+  "category": "power-button",
+  "description": "Power button: a short press shuts the NAS down cleanly. systemd-logind (Debian, Arch) and FreeBSD's ACPI (hw.acpi.power_button_state=S5) already do it; the other editions get acpid with a FreedomNAS rule (os profile power_button)",
+  "debian": {
+    "packages": [],
+    "services": []
+  },
+  "freebsd": {
+    "packages": [],
+    "services": []
+  },
+  "arch": {
+    "packages": [],
+    "services": []
+  },
+  "artix": {
+    "packages": [
+      "acpid"
+    ],
+    "init": {
+      "openrc": {
+        "packages": [
+          "acpid-openrc"
+        ],
+        "services": [
+          "acpid"
+        ]
+      },
+      "dinit": {
+        "packages": [
+          "acpid-dinit"
+        ],
+        "services": [
+          "acpid"
+        ]
+      },
+      "runit": {
+        "packages": [
+          "acpid-runit"
+        ],
+        "services": [
+          "acpid"
+        ]
+      }
+    }
+  },
+  "void": {
+    "packages": [
+      "acpid"
+    ],
+    "services": [
+      "acpid"
+    ]
+  },
+  "gentoo": {
+    "packages": [
+      "sys-power/acpid"
+    ],
+    "services": [
+      "acpid"
+    ]
+  }
+}

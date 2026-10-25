@@ -59,5 +59,12 @@
     "run_topgrade": "su - {username} -c 'topgrade --yes --config /etc/freedomnas/topgrade.toml'",
     "topgrade_config": "/etc/freedomnas/topgrade.toml",
     "topgrade_extra_config": "[linux]\nemerge_update_flags = \"-uDN --with-bdeps=y world\"\n"
+  },
+  "power_button": {
+    "category": "power-button",
+    "rule_dir": "/etc/acpi/events",
+    "rule_file": "/etc/acpi/events/freedomnas-power",
+    "rule": "# FreedomNAS: a press of the power button shuts the NAS down.\nevent=button/power.*\naction=/bin/sh -c poweroff\n",
+    "service": "acpid"
   }
 }

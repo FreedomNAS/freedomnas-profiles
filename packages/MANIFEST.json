@@ -10,6 +10,13 @@
       "file": "core.json"
     },
     {
+      "id": "power-button",
+      "name": "Power button",
+      "description": "A short press of the power button shuts the NAS down cleanly",
+      "required": true,
+      "file": "power-button.json"
+    },
+    {
       "id": "samba-cifs",
       "name": "Samba/CIFS",
       "description": "SMB/CIFS file sharing — Windows-compatible network shares",
