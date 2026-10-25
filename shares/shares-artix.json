@@ -23,7 +23,8 @@
     "group_share_settings": [
       "create mask = 0770",
       "directory mask = 0770"
-    ]
+    ],
+    "user_exists": "pdbedit -u {username}"
   },
   "nfs": {
     "config_file": "/etc/exports",
