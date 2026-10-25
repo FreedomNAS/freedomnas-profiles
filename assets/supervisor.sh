@@ -14,7 +14,13 @@ WEBUI_DIR="$INSTALL_ROOT/webui"
 # -- see firstboot.sh.
 PYTHONPATH="$INSTALL_ROOT/core${PYTHONPATH:+:$PYTHONPATH}"
 export PYTHONPATH
-WEBUI_CMD="python3 -m uvicorn api.main:app --host 0.0.0.0 --port 8080"
+# api.serve answers a plain http:// request on the WebUI's port with a redirect
+# to https://; a WebUI from before it has only uvicorn.
+if [ -f "$WEBUI_DIR/api/serve.py" ]; then
+    WEBUI_CMD="python3 -m api.serve --host 0.0.0.0 --port 8080"
+else
+    WEBUI_CMD="python3 -m uvicorn api.main:app --host 0.0.0.0 --port 8080"
+fi
 
 # HTTP Basic sends the administrator's password on every request, so the WebUI
 # speaks TLS whenever the certificate is there. An installation from before
