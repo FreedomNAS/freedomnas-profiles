@@ -16,6 +16,8 @@
     "sudo_group": "wheel",
     "lock_root": "pw lock root",
     "group_create": "pw groupadd {group}",
-    "group_delete": "pw groupdel {group}"
+    "group_delete": "pw groupdel {group}",
+    "password_expire": "pw usermod {username} -p 1",
+    "password_fresh": "pw usermod {username} -p 0"
   }
 }

@@ -15,6 +15,8 @@
     "password_stdin_format": "{username}:{password}\n",
     "sudo_group": "wheel",
     "group_create": "groupadd {group}",
-    "group_delete": "groupdel {group}"
+    "group_delete": "groupdel {group}",
+    "password_expire": "chage -d 0 {username}",
+    "password_fresh": "chage -d -1 {username}"
   }
 }
