@@ -48,7 +48,8 @@
     "disk_partitions": "gpart show",
     "mount_list": "mount | column -t",
     "df": "df -h",
-    "dmesg": "dmesg"
+    "dmesg": "dmesg",
+    "ssh_host_key_dir": "/etc/ssh"
   },
   "updates": {
     "run_topgrade": "su - {username} -c 'topgrade --yes --config /usr/local/etc/freedomnas/topgrade.toml'",
