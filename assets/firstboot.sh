@@ -100,12 +100,29 @@ done
 # reconcile, so apps that serve HTTPS with it get the current one.
 python3 -m freedomnas ensure-tls || log "WARNING: could not check the TLS certificate"
 
+# A restore (a reinstall, another edition, an install set up again from its
+# pool, or one a power cut interrupted) runs with the restore lock in place:
+# the WebUI starts first and serves only the page that follows the steps
+# the reconcile writes into the lock, until it is gone.
+lock=$(python3 -m freedomnas path restoring 2>/dev/null)
+restoring=no
+case "$action" in restored|reinitialized) restoring=yes ;; esac
+[ -n "$lock" ] && [ -e "$lock" ] && restoring=yes
+progress=""
+if [ "$restoring" = yes ]; then
+    python3 -m freedomnas restore-begin --reason "$action" || log "WARNING: could not write the restore lock"
+    "$INSTALL_ROOT/webui/bin/supervisor.sh" &
+    webui=$!
+    progress="--progress"
+    log "restore in progress: the WebUI shows its steps"
+fi
+
 case "$action" in
     local|merged|restored|reinitialized)
         [ -n "$source_pool" ] && log "configuration $action from $source_pool"
         printf '%s\n' "$state" | awk '$1 == "reason" { $1 = ""; print "reason:" $0 }' | while read -r line; do log "$line"; done
         log "reconciling the configuration (declarative)"
-        python3 -m freedomnas reconcile --mode declarative || \
+        python3 -m freedomnas reconcile --mode declarative $progress || \
             log "WARNING: reconcile failed, continuing to boot the WebUI anyway"
         ;;
     *)
@@ -122,4 +139,8 @@ python3 -m freedomnas ensure-tls --names-only || log "WARNING: no TLS certificat
 # rollback setting in config.yaml reaches the ESP.
 python3 -m freedomnas boot-ok || log "WARNING: could not confirm the boot"
 
+if [ "$restoring" = yes ]; then
+    wait "$webui"
+    exit $?
+fi
 exec "$INSTALL_ROOT/webui/bin/supervisor.sh"
