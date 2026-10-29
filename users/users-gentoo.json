@@ -2,6 +2,8 @@
   "users": {
     "create": "useradd -m -s /bin/bash -G {groups} {username}",
     "create_with_uid": "useradd -m -u {uid} -s /bin/bash -G {groups} {username}",
+    "uid_set": "usermod -u {uid} {username}",
+    "gid_set": "groupmod -g {gid} {group}",
     "group_exists": "getent group {group}",
     "delete": "userdel -r {username}",
     "delete_keep_home": "userdel {username}",

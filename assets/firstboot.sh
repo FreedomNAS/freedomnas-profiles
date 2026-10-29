@@ -101,8 +101,9 @@ done
 python3 -m freedomnas ensure-tls || log "WARNING: could not check the TLS certificate"
 
 case "$action" in
-    local|merged|restored)
+    local|merged|restored|reinitialized)
         [ -n "$source_pool" ] && log "configuration $action from $source_pool"
+        printf '%s\n' "$state" | awk '$1 == "reason" { $1 = ""; print "reason:" $0 }' | while read -r line; do log "$line"; done
         log "reconciling the configuration (declarative)"
         python3 -m freedomnas reconcile --mode declarative || \
             log "WARNING: reconcile failed, continuing to boot the WebUI anyway"

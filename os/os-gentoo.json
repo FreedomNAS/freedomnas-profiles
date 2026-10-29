@@ -40,7 +40,7 @@
   },
   "system": {
     "ssh_service": "sshd",
-    "hostname_set": "hostname {hostname}",
+    "hostname_set": "sh -c 'printf \"%s\\n\" \"$1\" > /etc/hostname && hostname \"$1\"' hostname_set {hostname}",
     "timezone_set": "ln -sf /usr/share/zoneinfo/{timezone} /etc/localtime",
     "timezone_get": "readlink /etc/localtime | sed 's|.*/zoneinfo/||'",
     "reboot": "openrc-shutdown --reboot now",
