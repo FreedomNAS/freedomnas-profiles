@@ -181,7 +181,8 @@
   },
   "python": {
     "site_dir": "python3 -c \"import sysconfig; print(sysconfig.get_path('purelib'))\"",
-    "import_check": "python3 -c \"import freedomnas, sys; print(freedomnas.__file__)\""
+    "import_check": "python3 -c \"import freedomnas, sys; print(freedomnas.__file__)\"",
+    "restore_offline": "python3 -m freedomnas restore-offline --from {source}"
   },
   "bootstrap": {
     "debootstrap": "debootstrap --arch={arch} --include=ca-certificates,apt-transport-https,curl {suite} {root} {mirror}",

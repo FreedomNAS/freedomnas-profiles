@@ -148,7 +148,8 @@
     ]
   },
   "python": {
-    "site_dir": "python3 -c \"import sysconfig; print(sysconfig.get_path('purelib'))\""
+    "site_dir": "python3 -c \"import sysconfig; print(sysconfig.get_path('purelib'))\"",
+    "restore_offline": "python3 -m freedomnas restore-offline --from {source}"
   },
   "bootstrap": {
     "fetch_tarball": "curl -fL --retry 3 -o {output} {url}",
