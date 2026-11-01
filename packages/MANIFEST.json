@@ -33,7 +33,7 @@
     {
       "id": "containers",
       "name": "Containers",
-      "description": "Container runtime — Docker/Podman for containerized applications",
+      "description": "Container runtime — Docker on Linux, AppJail on FreeBSD, for the apps of the Containers module",
       "required": false,
       "file": "containers.json"
     },
