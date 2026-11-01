@@ -28,6 +28,18 @@
   "bootloader": {
     "firmware_mode": "sysctl -n machdep.bootmethod",
     "kernel_installed": "freebsd-version -k",
+    "be_list": "bectl list -H -c creation",
+    "be_create": "bectl create {be}",
+    "be_activate": "bectl activate {be}",
+    "be_destroy": "bectl destroy -o {be}",
+    "be_activate_once": "bectl activate -t {be}",
+    "be_mountpoint": "/tmp/freedomnas-be",
+    "be_mount": ["mkdir -p {root}", "bectl mount {be} {root}"],
+    "be_umount": "bectl umount -f {be}",
+    "be_fix_loader": "sed -i '' '/^vfs\\.root\\.mountfrom=/d' {root}/boot/loader.conf",
+    "be_fingerprint": "sh -c 'pkg -c \"$1\" query %n-%v | sort; sha256 -q \"$1/boot/kernel/kernel\" \"$1/bin/freebsd-version\"' fingerprint {root}",
+    "be_enter": ["mount -t devfs devfs {root}/dev", "cp /etc/resolv.conf {root}/etc/resolv.conf"],
+    "be_leave": "umount -f {root}/dev",
     "_note": "FreeBSD boots ZFS-on-root natively -- no UKI/Clover needed. gptzfsboot (BIOS) and loader.efi (UEFI) both understand the same GPT+ZFS layout directly, so one image is bootable both ways without a third-party shim.",
     "install_gptzfsboot": "gpart bootcode -b /boot/pmbr -p /boot/gptzfsboot -i 3 {disk}",
     "install_efi_loader": "cp /boot/loader.efi {esp_mount}/EFI/BOOT/BOOTX64.efi",
@@ -53,6 +65,12 @@
   },
   "updates": {
     "run_topgrade": "su - {username} -c 'topgrade --yes --config /usr/local/etc/freedomnas/topgrade.toml'",
-    "topgrade_config": "/usr/local/etc/freedomnas/topgrade.toml"
+    "topgrade_config": "/usr/local/etc/freedomnas/topgrade.toml",
+    "be_update": [
+      "sh -c 'freebsd-update -b \"$1\" -d \"$1/var/db/freebsd-update\" -f \"$1/etc/freebsd-update.conf\" --not-running-from-cron --currently-running \"$(\"$1/bin/freebsd-version\" -u)\" fetch' freebsd-update {root}",
+      "sh -c 'freebsd-update -b \"$1\" -d \"$1/var/db/freebsd-update\" -f \"$1/etc/freebsd-update.conf\" --not-running-from-cron --currently-running \"$(\"$1/bin/freebsd-version\" -u)\" install; c=$?; [ $c -eq 2 ] && exit 0; exit $c' freebsd-update {root}",
+      "pkg -c {root} upgrade -y"
+    ],
+    "_be_update_note": "The update runs inside a new boot environment mounted at {root}: freebsd-update with -b (it needs --currently-running then, read from the copy's own freebsd-version; install exits 2 when there was nothing to install) and pkg chrooted into it. The running system is not touched."
   }
 }
