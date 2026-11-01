@@ -1,21 +1,17 @@
 {
   "installer_meta": {
-    "maintainer_note": "FreeBSD provisioning is native: gpart for the layout, base.txz for the userland and kernel.txz for the kernel (base.txz has none), and the loader reads ZFS directly, so there is no UKI and no Clover. The release is not pinned: an empty suite makes the installer run bootstrap.latest_suite, the newest release on the mirror that ships kernel.txz. A FreeBSD target requires a FreeBSD installer environment - Linux hosts cannot run gpart/pkg, which is why the installer filters targets by os_family.",
+    "maintainer_note": "FreeBSD provisioning is native: gpart for the layout, the base system from the FreeBSD-base pkg repository (pkgbase) the way bsdinstall installs it, and the loader reads ZFS directly, so there is no UKI and no Clover. bootstrap.pkgbase writes a repository configuration for the chosen release (bootstrap_files.pkgbase_repo, MAJOR and MINOR filled from the suite) next to the host's keys copied into the target, and installs FreeBSD-set-minimal, FreeBSD-set-base (minimal + optional + devel: what base.txz held) and FreeBSD-set-kernels with pkg --rootdir; files.pkgbase_repo_conf then enables FreeBSD-base on the installed system, so pkg upgrade updates base and packages together. The release is not pinned: an empty suite makes the installer run bootstrap.latest_suite, the newest release whose base repository exists and whose signing key this host has. A FreeBSD target requires a FreeBSD installer environment - Linux hosts cannot run gpart/pkg, which is why the installer filters targets by os_family.",
     "arch": "amd64",
     "suite": "",
-    "mirror": "https://download.freebsd.org/ftp/releases/{arch}/{suite}",
+    "mirror": "https://pkg.FreeBSD.org",
     "esp_size": "1G",
     "esp_mountpoint": "/boot/efi",
     "bootstrap_methods": [
-      "tarball"
+      "pkgbase"
     ],
     "bootstrap_tools": {
-      "tarball": "tar"
+      "pkgbase": "pkg"
     },
-    "rootfs_tarball_url": "https://download.freebsd.org/ftp/releases/{arch}/{suite}/base.txz",
-    "extra_tarball_urls": [
-      "https://download.freebsd.org/ftp/releases/{arch}/{suite}/kernel.txz"
-    ],
     "chroot_dirs": [
       "/dev"
     ],
@@ -87,16 +83,31 @@
     "restore_offline": "python3 -m freedomnas restore-offline --from {source}"
   },
   "bootstrap": {
-    "fetch_tarball": "fetch -o {output} {url}",
-    "unpack_tarball": "tar -xpf {tarball} -C {root}",
+    "pkgbase": [
+      "sh -c 'v=${{2%%-*}}; mkdir -p \"$1/usr/share/keys\" \"$3/repos\" && cp -R /usr/share/keys/. \"$1/usr/share/keys/\" && sed -e \"s/MAJOR/${{v%%.*}}/g\" -e \"s/MINOR/${{v#*.}}/g\" \"$3/FreeBSD-base.conf.in\" > \"$3/repos/FreeBSD-base.conf\"' pkgbase {root} {suite} {bootstrap_dir}",
+      "pkg --rootdir {root} --repo-conf-dir {bootstrap_dir}/repos -o IGNORE_OSVERSION=yes update",
+      "pkg --rootdir {root} --repo-conf-dir {bootstrap_dir}/repos -o IGNORE_OSVERSION=yes install -U -F -y -r FreeBSD-base FreeBSD-set-minimal FreeBSD-set-base FreeBSD-set-kernels",
+      "pkg --rootdir {root} --repo-conf-dir {bootstrap_dir}/repos -o IGNORE_OSVERSION=yes install -U -y -r FreeBSD-base FreeBSD-set-minimal FreeBSD-set-base FreeBSD-set-kernels",
+      "pkg --rootdir {root} --repo-conf-dir {bootstrap_dir}/repos -o IGNORE_OSVERSION=yes clean -ay"
+    ],
     "update_cache": "pkg update -f",
     "install_base": "pkg install -y {package_list}",
     "multi_args": [
       "package_list"
     ],
-    "latest_suite": "for r in $(fetch -qo - https://download.freebsd.org/ftp/releases/{arch}/ | grep -o '[0-9][0-9]*\\.[0-9][0-9]*-RELEASE' | sort -u -t. -k1,1nr -k2,2nr); do fetch -qs https://download.freebsd.org/ftp/releases/{arch}/$r/kernel.txz >/dev/null 2>&1 && echo $r && break; done"
+    "latest_suite": "for r in $(fetch -qo - https://download.freebsd.org/ftp/releases/{arch}/ | grep -o '[0-9][0-9]*\\.[0-9][0-9]*-RELEASE' | sort -u -t. -k1,1nr -k2,2nr); do v=${{r%-RELEASE}}; [ -e /usr/share/keys/pkgbase-${{v%.*}} ] && fetch -qo /dev/null https://pkg.FreeBSD.org/FreeBSD:${{v%.*}}:{arch}/base_release_${{v#*.}}/meta.conf >/dev/null 2>&1 && echo $r && break; done"
+  },
+  "bootstrap_files": {
+    "pkgbase_repo": {
+      "path": "FreeBSD-base.conf.in",
+      "content": "FreeBSD-base: {{\n  url: \"pkg+{mirror}/FreeBSD:MAJOR:{arch}/base_release_MINOR\",\n  mirror_type: \"srv\",\n  signature_type: \"fingerprints\",\n  fingerprints: \"/usr/share/keys/pkgbase-MAJOR\",\n  enabled: yes\n}}\n"
+    }
   },
   "files": {
+    "pkgbase_repo_conf": {
+      "path": "/usr/local/etc/pkg/repos/FreeBSD-base.conf",
+      "content": "FreeBSD-base: {{ enabled: yes }}\n"
+    },
     "rc_conf": {
       "path": "/etc/rc.conf",
       "content": "hostname=\"{fqdn}\"\nzfs_enable=\"YES\"\nsshd_enable=\"YES\"\nifconfig_DEFAULT=\"DHCP\"\nnfsv4_server_enable=\"YES\"\nntpd_enable=\"YES\"\nntpd_sync_on_start=\"YES\"\n"
