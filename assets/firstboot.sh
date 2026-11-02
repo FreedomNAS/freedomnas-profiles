@@ -45,6 +45,13 @@ export PYTHONPATH
 
 log() { echo "firstboot: $*"; }
 
+ran_this_boot=/var/run/freedomnas-firstboot
+if [ -e "$ran_this_boot" ]; then
+    log "already ran since this boot -- nothing to do"
+    exit 0
+fi
+: > "$ran_this_boot"
+
 # An image flashed onto a larger disk: take the rest of it. Does nothing once
 # the root pool's partition reaches the end of the disk.
 python3 -m freedomnas grow-root-pool || log "WARNING: could not grow the root pool"
@@ -111,8 +118,7 @@ case "$action" in restored|reinitialized) restoring=yes ;; esac
 progress=""
 if [ "$restoring" = yes ]; then
     python3 -m freedomnas restore-begin --reason "$action" || log "WARNING: could not write the restore lock"
-    "$INSTALL_ROOT/webui/bin/supervisor.sh" &
-    webui=$!
+    "$INSTALL_ROOT/webui/bin/supervisor.sh" </dev/null &
     progress="--progress"
     log "restore in progress: the WebUI shows its steps"
 fi
@@ -139,8 +145,7 @@ python3 -m freedomnas ensure-tls --names-only || log "WARNING: no TLS certificat
 # rollback setting in config.yaml reaches the ESP.
 python3 -m freedomnas boot-ok || log "WARNING: could not confirm the boot"
 
-if [ "$restoring" = yes ]; then
-    wait "$webui"
-    exit $?
+if [ "$restoring" != yes ]; then
+    "$INSTALL_ROOT/webui/bin/supervisor.sh" </dev/null &
 fi
-exec "$INSTALL_ROOT/webui/bin/supervisor.sh"
+exit 0
