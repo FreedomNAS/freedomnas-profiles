@@ -1,29 +1,48 @@
 #!/bin/sh
-# Baked into every image at <install_root>/webui/bin/firstboot.sh and
-# launched from cron's @reboot entry (replacing the old direct call to
-# supervisor.sh — this script now does the ADR-002 boot-time decision
-# and then hands off to supervisor.sh itself).
+# Baked into every image and install at <install_root>/webui/bin/firstboot.sh
+# (or run from <install_root>/profiles/assets) and launched by cron's @reboot
+# entry. It makes the boot-time decision of ADR-002
+# (IMAGE-BASED-INSTALLATION.md), then leaves the supervisor and the WebUI
+# running under init and exits, so cron's job ends with it. It runs once per
+# boot: /var/run/freedomnas-firstboot, which every boot clears, stops a second
+# run (restarting FreeBSD's cron runs @reboot entries again).
 #
-# ADR-002 (IMAGE-BASED-INSTALLATION.md), with the internal/external split:
-# on every boot `freedomnas state-boot` mounts the root pool's `.freedomnas`
-# (this install's own configuration, created on the first boot) and looks
-# at the `.freedomnas` of every other importable pool:
+# In order:
+#   1. grow-root-pool: an image flashed onto a larger disk takes the rest of it.
+#   2. Every importable pool is imported without mounting (-N -f, no cachefile),
+#      and encrypted ones are unlocked (USB key, else a passphrase on the
+#      console, never blocking for ever).
+#   3. `freedomnas state-boot` mounts the root pool's own `.freedomnas` (this
+#      install's truth) and compares it with the `.freedomnas` copies on the
+#      other pools, newest first by system.saved_at:
+#        local         -> the internal configuration is initialized and used as
+#                         it is;
+#        merged        -> as local, plus the shared sections (shares, snapshot
+#                         policies, modules, pools, new users never as admins)
+#                         of the newest copy, whatever its age;
+#        reinitialized -> the internal one does not match the running system
+#                         (another edition, another identity): set up again
+#                         from the newest copy, accounts kept;
+#        restored      -> nothing initialized here (a reinstall): the newest
+#                         copy, or the one the installer chose, is restored;
+#        none          -> nothing anywhere: the WebUI's first-run guard
+#                         redirects to /setup/.
+#      The network comes from the newest copy that knows a card of this
+#      machine. state-boot also names the pools to keep imported; every other
+#      pool imported in step 2 is exported again.
+#   4. ensure-tls: the CA and the server certificate for this host's names and
+#      addresses, before the reconcile so apps get the current one.
+#   5. A restore (restored, reinitialized, or a restore lock an interrupted one
+#      left) writes the lock and starts the supervisor first: the WebUI shows
+#      only the restore page with the reconcile's steps until the lock is gone.
+#   6. Except for none, `freedomnas reconcile --mode declarative` makes the
+#      system match config.yaml.
+#   7. ensure-tls --names-only (a restore may change the hostname), then
+#      boot-ok ends a new kernel's or boot environment's trial.
+#   8. The supervisor starts in the background, unless step 5 started it.
 #
-#   - local    -> the internal configuration is initialized: it is used;
-#   - merged   -> a data pool holds a newer copy written by another install:
-#                 only its shares, policies, modules, pools and users are
-#                 taken over, never what belongs to this install;
-#   - restored -> nothing initialized here (a reinstall): the newest copy
-#                 on a data pool is restored;
-#   - none     -> nothing anywhere: the WebUI's first-run guard redirects
-#                 to /setup/.
-#
-# Except for none, `freedomnas reconcile --mode declarative` then makes the
-# system match config.yaml (hostname, users, shares, ...).
-#
-# Must never block boot indefinitely and must never abort the chain even
-# if reconciliation fails -- the WebUI should still come up so the admin
-# can intervene manually.
+# Must never block boot indefinitely and must never abort the chain even if a
+# step fails: the WebUI must still come up so the admin can intervene.
 set -u
 
 # cron's @reboot environment has neither sbin directory on PATH, and every
