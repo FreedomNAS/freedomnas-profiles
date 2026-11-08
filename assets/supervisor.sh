@@ -1,5 +1,9 @@
 #!/bin/sh
 # FreedomNAS WebUI supervisor -- init-agnostic, circuit breaker after 5 failures.
+# Next to the WebUI it keeps `python3 -m freedomnas serve` running, which
+# checks the modules and retries or blocks the failing ones: each loop counts
+# its own failures, so one stopping never stops the other. serve exits with
+# 75 when the installed modules change, to be started again with the new set.
 # A restart the WebUI asks for itself (System -> Restart WebUI, or the notice
 # after an update) leaves the marker <config>/webui-restart before it exits:
 # that exit is not a failure, and the WebUI starts again at once.
@@ -36,6 +40,28 @@ TLS_KEY="$TLS_DIR/key.pem"
 # to run from its own directory. `python3 -m` then puts that directory on
 # sys.path as well, which is what makes `api.main` importable.
 cd "$WEBUI_DIR" || exit 1
+
+serve_loop() {
+    failures=0
+    while true; do
+        python3 -m freedomnas serve
+        code=$?
+        if [ $code -eq 75 ]; then
+            failures=0
+            continue
+        fi
+        if [ $code -ne 0 ]; then
+            failures=$((failures + 1))
+            echo "[$(date)] Module checks exited with code $code (failure $failures/$MAX_FAILURES)"
+            if [ $failures -ge $MAX_FAILURES ]; then
+                echo "[$(date)] Module checks stopped after $MAX_FAILURES failures"
+                return 1
+            fi
+        fi
+        sleep 5
+    done
+}
+serve_loop </dev/null &
 
 # Checked before every start, not only at boot: an update installed without
 # a reboot (or a restart from the WebUI after it) gets FreedomNAS's CA and a

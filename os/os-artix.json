@@ -5,7 +5,8 @@
   "init_system": "openrc",
   "paths": {
     "install_root": "/usr/lib/freedomnas",
-    "config_dir": "/etc/freedomnas"
+    "config_dir": "/etc/freedomnas",
+    "run_dir": "/run/freedomnas"
   },
   "community_maintained": true,
   "maintainer_note": "Community-maintained profile (exotic edition). Arch userland (pacman) with OpenRC instead of systemd -- no hostnamectl/systemctl anywhere in this file. Package/service names inherited from arch.json where OpenRC does not change them; samba/nfs OpenRC service names should be validated against the current artix-openrc-base package set before relying on them in production. Contributions welcome!",

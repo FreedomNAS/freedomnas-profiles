@@ -5,7 +5,8 @@
   "init_system": "bsd_rc",
   "paths": {
     "install_root": "/usr/local/lib/freedomnas",
-    "config_dir": "/usr/local/etc/freedomnas"
+    "config_dir": "/usr/local/etc/freedomnas",
+    "run_dir": "/var/run/freedomnas"
   },
   "packages": {
     "update_cache": "pkg update",

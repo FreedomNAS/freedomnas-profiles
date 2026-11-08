@@ -5,7 +5,8 @@
   "init_system": "systemd",
   "paths": {
     "install_root": "/usr/lib/freedomnas",
-    "config_dir": "/etc/freedomnas"
+    "config_dir": "/etc/freedomnas",
+    "run_dir": "/run/freedomnas"
   },
   "packages": {
     "update_cache": "apt update",
