@@ -23,7 +23,14 @@
     "module_search": "pacman -Ss '^freedomnas-module-' | awk '/^[^ ]/ {{split($1, a, \"/\"); n = a[2]; v = $2; next}} {{sub(/^ +/, \"\"); print n \"\\t\" v \"\\t\" $0}}'",
     "module_installed": "pacman -Qs '^freedomnas-module-' | awk '/^[^ ]/ {{split($1, a, \"/\"); n = a[2]; v = $2; next}} {{sub(/^ +/, \"\"); print n \"\\t\" v \"\\t\" $0}}'",
     "module_remove": "pacman -R --noconfirm {package_name}",
-    "_note_modules": "module_search / module_installed: community modules are the packages named freedomnas-module-<id>; one line per package: name<TAB>version<TAB>description. module_search reads the local package index (update_cache refreshes it).",
+    "module_suffixes": ["-openrc", "-dinit", "-runit", "-s6"],
+    "by_init": {
+      "openrc": {"module_suffix": "-openrc"},
+      "dinit": {"module_suffix": "-dinit"},
+      "runit": {"module_suffix": "-runit"},
+      "s6": {"module_suffix": "-s6"}
+    },
+    "_note_modules": "module_search / module_installed: community modules are the packages named freedomnas-module-<id>; one line per package: name<TAB>version<TAB>description. module_search reads the local package index (update_cache refreshes it). Artix's module packages come in one variant per init (freedomnas-module-containers-openrc, -dinit, -runit), each depending on that init's service packages (docker-openrc…): module_suffixes names every variant's suffix and by_init the running init's module_suffix, and the core lists the running init's variant as the module (package_manager.parse_module_packages).",
     "multi_args": [
       "package_name"
     ]

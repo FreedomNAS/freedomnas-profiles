@@ -216,7 +216,7 @@
     "package_accept_keywords": {
       "path": "/etc/portage/package.accept_keywords/freedomnas",
       "inplace": true,
-      "content": "# Packages FreedomNAS needs that Gentoo has not stabilised yet.\ndev-python/fastapi ~{arch}\n"
+      "content": "# Packages FreedomNAS needs that Gentoo has not stabilised yet.\ndev-python/fastapi ~{arch}\nwww-servers/caddy ~{arch}\napp-crypt/lego ~{arch}\n"
     },
     "scheduled_jobs": {
       "path": "/etc/cron.d/freedomnas",
