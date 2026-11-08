@@ -23,14 +23,30 @@
     "module_search": "pacman -Ss '^freedomnas-module-' | awk '/^[^ ]/ {{split($1, a, \"/\"); n = a[2]; v = $2; next}} {{sub(/^ +/, \"\"); print n \"\\t\" v \"\\t\" $0}}'",
     "module_installed": "pacman -Qs '^freedomnas-module-' | awk '/^[^ ]/ {{split($1, a, \"/\"); n = a[2]; v = $2; next}} {{sub(/^ +/, \"\"); print n \"\\t\" v \"\\t\" $0}}'",
     "module_remove": "pacman -R --noconfirm {package_name}",
-    "module_suffixes": ["-openrc", "-dinit", "-runit", "-s6"],
+    "module_pattern": "(?:[a-z0-9][a-z0-9+_.-]*/)?freedomnas-module-([a-z0-9][a-z0-9_-]{0,62})",
     "by_init": {
-      "openrc": {"module_suffix": "-openrc"},
-      "dinit": {"module_suffix": "-dinit"},
-      "runit": {"module_suffix": "-runit"},
-      "s6": {"module_suffix": "-s6"}
+      "openrc": {
+        "module_search": "pacman -Ss '^freedomnas-module-' | awk '/^[^ ]/ {{split($1, a, \"/\"); n = a[2]; v = $2; next}} {{sub(/^ +/, \"\"); print n \"\\t\" v \"\\t\" $0}}' | awk -F '\\t' '$1 ~ /-(dinit|runit|s6)$/ {{next}} $1 ~ /-openrc$/ {{b = $1; sub(/-openrc$/, \"\", b); own[b] = $0; next}} {{base[$1] = $0}} END {{for (b in own) print own[b]; for (n in base) if (!(n in own)) print base[n]}}' | sort",
+        "module_installed": "pacman -Qs '^freedomnas-module-' | awk '/^[^ ]/ {{split($1, a, \"/\"); n = a[2]; v = $2; next}} {{sub(/^ +/, \"\"); print n \"\\t\" v \"\\t\" $0}}' | awk -F '\\t' '$1 ~ /-(dinit|runit|s6)$/ {{next}} $1 ~ /-openrc$/ {{b = $1; sub(/-openrc$/, \"\", b); own[b] = $0; next}} {{base[$1] = $0}} END {{for (b in own) print own[b]; for (n in base) if (!(n in own)) print base[n]}}' | sort",
+        "module_pattern": "(?:[a-z0-9][a-z0-9+_.-]*/)?freedomnas-module-([a-z0-9][a-z0-9_-]{0,62}?)(?:-openrc)?"
+      },
+      "dinit": {
+        "module_search": "pacman -Ss '^freedomnas-module-' | awk '/^[^ ]/ {{split($1, a, \"/\"); n = a[2]; v = $2; next}} {{sub(/^ +/, \"\"); print n \"\\t\" v \"\\t\" $0}}' | awk -F '\\t' '$1 ~ /-(openrc|runit|s6)$/ {{next}} $1 ~ /-dinit$/ {{b = $1; sub(/-dinit$/, \"\", b); own[b] = $0; next}} {{base[$1] = $0}} END {{for (b in own) print own[b]; for (n in base) if (!(n in own)) print base[n]}}' | sort",
+        "module_installed": "pacman -Qs '^freedomnas-module-' | awk '/^[^ ]/ {{split($1, a, \"/\"); n = a[2]; v = $2; next}} {{sub(/^ +/, \"\"); print n \"\\t\" v \"\\t\" $0}}' | awk -F '\\t' '$1 ~ /-(openrc|runit|s6)$/ {{next}} $1 ~ /-dinit$/ {{b = $1; sub(/-dinit$/, \"\", b); own[b] = $0; next}} {{base[$1] = $0}} END {{for (b in own) print own[b]; for (n in base) if (!(n in own)) print base[n]}}' | sort",
+        "module_pattern": "(?:[a-z0-9][a-z0-9+_.-]*/)?freedomnas-module-([a-z0-9][a-z0-9_-]{0,62}?)(?:-dinit)?"
+      },
+      "runit": {
+        "module_search": "pacman -Ss '^freedomnas-module-' | awk '/^[^ ]/ {{split($1, a, \"/\"); n = a[2]; v = $2; next}} {{sub(/^ +/, \"\"); print n \"\\t\" v \"\\t\" $0}}' | awk -F '\\t' '$1 ~ /-(openrc|dinit|s6)$/ {{next}} $1 ~ /-runit$/ {{b = $1; sub(/-runit$/, \"\", b); own[b] = $0; next}} {{base[$1] = $0}} END {{for (b in own) print own[b]; for (n in base) if (!(n in own)) print base[n]}}' | sort",
+        "module_installed": "pacman -Qs '^freedomnas-module-' | awk '/^[^ ]/ {{split($1, a, \"/\"); n = a[2]; v = $2; next}} {{sub(/^ +/, \"\"); print n \"\\t\" v \"\\t\" $0}}' | awk -F '\\t' '$1 ~ /-(openrc|dinit|s6)$/ {{next}} $1 ~ /-runit$/ {{b = $1; sub(/-runit$/, \"\", b); own[b] = $0; next}} {{base[$1] = $0}} END {{for (b in own) print own[b]; for (n in base) if (!(n in own)) print base[n]}}' | sort",
+        "module_pattern": "(?:[a-z0-9][a-z0-9+_.-]*/)?freedomnas-module-([a-z0-9][a-z0-9_-]{0,62}?)(?:-runit)?"
+      },
+      "s6": {
+        "module_search": "pacman -Ss '^freedomnas-module-' | awk '/^[^ ]/ {{split($1, a, \"/\"); n = a[2]; v = $2; next}} {{sub(/^ +/, \"\"); print n \"\\t\" v \"\\t\" $0}}' | awk -F '\\t' '$1 ~ /-(openrc|dinit|runit)$/ {{next}} $1 ~ /-s6$/ {{b = $1; sub(/-s6$/, \"\", b); own[b] = $0; next}} {{base[$1] = $0}} END {{for (b in own) print own[b]; for (n in base) if (!(n in own)) print base[n]}}' | sort",
+        "module_installed": "pacman -Qs '^freedomnas-module-' | awk '/^[^ ]/ {{split($1, a, \"/\"); n = a[2]; v = $2; next}} {{sub(/^ +/, \"\"); print n \"\\t\" v \"\\t\" $0}}' | awk -F '\\t' '$1 ~ /-(openrc|dinit|runit)$/ {{next}} $1 ~ /-s6$/ {{b = $1; sub(/-s6$/, \"\", b); own[b] = $0; next}} {{base[$1] = $0}} END {{for (b in own) print own[b]; for (n in base) if (!(n in own)) print base[n]}}' | sort",
+        "module_pattern": "(?:[a-z0-9][a-z0-9+_.-]*/)?freedomnas-module-([a-z0-9][a-z0-9_-]{0,62}?)(?:-s6)?"
+      }
     },
-    "_note_modules": "module_search / module_installed: community modules are the packages named freedomnas-module-<id>; one line per package: name<TAB>version<TAB>description. module_search reads the local package index (update_cache refreshes it). Artix's module packages come in one variant per init (freedomnas-module-containers-openrc, -dinit, -runit), each depending on that init's service packages (docker-openrc…): module_suffixes names every variant's suffix and by_init the running init's module_suffix, and the core lists the running init's variant as the module (package_manager.parse_module_packages).",
+    "_note_modules": "module_search / module_installed: community modules are the packages named freedomnas-module-<id>; one line per package: name<TAB>version<TAB>description. module_search reads the local package index (update_cache refreshes it). Artix's module packages come in one variant per init (freedomnas-module-containers-openrc, -dinit, -runit), each depending on that init's service packages (docker-openrc…): by_init keeps, for the running init, its own variant of each module and a plain package only for a module without one, and its module_pattern reads the module id without the init's suffix.",
     "multi_args": [
       "package_name"
     ]

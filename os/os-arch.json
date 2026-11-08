@@ -22,6 +22,7 @@
     "upgrade": "pacman -Syu --noconfirm",
     "module_search": "pacman -Ss '^freedomnas-module-' | awk '/^[^ ]/ {{split($1, a, \"/\"); n = a[2]; v = $2; next}} {{sub(/^ +/, \"\"); print n \"\\t\" v \"\\t\" $0}}'",
     "module_installed": "pacman -Qs '^freedomnas-module-' | awk '/^[^ ]/ {{split($1, a, \"/\"); n = a[2]; v = $2; next}} {{sub(/^ +/, \"\"); print n \"\\t\" v \"\\t\" $0}}'",
+    "module_pattern": "(?:[a-z0-9][a-z0-9+_.-]*/)?freedomnas-module-([a-z0-9][a-z0-9_-]{0,62})",
     "module_remove": "pacman -R --noconfirm {package_name}",
     "_note_modules": "module_search / module_installed: community modules are the packages named freedomnas-module-<id>; one line per package: name<TAB>version<TAB>description. module_search reads the local package index (update_cache refreshes it).",
     "multi_args": [

@@ -20,6 +20,7 @@
     "upgrade": "pkg upgrade -y",
     "module_search": "pkg rquery -g '%n\\t%v\\t%c' 'freedomnas-module-*'",
     "module_installed": "pkg query -g '%n\\t%v\\t%c' 'freedomnas-module-*'",
+    "module_pattern": "(?:[a-z0-9][a-z0-9+_.-]*/)?freedomnas-module-([a-z0-9][a-z0-9_-]{0,62})",
     "module_remove": "pkg delete -y {package_name}",
     "_note_modules": "module_search / module_installed: community modules are the packages named freedomnas-module-<id>; one line per package: name<TAB>version<TAB>description. module_search reads the local package index (update_cache refreshes it).",
     "multi_args": [
