@@ -1,3 +1,20 @@
+freedomnas-profiles (0.9.20-1) unstable; urgency=medium
+
+  * Community modules listed, installed and removed from the package
+    repository; module checks run next to the WebUI
+  * FreeBSD base system as packages (pkgbase) and updates in boot
+    environments
+  * runit editions managed through runitctl
+  * AppJail and dnsmasq for containers on FreeBSD
+  * Group share, ACL, Samba, uid and gid renumbering and password expiry
+    actions for restores
+  * Certificate checked before every WebUI start; supervisor in the
+    background and firstboot once per boot
+  * Power button handled with acpid where nothing else does; Arch's Samba
+    units named smb and nmb
+
+ -- FreedomNAS Team <dev@freedomnas.io>  Wed, 18 Nov 2026 17:28:25 +0000
+
 freedomnas-profiles (0.9.12-1) unstable; urgency=medium
 
   * UKI backed up before kernel updates, paired with the pre-update
