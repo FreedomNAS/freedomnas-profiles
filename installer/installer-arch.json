@@ -139,11 +139,11 @@
   },
   "repositories": {
     "core": [
-      "curl -fsSL -o /tmp/freedomnas-arch.key https://codeberg.org/api/packages/FreedomNAS/generic/freedomnas-arch/{channel}/repository.key",
+      "curl -fsSL -o /tmp/freedomnas-arch.key https://github.com/FreedomNAS/freedomnas-arch/releases/download/pacman-{channel}/repository.key",
       "pacman-key --add /tmp/freedomnas-arch.key",
-      "pacman-key --lsign-key 015549123DF4D6D5ADBE4179522C9783DC389A3B",
+      "pacman-key --lsign-key 807A4D2EBFBED77AB609AB0B78840464DBE24D08",
       "rm -f /tmp/freedomnas-arch.key",
-      "grep -q '^\\[freedomnas\\]' /etc/pacman.conf || printf '\\n[freedomnas]\\nSigLevel = Required\\nServer = https://codeberg.org/api/packages/FreedomNAS/generic/freedomnas-arch/{channel}\\n' >> /etc/pacman.conf",
+      "grep -q '^\\[freedomnas\\]' /etc/pacman.conf || printf '\\n[freedomnas]\\nSigLevel = Required\\nServer = https://github.com/FreedomNAS/freedomnas-arch/releases/download/pacman-{channel}\\n' >> /etc/pacman.conf",
       "gpgconf --homedir /etc/pacman.d/gnupg --kill all"
     ]
   },

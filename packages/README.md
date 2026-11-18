@@ -303,6 +303,6 @@ Mozilla Public License v2.0 (same as FreedomNAS)
 
 ## Links
 
-- **GitHub**: https://codeberg.org/sarahmeow86/freedomnas-profiles
-- **Issues**: https://codeberg.org/sarahmeow86/freedomnas-profiles/issues
+- **GitHub**: https://github.com/FreedomNAS/freedomnas-profiles
+- **Issues**: https://github.com/FreedomNAS/freedomnas-profiles/issues
 - **Schema docs**: `SCHEMA.md` (in this directory)

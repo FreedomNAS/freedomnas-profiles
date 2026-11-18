@@ -4,9 +4,9 @@ Priority: optional
 Maintainer: FreedomNAS Team <dev@freedomnas.io>
 Standards-Version: 4.6.2
 Build-Depends: debhelper-compat (= 13)
-Homepage: https://codeberg.org/FreedomNAS/freedomnas-profiles
-Vcs-Browser: https://codeberg.org/FreedomNAS/freedomnas-profiles
-Vcs-Git: https://codeberg.org/FreedomNAS/freedomnas-profiles.git
+Homepage: https://github.com/FreedomNAS/freedomnas-profiles
+Vcs-Browser: https://github.com/FreedomNAS/freedomnas-profiles
+Vcs-Git: https://github.com/FreedomNAS/freedomnas-profiles.git
 
 Package: freedomnas-profiles
 Architecture: all

@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: freedomnas-profiles
 Upstream-Contact: FreedomNAS Team <dev@freedomnas.io>
-Source: https://codeberg.org/freedomnas/freedomnas-profiles
+Source: https://github.com/FreedomNAS/freedomnas-profiles
 
 Files: *
 Copyright: 2026 FreedomNAS Team

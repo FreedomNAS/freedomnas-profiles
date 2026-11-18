@@ -1,7 +1,7 @@
 {
   "installer_meta": {
     "community_maintained": true,
-    "maintainer_note": "Community-maintained (exotic edition). The installer asks for the init system (installer_meta.init_systems, OpenRC first as the default): installer_meta.init_packages names the init and its elogind provider for basestrap/pacstrap, because base alone lets pacman pick dinit's providers and a later openrc then conflicts with them; packages/*.json carry the per-init service packages (openssh-openrc, openssh-dinit, ...) and service names under init.<name>. basestrap is used on an Artix host; anywhere else — the FreedomNAS live ISO included — pacstrap does the same job from pacman, arch-install-scripts and artix-keyring (freedomnas-overlay), pointed at bootstrap_files.pacman_conf with a throwaway keyring and no host mirrorlist (-M). files.pacman_mirrorlist gives the installed system the same mirror. The kernel is linux-freedomnas with OpenZFS built in, from the FreedomNAS pacman repository (repositories.core), as on Arch: no DKMS, and files.freedomnas_uki_hook rebuilds the UKI on kernel updates because pacman never runs /etc/kernel/postinst.d. zfs-utils-freedomnas ships systemd units only; the service scripts zfs-openrc, zfs-dinit and zfs-runit come from the same repository, built by freedomnas-arch from codeberg.org/sarahmeow86/zfs-openrc and codeberg.org/sarahmeow86/zfs-dinit.",
+    "maintainer_note": "Community-maintained (exotic edition). The installer asks for the init system (installer_meta.init_systems, OpenRC first as the default): installer_meta.init_packages names the init and its elogind provider for basestrap/pacstrap, because base alone lets pacman pick dinit's providers and a later openrc then conflicts with them; packages/*.json carry the per-init service packages (openssh-openrc, openssh-dinit, ...) and service names under init.<name>. basestrap is used on an Artix host; anywhere else — the FreedomNAS live ISO included — pacstrap does the same job from pacman, arch-install-scripts and artix-keyring (freedomnas-overlay), pointed at bootstrap_files.pacman_conf with a throwaway keyring and no host mirrorlist (-M). files.pacman_mirrorlist gives the installed system the same mirror. The kernel is linux-freedomnas with OpenZFS built in, from the FreedomNAS pacman repository (repositories.core), as on Arch: no DKMS, and files.freedomnas_uki_hook rebuilds the UKI on kernel updates because pacman never runs /etc/kernel/postinst.d. zfs-utils-freedomnas ships systemd units only; the service scripts zfs-openrc, zfs-dinit and zfs-runit come from the same repository, built by freedomnas-arch from github.com/sarahmeow86/zfs-openrc and github.com/sarahmeow86/zfs-dinit.",
     "arch": "x86_64",
     "suite": "",
     "init_systems": [
@@ -153,11 +153,11 @@
   },
   "repositories": {
     "core": [
-      "curl -fsSL -o /tmp/freedomnas-arch.key https://codeberg.org/api/packages/FreedomNAS/generic/freedomnas-arch/{channel}/repository.key",
+      "curl -fsSL -o /tmp/freedomnas-arch.key https://github.com/FreedomNAS/freedomnas-arch/releases/download/pacman-{channel}/repository.key",
       "pacman-key --add /tmp/freedomnas-arch.key",
-      "pacman-key --lsign-key 015549123DF4D6D5ADBE4179522C9783DC389A3B",
+      "pacman-key --lsign-key 807A4D2EBFBED77AB609AB0B78840464DBE24D08",
       "rm -f /tmp/freedomnas-arch.key",
-      "grep -q '^\\[freedomnas\\]' /etc/pacman.conf || printf '\\n[freedomnas]\\nSigLevel = Required\\nServer = https://codeberg.org/api/packages/FreedomNAS/generic/freedomnas-arch/{channel}\\n' >> /etc/pacman.conf",
+      "grep -q '^\\[freedomnas\\]' /etc/pacman.conf || printf '\\n[freedomnas]\\nSigLevel = Required\\nServer = https://github.com/FreedomNAS/freedomnas-arch/releases/download/pacman-{channel}\\n' >> /etc/pacman.conf",
       "gpgconf --homedir /etc/pacman.d/gnupg --kill all"
     ]
   },

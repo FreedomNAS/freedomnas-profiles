@@ -174,7 +174,7 @@ Alpine profile from any machine.
     distribution's `/etc/os-release` `ID` in `_DISTRO_IDS` (this is the
     real gate for auto-detection) and its name in `SUPPORTED_OS`. It's
     Python, so it's a separate PR against the [`freedomnas-core`
-    repository](https://codeberg.org/FreedomNAS/freedomnas-core). And
+    repository](https://github.com/FreedomNAS/freedomnas-core). And
     **(b)** an `"alpine"` entry in each relevant `packages/*.json` category
     file (see the packages track above) if you want the optional features
     (Samba, NFS, ...) to be installable too.
@@ -321,7 +321,7 @@ Keep new variable names consistent with existing ones for the same concept
 ## Support
 
 - **Questions?** Open a discussion or issue on
-  [codeberg.org/FreedomNAS/freedomnas-profiles](https://codeberg.org/FreedomNAS/freedomnas-profiles).
+  [github.com/FreedomNAS/freedomnas-profiles](https://github.com/FreedomNAS/freedomnas-profiles).
 - **A command fails on your system?** File an issue with the exact command
   (`engine.get_command(...)` output, not just the action name), your
   OS/version, and the error.
