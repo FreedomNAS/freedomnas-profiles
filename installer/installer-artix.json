@@ -153,11 +153,10 @@
   },
   "repositories": {
     "core": [
-      "curl -fsSL -o /tmp/freedomnas-arch.key https://github.com/FreedomNAS/freedomnas-arch/releases/download/pacman-{channel}/repository.key",
-      "pacman-key --add /tmp/freedomnas-arch.key",
-      "pacman-key --lsign-key 807A4D2EBFBED77AB609AB0B78840464DBE24D08",
-      "rm -f /tmp/freedomnas-arch.key",
-      "grep -q '^\\[freedomnas\\]' /etc/pacman.conf || printf '\\n[freedomnas]\\nSigLevel = Required\\nServer = https://github.com/FreedomNAS/freedomnas-arch/releases/download/pacman-{channel}\\n' >> /etc/pacman.conf",
+      "printf 'Server = https://github.com/FreedomNAS/freedomnas-arch/releases/download/pacman-{channel}\\n' > /etc/pacman.d/freedomnas-mirrorlist",
+      "curl -fsSL -o /tmp/freedomnas-keyring.pkg.tar.zst https://github.com/FreedomNAS/freedomnas-arch/releases/download/pacman-{channel}/freedomnas-keyring.pkg.tar.zst",
+      "pacman -U --noconfirm /tmp/freedomnas-keyring.pkg.tar.zst",
+      "rm -f /tmp/freedomnas-keyring.pkg.tar.zst",
       "gpgconf --homedir /etc/pacman.d/gnupg --kill all"
     ]
   },
