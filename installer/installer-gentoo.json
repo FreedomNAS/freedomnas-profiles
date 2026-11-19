@@ -76,6 +76,9 @@
   "chroot": {
     "exec_prefix": "chroot {root}",
     "clean_package_cache": "find /var/cache/distfiles /var/cache/binpkgs -mindepth 1 -delete",
+    "finalize": [
+      "for d in /etc/portage/gnupg /etc/portage/gnupg.getuto.tmp; do [ -d \"$d\" ] && gpgconf --homedir \"$d\" --kill all; done; true"
+    ],
     "mount": [
       "mount --rbind /dev {root}/dev",
       "mount --make-rslave {root}/dev",
@@ -163,6 +166,7 @@
   },
   "repositories": {
     "core": [
+      "getuto || (sleep 5; getuto) || (sleep 15; getuto)",
       "emerge --quiet --noreplace dev-vcs/git",
       "emaint sync --repo freedomnas",
       "case {channel} in main) kw='~{arch}' ;; *) kw='**' ;; esac; printf 'app-nas/*::freedomnas %s\\n*/*::freedomnas ~{arch}\\n' \"$kw\" > /etc/portage/package.accept_keywords/freedomnas-channel"
