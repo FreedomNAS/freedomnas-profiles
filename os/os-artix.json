@@ -81,7 +81,7 @@
     "ssh_host_key_dir": "/etc/ssh"
   },
   "updates": {
-    "run_topgrade": "su - {username} -c 'topgrade --yes --config /etc/freedomnas/topgrade.toml'",
+    "run_topgrade": "su - {username} -c 'topgrade --yes --no-self-update --config /etc/freedomnas/topgrade.toml'",
     "topgrade_config": "/etc/freedomnas/topgrade.toml"
   },
   "power_button": {

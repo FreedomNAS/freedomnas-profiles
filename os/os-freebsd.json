@@ -66,7 +66,7 @@
     "ssh_host_key_dir": "/etc/ssh"
   },
   "updates": {
-    "run_topgrade": "su - {username} -c 'topgrade --yes --config /usr/local/etc/freedomnas/topgrade.toml'",
+    "run_topgrade": "su - {username} -c 'topgrade --yes --no-self-update --config /usr/local/etc/freedomnas/topgrade.toml'",
     "topgrade_config": "/usr/local/etc/freedomnas/topgrade.toml",
     "be_update": [
       "sh -c 'R=$1; pkg -c \"$R\" which -q /usr/bin/uname >/dev/null 2>&1 && exit 0; set -e; echo \"The base system is not installed as packages yet: converting it (pkgbase)\"; mkdir -p \"$R/usr/local/etc/pkg/repos\"; echo \"FreeBSD-base: {{ enabled: yes }}\" > \"$R/usr/local/etc/pkg/repos/FreeBSD-base.conf\"; grep -qs \"^BACKUP_LIBRARIES\" \"$R/usr/local/etc/pkg.conf\" || echo \"BACKUP_LIBRARIES=yes\" >> \"$R/usr/local/etc/pkg.conf\"; S=\"FreeBSD-set-base FreeBSD-set-kernels\"; [ -e \"$R/usr/lib32/libc.so.7\" ] && S=\"$S FreeBSD-set-lib32\"; [ -e \"$R/usr/lib/debug/lib/libc.so.7.debug\" ] && S=\"$S FreeBSD-set-base-dbg\"; [ -n \"$(ls -A \"$R/usr/lib/debug/boot/kernel\" 2>/dev/null)\" ] && S=\"$S FreeBSD-set-kernels-dbg\"; pkg -c \"$R\" update -r FreeBSD-base; pkg -c \"$R\" install -F -y -r FreeBSD-base $S; pkg -c \"$R\" install --register-only --no-repo-update -y -r FreeBSD-base $S; pkg -c \"$R\" install -f --no-repo-update -y -r FreeBSD-base $(pkg -c \"$R\" query -g %n \"FreeBSD-*\"); chroot \"$R\" pwd_mkdb -p /etc/master.passwd; chroot \"$R\" cap_mkdb /etc/login.conf; rm -f \"$R/boot/kernel/linker.hints\"' pkgbase {root}",
