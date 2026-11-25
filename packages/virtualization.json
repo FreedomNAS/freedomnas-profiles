@@ -1,6 +1,6 @@
 {
   "category": "virtualization",
-  "description": "Virtualization hypervisor — KVM/Bhyve for running virtual machines",
+  "description": "Virtualization hypervisor — QEMU with KVM on Linux, QEMU with NVMM on FreeBSD",
   "debian": {
     "packages": [
       "qemu-kvm",
@@ -24,17 +24,12 @@
   },
   "freebsd": {
     "packages": [
-      "libvirt",
-      "vm-bhyve",
-      "grub2-bhyve"
+      "qemu-nox11",
+      "freedomnas-nvmm"
     ],
     "admin_groups": [],
-    "services": [
-      "libvirtd"
-    ],
-    "config_paths": [
-      "/usr/local/etc/libvirt/libvirtd.conf"
-    ]
+    "services": [],
+    "config_paths": []
   },
   "arch": {
     "packages": [
