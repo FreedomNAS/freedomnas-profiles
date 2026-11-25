@@ -239,6 +239,7 @@
       "content": "# FreedomNAS: the WebUI runs updates as the signed-in user,\n# and topgrade calls sudo itself for the steps that need root.\n%{sudo_group} ALL=(ALL) NOPASSWD: ALL\n"
     },
     "samba_conf": {
+      "inplace": "missing",
       "path": "/etc/samba/smb.conf",
       "content": "# Written by the FreedomNAS installer. Shares are created as usershares\n# (net usershare) by the WebUI, so only the global settings live here.\n[global]\n   workgroup = WORKGROUP\n   server string = FreedomNAS\n   server role = standalone server\n   security = user\n   log file = /var/log/samba/%m.log\n   max log size = 1000\n   usershare path = /var/lib/samba/usershares\n   usershare max shares = 100\n   usershare allow guests = no\n"
     },

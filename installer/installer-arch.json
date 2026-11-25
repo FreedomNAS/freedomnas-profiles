@@ -197,6 +197,7 @@
       "content": "Server = {mirror}/$repo/os/$arch\nServer = https://fastly.mirror.pkgbuild.com/$repo/os/$arch\nServer = https://ftp.fau.de/archlinux/$repo/os/$arch\n"
     },
     "samba_conf": {
+      "inplace": "missing",
       "path": "/etc/samba/smb.conf",
       "content": "# Written by the FreedomNAS installer. Shares are created as usershares\n# (net usershare) by the WebUI, so only the global settings live here.\n[global]\n   workgroup = WORKGROUP\n   server string = FreedomNAS\n   server role = standalone server\n   security = user\n   log file = /var/log/samba/%m.log\n   max log size = 1000\n   usershare path = /var/lib/samba/usershares\n   usershare max shares = 100\n   usershare allow guests = no\n"
     }
