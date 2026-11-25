@@ -162,7 +162,7 @@
     "pkg_repo_conf": {
       "path": "/usr/local/etc/pkg/repos/FreedomNAS.conf",
       "inplace": true,
-      "content": "FreedomNAS: {{\n  url: \"https://github.com/FreedomNAS/freedomnas-freebsd/releases/download/pkg-${{VERSION_MAJOR}}-{channel}\",\n  signature_type: \"pubkey\",\n  pubkey: \"/usr/local/etc/ssl/freedomnas.pub\",\n  enabled: yes\n}}\n"
+      "content": "FreedomNAS: {{\n  url: \"https://github.com/FreedomNAS/freedomnas-freebsd/releases/download/pkg-${{VERSION_MAJOR}}-{channel}\",\n  signature_type: \"pubkey\",\n  pubkey: \"/usr/local/etc/ssl/freedomnas.pub\",\n  priority: 10,\n  enabled: yes\n}}\n"
     }
   },
   "diagnostics": {
